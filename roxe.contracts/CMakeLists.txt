@@ -71,6 +71,10 @@ elseif (UNIX)
 endif()
 set(SECP256K1_ROOT "/usr/local")
 
+set(BOOST_ROOT "/data/roxe/1.0.0/src/boost_1_70_0")
+
+
+
 string(REPLACE ";" "|" TEST_PREFIX_PATH "${CMAKE_PREFIX_PATH}")
 string(REPLACE ";" "|" TEST_FRAMEWORK_PATH "${CMAKE_FRAMEWORK_PATH}")
 string(REPLACE ";" "|" TEST_MODULE_PATH "${CMAKE_MODULE_PATH}")
