@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.5 )
 
-set(ROXE_VERSION_MIN "1.8")
+set(ROXE_VERSION_MIN "1.0")
 set(ROXE_VERSION_SOFT_MAX "1.8")
 #set(ROXE_VERSION_HARD_MAX "")
 
