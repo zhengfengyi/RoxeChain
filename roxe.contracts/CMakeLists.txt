@@ -71,7 +71,7 @@ elseif (UNIX)
 endif()
 set(SECP256K1_ROOT "/usr/local")
 
-# set(BOOST_ROOT "/data/roxe/1.0.0/src/boost_1_70_0")
+set(BOOST_ROOT "/root/roxe/1.8/src/boost_1_70_0")
 
 
 
