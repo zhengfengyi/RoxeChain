@@ -94,4 +94,20 @@ curl -X POST --url http://10.11.5.37:8000/v1/chain/get_table_by_scope -d '{
   "table": "accounts"
 }'
 
+curl -X POST --url http://10.11.5.37:8000/v1/chain/get_table_rows -d '{  
+   "scope":"eosio",
+   "code":"eosio.token",
+   "table":"accounts",
+   "json":true
+}'
+
+
+
+curl -X POST --url http://10.11.5.37:8000/v1/chain/get_code_hash -d '{
+  "account_name": "eosio.token"
+}'
+
+
+curl  http://10.11.5.37:8000/v1/wallet/list_keys
+
 ```
