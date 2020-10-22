@@ -1,8 +1,8 @@
-const { chain,wallet } = require('../index');
+const { chain, wallet } = require('../index');
 const w = wallet();
 const c = chain();
 
-const { DEFAULT_WALLET_PRIVATE_KEY, PRIVATE_KEY_INITA, PRIVATE_KEY_2,PRIVATE_KEY_1 } = require('../config');
+const { DEFAULT_WALLET_PRIVATE_KEY, PRIVATE_KEY_INITA, PRIVATE_KEY_2, PRIVATE_KEY_1 } = require('../config');
 
 const WALLET_NAME = String(Date.now())
 let WALLET_PASSWORD = '';
@@ -194,7 +194,7 @@ describe('WALLET - #wallet_set_timeout', () => {
 
 describe('WALLET - #wallet_sign_trx', () => {
     it('should set wallet timeout', async () => {
-       
+
         let actions = [{
             account: 'eosio.token',
             name: 'transfer',
@@ -260,7 +260,7 @@ describe('WALLET - #wallet_sign_trx', () => {
             signatures,
         },
         ["EOS7yBtksm8Kkg85r4in4uCbfN77uRwe82apM8jjbhFVDgEgz3w8S"],
-            info.chain_id
+        info.chain_id
         ])
         //.then(res => {
         expect(res).toBeDefined()

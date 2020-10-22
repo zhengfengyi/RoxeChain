@@ -25,7 +25,7 @@ module.exports = (HOST, WALLET_PORT) => {
      * open
      * @param {string} name wallet name.
      */
-    api.open =async (name) => new Promise((resolve, reject) => {
+    api.open = async (name) => new Promise((resolve, reject) => {
         const PATH = `/v1/wallet/open`;
         request
             .post(genURL(PATH))
@@ -57,7 +57,7 @@ module.exports = (HOST, WALLET_PORT) => {
      * lock_all
      * @param {string} name wallet name.
      */
-    api.lock_all =async (name) => new Promise((resolve, reject) => {
+    api.lock_all = async (name) => new Promise((resolve, reject) => {
         const PATH = `/v1/wallet/lock_all`;
         request
             .post(genURL(PATH))
@@ -74,7 +74,7 @@ module.exports = (HOST, WALLET_PORT) => {
      * @param {string} name wallet name.
      * @param {string} password wallet password.
      */
-    api.unlock =async (name, password) => new Promise((resolve, reject) => {
+    api.unlock = async (name, password) => new Promise((resolve, reject) => {
         const PATH = `/v1/wallet/unlock`;
         request
             .post(genURL(PATH))
@@ -91,7 +91,7 @@ module.exports = (HOST, WALLET_PORT) => {
      * @param {string} name wallet name.
      * @param {string} password wallet password.
      */
-    api.import_key =async (name, password) => new Promise((resolve, reject) => {
+    api.import_key = async (name, password) => new Promise((resolve, reject) => {
         const PATH = `/v1/wallet/import_key`;
         request
             .post(genURL(PATH))
@@ -149,7 +149,7 @@ module.exports = (HOST, WALLET_PORT) => {
     /**
      * wallet_set_timeout
      */
-    api.set_timeout =async (timeout) => new Promise((resolve, reject) => {
+    api.set_timeout = async (timeout) => new Promise((resolve, reject) => {
         const PATH = `/v1/wallet/set_timeout`;
         request
             .post(genURL(PATH))
@@ -164,7 +164,7 @@ module.exports = (HOST, WALLET_PORT) => {
     /**
      * wallet_sign_trx
      */
-    api.wallet_sign_trx =async  (x_action) => new Promise((resolve, reject) => {
+    api.wallet_sign_trx = async (x_action) => new Promise((resolve, reject) => {
         const PATH = `/v1/wallet/sign_transaction`;
         request
             .post(genURL(PATH))

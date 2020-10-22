@@ -74,7 +74,7 @@ describe('X-Action - #create() ', () => {
             signatures,
         },
         ["EOS7yBtksm8Kkg85r4in4uCbfN77uRwe82apM8jjbhFVDgEgz3w8S"],
-            info.chain_id
+        info.chain_id
         ])
         // .then(sig => {
         // console.log(sig);
