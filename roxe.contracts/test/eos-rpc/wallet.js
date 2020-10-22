@@ -171,6 +171,7 @@ module.exports = (HOST, WALLET_PORT) => {
             .set('accept', 'json')
             .send(x_action)
             .end((err, res) => {
+                // console.log(res.req);
                 if (res && res.body) return resolve(res.body);
                 return reject(err ? err : new Error('no err or res'))
             });

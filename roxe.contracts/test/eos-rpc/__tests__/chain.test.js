@@ -32,13 +32,15 @@ describe('CHAIN - #get_block() ', () => {
         c.get_block(BLOCK)
             .then(res => {
                 expect(res).toBeDefined()
-                expect(res.previous).toBeDefined()
                 expect(res.timestamp).toBeDefined()
-                expect(res.transaction_merkle_root).toBeDefined()
                 expect(res.producer).toBeDefined()
-                expect(res.producer_changes).toBeDefined()
+                expect(res.previous).toBeDefined()
+                expect(res.transaction_mroot).toBeDefined()
+                expect(res.action_mroot).toBeDefined()
+                expect(res.schedule_version).toBeDefined()
+                expect(res.new_producers).toBeDefined()
                 expect(res.producer_signature).toBeDefined()
-                expect(res.cycles).toBeDefined()
+                expect(res.transactions).toBeDefined()
                 expect(res.id).toBeDefined()
                 expect(res.block_num).toBe(BLOCK)
                 expect(res.ref_block_prefix).toBeDefined()
@@ -46,25 +48,6 @@ describe('CHAIN - #get_block() ', () => {
     })
 })
 
-describe('CHAIN - #get_block() ', () => {
-    it('should load block info', () => {
-        const BLOCK = 4;
-        c.get_block(BLOCK)
-            .then(res => {
-                expect(res).toBeDefined()
-                expect(res.previous).toBeDefined()
-                expect(res.timestamp).toBeDefined()
-                expect(res.transaction_merkle_root).toBeDefined()
-                expect(res.producer).toBeDefined()
-                expect(res.producer_changes).toBeDefined()
-                expect(res.producer_signature).toBeDefined()
-                expect(res.cycles).toBeDefined()
-                expect(res.id).toBeDefined()
-                expect(res.block_num).toBe(BLOCK)
-                expect(res.ref_block_prefix).toBeDefined()
-            })
-    })
-})
 
 describe('CHAIN - #get_account() ', () => {
     it('should load account info', () => {
@@ -82,8 +65,8 @@ describe('CHAIN - #get_account() ', () => {
     })
 })
 
-describe('CHAIN - #get_code() ', () => {
-    it('should load contract code', () => {
+describe('CHAIN - #get_code_hash() ', () => {
+    it('should load contract code hash', () => {
         const ACCOUNT_NAME = 'eosio.token';
         c.get_code_hash(ACCOUNT_NAME)
             .then(res => {
@@ -102,7 +85,7 @@ describe('CHAIN - #get_code() ', () => {
 
 describe('CHAIN - #get_table_rows() ', () => {
     it('should load table rows', () => {
-        c.get_table_rows('eosio','eosio.token', 'accounts', true)
+        c.get_table_rows('eosio', 'eosio.token', 'accounts', true)
             .then(res => {
                 expect(res).toBeDefined()
                 expect(res.rows).toBeDefined()
@@ -117,7 +100,7 @@ describe('CHAIN - #get_table_rows() ', () => {
 
 describe('CHAIN - #abi_json_to_bin() ', () => {
     it('should load bin', () => {
-        c.abi_json_to_bin('eosio.token', 'transfer', { from: 'useraaaaaaab', to: 'useraaaaaaac', quantity: '10.0000 SYS',memo:''})
+        c.abi_json_to_bin('eosio.token', 'transfer', { from: 'useraaaaaaab', to: 'useraaaaaaac', quantity: '10.0000 SYS', memo: '' })
             .then(res => {
                 expect(res).toBeDefined()
                 expect(res.binargs).toBeDefined()
