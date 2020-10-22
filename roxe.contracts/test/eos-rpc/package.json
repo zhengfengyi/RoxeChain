@@ -4,7 +4,9 @@
   "description": "An rpc api for the EOS blockchain",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watch --runInBand"
+    "test": "jest --watch --runInBand",
+    "t": "jest "
+
   },
   "keywords": [
     "EOS",

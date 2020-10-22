@@ -107,6 +107,10 @@ curl -X POST --url http://10.11.5.37:8000/v1/chain/get_code_hash -d '{
   "account_name": "eosio.token"
 }'
 
+curl -X POST --url http://10.11.5.37:8000/v1/chain/get_account -d '{
+  "account_name": "eosio.token"
+}'
+
 
 curl  http://10.11.5.37:8000/v1/wallet/list_keys
 
