@@ -1,5 +1,5 @@
 
-CLS=$(/data/roxe/test/cls
+CLS=/data/roxe/test/cls
 
 case "$1" in
 "u") $CLS wallet unlock -n v --password PW5KSexTLPfZxhbFKTvjhV6MgyDLmsmMN6Vhp2bSGoRqoDkqFNfoD ;;
