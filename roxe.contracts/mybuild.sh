@@ -1,1 +1,1 @@
-./build.sh -e /data/roxe/actc/build -c /data/roxe/actc/roxe.cdt/build -t 
+./build.sh -e /data/roxe/actc/build -c /data/roxe/actc/roxe.cdt/build $#
