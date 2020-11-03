@@ -1,7 +1,7 @@
-#include "eosio.system_tester.hpp"
+#include "roxe.system_tester.hpp"
 #include <boost/test/unit_test.hpp>
-#include <eosio/chain/abi_serializer.hpp>
-#include <eosio/testing/tester.hpp>
+#include <roxe/chain/abi_serializer.hpp>
+#include <roxe/testing/tester.hpp>
 
 #include "Runtime/Runtime.h"
 
@@ -14,17 +14,17 @@
 #else
 #define LINE_DEBUG
 #endif
-using namespace eosio::testing;
-using namespace eosio;
-using namespace eosio::chain;
-using namespace eosio::testing;
+using namespace roxe::testing;
+using namespace roxe;
+using namespace roxe::chain;
+using namespace roxe::testing;
 using namespace fc;
 using namespace std;
 
 using mvo       = fc::mutable_variant_object;
 using uint_eth  = uint64_t;
 using uint256_x = uint64_t;
-using namesym   = eosio::chain::uint128_t;
+using namesym   = roxe::chain::uint128_t;
 using address   = name;
 class findx {
  public:
@@ -45,8 +45,8 @@ class eosdos_tester : public tester {
    eosdos_tester() {
       produce_blocks(2);
 
-      create_accounts({N(eosio.token), N(eosio.ram), N(eosio.ramfee), N(eosio.stake), N(eosio.bpay), N(eosio.vpay),
-                       N(eosio.saving), N(eosio.names), N(eosio.rex)});
+      create_accounts({N(roxe.token), N(roxe.ram), N(roxe.ramfee), N(roxe.stake), N(roxe.bpay), N(roxe.vpay),
+                       N(roxe.saving), N(roxe.names), N(roxe.rex)});
 
       create_accounts({N(alice), N(bob), N(carol), N(eosdoseosdos), N(eosdosoracle), N(ethbasemkr11), N(ethquotemkr1),
                        N(maintainer11), N(tokenissuer1), N(dodoowner111)});
@@ -66,20 +66,20 @@ class eosdos_tester : public tester {
       set_abi(N(eosdoseosdos), contracts::dos_abi().data());
       produce_blocks(2);
 
-      set_code(N(eosio.token), contracts::token_wasm());
-      set_abi(N(eosio.token), contracts::token_abi().data());
+      set_code(N(roxe.token), contracts::token_wasm());
+      set_abi(N(roxe.token), contracts::token_abi().data());
 
-      create_currency(N(eosio.token), config::system_account_name, core_sym::from_string("10000000000.0000"));
+      create_currency(N(roxe.token), config::system_account_name, core_sym::from_string("10000000000.0000"));
       issue(config::system_account_name, core_sym::from_string("1000000000.0000"));
       BOOST_REQUIRE_EQUAL(
           core_sym::from_string("1000000000.0000"), get_balance(config::system_account_name) +
-                                                        get_balance(N(eosio.ramfee)) + get_balance(N(eosio.stake)) +
-                                                        get_balance(N(eosio.ram)));
+                                                        get_balance(N(roxe.ramfee)) + get_balance(N(roxe.stake)) +
+                                                        get_balance(N(roxe.ram)));
 
       create_currency(
-          N(eosio.token), config::system_account_name, eosio::chain::asset::from_string("10000000000.0000 EOS"));
+          N(roxe.token), config::system_account_name, roxe::chain::asset::from_string("10000000000.0000 EOS"));
 
-      issue(config::system_account_name, eosio::chain::asset::from_string("1000000000.0000 EOS"));
+      issue(config::system_account_name, roxe::chain::asset::from_string("1000000000.0000 EOS"));
 
       set_code(config::system_account_name, contracts::system_wasm());
       set_abi(config::system_account_name, contracts::system_abi().data());
@@ -89,10 +89,10 @@ class eosdos_tester : public tester {
           mutable_variant_object()("version", 0)("core", CORE_SYM_STR));
       produce_blocks();
 
-      create_account_with_resources(N(alice1111111), N(eosio), core_sym::from_string("1.0000"), false);
-      create_account_with_resources(N(bob111111111), N(eosio), core_sym::from_string("0.4500"), false);
-      create_account_with_resources(N(carol1111111), N(eosio), core_sym::from_string("1.0000"), false);
-      create_account_with_resources(N(david1111111), N(eosio), core_sym::from_string("1.0000"), false);
+      create_account_with_resources(N(alice1111111), N(roxe), core_sym::from_string("1.0000"), false);
+      create_account_with_resources(N(bob111111111), N(roxe), core_sym::from_string("0.4500"), false);
+      create_account_with_resources(N(carol1111111), N(roxe), core_sym::from_string("1.0000"), false);
+      create_account_with_resources(N(david1111111), N(roxe), core_sym::from_string("1.0000"), false);
 
       set_code(N(eosdosxtoken), contracts::token_wasm());
       set_abi(N(eosdosxtoken), contracts::token_abi().data());
@@ -113,7 +113,7 @@ class eosdos_tester : public tester {
       //      std::string token     = tokens[j++];
       //      std::string amount    = "10000000000.0000 " + token;
       //      std::string tamount   = amt + token;
-      //      asset       maxsupply = eosio::chain::asset::from_string(amount.c_str());
+      //      asset       maxsupply = roxe::chain::asset::from_string(amount.c_str());
       //      name        acc       = name(acc_name.c_str());
 
       //      create_currency(N(eosdosxtoken), acc, maxsupply);
@@ -141,11 +141,11 @@ class eosdos_tester : public tester {
    }
 
    auto push_permission_update_auth_action(const account_name& signer) {
-      auto auth = authority(eosio::testing::base_tester::get_public_key(signer, "active"));
-      auth.accounts.push_back(permission_level_weight{{N(eosdoseosdos), config::eosio_code_name}, 1});
+      auto auth = authority(roxe::testing::base_tester::get_public_key(signer, "active"));
+      auth.accounts.push_back(permission_level_weight{{N(eosdoseosdos), config::roxe_code_name}, 1});
 
       return base_tester::push_action(
-          N(eosio), N(updateauth), signer,
+          N(roxe), N(updateauth), signer,
           mvo()("account", signer)("permission", "active")("parent", "owner")("auth", auth));
    }
 
@@ -198,11 +198,11 @@ class eosdos_tester : public tester {
               .creator = creator, .name = a, .owner = owner_auth, .active = authority(get_public_key(a, "active"))});
 
       trx.actions.emplace_back(get_action(
-          N(eosio), N(buyram), vector<permission_level>{{creator, config::active_name}},
+          N(roxe), N(buyram), vector<permission_level>{{creator, config::active_name}},
           mvo()("payer", creator)("receiver", a)("quant", ramfunds)));
 
       trx.actions.emplace_back(get_action(
-          N(eosio), N(delegatebw), vector<permission_level>{{creator, config::active_name}},
+          N(roxe), N(delegatebw), vector<permission_level>{{creator, config::active_name}},
           mvo()("from", creator)("receiver", a)("stake_net_quantity", net)("stake_cpu_quantity", cpu)("transfer", 0)));
 
       set_transaction_headers(trx);
@@ -221,13 +221,13 @@ class eosdos_tester : public tester {
 
    void issue(name to, const asset& amount, name manager = config::system_account_name) {
       base_tester::push_action(
-          N(eosio.token), N(issue), manager, mutable_variant_object()("to", to)("quantity", amount)("memo", ""));
+          N(roxe.token), N(issue), manager, mutable_variant_object()("to", to)("quantity", amount)("memo", ""));
    }
    void transfer(
        name from, name to, const string& amount, name manager = config::system_account_name,
        const std::string& memo = "") {
       base_tester::push_action(
-          N(eosio.token), N(transfer), manager,
+          N(roxe.token), N(transfer), manager,
           mutable_variant_object()("from", from)("to", to)("quantity", core_sym::from_string(amount))("memo", memo));
    }
 
@@ -236,7 +236,7 @@ class eosdos_tester : public tester {
        const std::string& memo = "") {
       base_tester::push_action(
           contract, N(transfer), manager,
-          mutable_variant_object()("from", from)("to", to)("quantity", eosio::chain::asset::from_string(amount))(
+          mutable_variant_object()("from", from)("to", to)("quantity", roxe::chain::asset::from_string(amount))(
               "memo", memo));
    }
 
@@ -247,7 +247,7 @@ class eosdos_tester : public tester {
       // is N(account).
       const auto& db = control->db();
       const auto* tbl =
-          db.find<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), act, N(accounts)));
+          db.find<table_id_object, by_code_scope_table>(boost::make_tuple(N(roxe.token), act, N(accounts)));
       share_type result = 0;
 
       // the balance is implied to be 0 if either the table or row does not exist
@@ -565,7 +565,7 @@ class eosdos_tester : public tester {
       return to_asset(sym, static_cast<int64_t>(to_wei(value)));
    }
 
-   extended_symbol get_core_symbol() { return extended_symbol{symbol{CORE_SYM}, name{"eosio.token"}}; }
+   extended_symbol get_core_symbol() { return extended_symbol{symbol{CORE_SYM}, name{"roxe.token"}}; }
 
    symbol to_sym_from_string(const std::string& sym) { return symbol{4, sym.c_str()}; }
 
@@ -800,7 +800,7 @@ BOOST_FIXTURE_TEST_CASE(buy_eth_with_token_tests, eosdos_tester) try {
    BOOST_TEST_CHECK("89999" == store["_BASE_BALANCE_"].as_string());
    std::string quote_token_name = "MKR";
    auto        sym              = to_sym_from_string(quote_token_name);
-   auto        c                = eosio::chain::asset::from_string("899.9700 " + quote_token_name);
+   auto        c                = roxe::chain::asset::from_string("899.9700 " + quote_token_name);
    auto        b                = get_balancex(trader, sym);
    BOOST_TEST_CHECK(c == b);
    // 898581839502056240973
@@ -815,7 +815,7 @@ BOOST_FIXTURE_TEST_CASE(sell_eth_to_token_tests, eosdos_tester) try {
 
    std::string token_name = "MKR";
    auto        sym        = to_sym_from_string(token_name);
-   auto        c          = eosio::chain::asset::from_string("1099.9690 " + token_name);
+   auto        c          = roxe::chain::asset::from_string("1099.9690 " + token_name);
    auto        b          = get_balancex(trader, sym);
    BOOST_TEST_CHECK(c == b);
    // 1098617454226610630663
@@ -827,7 +827,7 @@ BOOST_FIXTURE_TEST_CASE(withdraw_eth_as_base_tests, eosdos_tester) try {
    withdraweab(lp, to_wei_asset("WETH", 5), to_sym("MKR"));
    std::string token_name = "WETH";
    auto        sym        = to_lp_esym(token_name, dodo_ethbase_name);
-   auto        c          = eosio::chain::asset::from_string("5.0000 " + token_name);
+   auto        c          = roxe::chain::asset::from_string("5.0000 " + token_name);
    auto        b          = get_balancex(lp, sym.sym, sym.contract);
    BOOST_TEST_CHECK(c == b);
 }
@@ -838,7 +838,7 @@ BOOST_FIXTURE_TEST_CASE(withdraw_all_eth_as_base_tests, eosdos_tester) try {
    withdrawaeab(lp, to_sym("MKR"));
    std::string token_name = "WETH";
    auto        sym        = to_lp_esym(token_name, dodo_ethbase_name);
-   auto        c          = eosio::chain::asset::from_string("0.0000 " + token_name);
+   auto        c          = roxe::chain::asset::from_string("0.0000 " + token_name);
    auto        b          = get_balancex(lp, sym.sym, sym.contract);
    BOOST_TEST_CHECK(c == b);
 }
@@ -854,7 +854,7 @@ BOOST_FIXTURE_TEST_CASE(buy_token_with_eth_tests, eosdos_tester) try {
    BOOST_TEST_CHECK("120008" == store["_QUOTE_BALANCE_"].as_string());
    std::string quote_token_name = "MKR";
    auto        sym              = to_sym_from_string(quote_token_name);
-   auto        c                = eosio::chain::asset::from_string("1200.0000 " + quote_token_name);
+   auto        c                = roxe::chain::asset::from_string("1200.0000 " + quote_token_name);
    auto        b                = get_balancex(trader, sym);
    BOOST_TEST_CHECK(c == b);
 
@@ -885,7 +885,7 @@ BOOST_FIXTURE_TEST_CASE(sell_token_to_eth_tests, eosdos_tester) try {
 
    std::string token_name = "MKR";
    auto        sym        = to_sym_from_string(token_name);
-   auto        c          = eosio::chain::asset::from_string("950.0000 " + token_name);
+   auto        c          = roxe::chain::asset::from_string("950.0000 " + token_name);
    auto        b          = get_balancex(trader, sym);
    BOOST_TEST_CHECK(c == b);
 
@@ -910,7 +910,7 @@ BOOST_FIXTURE_TEST_CASE(withdraw_eth_as_quote_tests, eosdos_tester) try {
    withdraweaq(lp, to_wei_asset("WETH", 5), to_sym("MKR"));
    std::string token_name = "WETH";
    auto        sym        = to_lp_esym(token_name, dodo_ethquote_name);
-   auto        c          = eosio::chain::asset::from_string("5.0000 " + token_name);
+   auto        c          = roxe::chain::asset::from_string("5.0000 " + token_name);
    auto        b          = get_balancex(lp, sym.sym, sym.contract);
    BOOST_TEST_CHECK(c == b);
    //    const withdrawAmount = decimalStr("5");
@@ -929,7 +929,7 @@ BOOST_FIXTURE_TEST_CASE(withdraw_all_eth_as_quote_tests, eosdos_tester) try {
    withdrawaeaq(lp, to_sym("MKR"));
    std::string token_name = "WETH";
    auto        sym        = to_lp_esym(token_name, dodo_ethquote_name);
-   auto        c          = eosio::chain::asset::from_string("0.0000 " + token_name);
+   auto        c          = roxe::chain::asset::from_string("0.0000 " + token_name);
    auto        b          = get_balancex(lp, sym.sym, sym.contract);
    BOOST_TEST_CHECK(c == b);
 
@@ -971,7 +971,7 @@ BOOST_FIXTURE_TEST_CASE(mint_tests, eosdos_tester) try {
 
    std::string quote_token_name = "WETH";
    auto        sym              = to_sym_from_string(quote_token_name);
-   auto        a                = eosio::chain::asset::from_string("5.0000 " + quote_token_name);
+   auto        a                = roxe::chain::asset::from_string("5.0000 " + quote_token_name);
    auto        b                = get_balancex(trader, sym);
    BOOST_REQUIRE_EQUAL(a, b);
 }
@@ -985,7 +985,7 @@ BOOST_FIXTURE_TEST_CASE(extransfer_tests, eosdos_tester) try {
    const symbol& sym = max_supply.quantity.get_symbol();
    extransfer(N(alice1111111), maintainer, max_supply);
 
-   BOOST_REQUIRE_EQUAL(eosio::chain::asset::from_string("0.0001 " + token_name), get_balancex(maintainer, sym));
+   BOOST_REQUIRE_EQUAL(roxe::chain::asset::from_string("0.0001 " + token_name), get_balancex(maintainer, sym));
 }
 FC_LOG_AND_RETHROW()
 
