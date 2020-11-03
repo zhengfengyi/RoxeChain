@@ -1,4 +1,14 @@
-CLS=/data/roxe/test/clroxe
+NODEOSBINDIR="./bin"
+
+NODEHOST="127.0.0.1"
+NODEPORT="8888"
+
+WALLETHOST="127.0.0.1"
+WALLETPORT="8889"
+
+# $NODEOSBINDIR/clroxe -u http://$NODEHOST:$NODEPORT --wallet-url http://$WALLETHOST:$WALLETPORT "$@"
+
+CLS=/data/roxe/test/bin/clroxe -u http://$NODEHOST:$NODEPORT --wallet-url http://$WALLETHOST:$WALLETPORT 
 
 case "$1" in
 "u") $CLS wallet unlock -n v --password PW5KSexTLPfZxhbFKTvjhV6MgyDLmsmMN6Vhp2bSGoRqoDkqFNfoD ;;
