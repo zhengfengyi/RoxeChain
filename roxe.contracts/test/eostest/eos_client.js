@@ -151,7 +151,7 @@ class EosClient {
     }
 
     allowSwapContracts() {
-  this.allowSwapContract(admin, admin_pub);
+        this.allowSwapContract(admin, admin_pub);
         this.allowSwapContract(tokenowner, tokenowner_pub);
         this.allowSwapContract(nonadmin, pub);
         this.allowSwapContract(user1, user1_pub);
@@ -189,7 +189,7 @@ class EosClient {
                 },
                     {
                         scope: swapContract,
-                        authorization: [`${user}@${process.env.SWAP_PERMISSION || 'active'}`,`${admin}@${process.env.SWAP_PERMISSION || 'active'}`]
+                        authorization: [`${user}@${process.env.SWAP_PERMISSION || 'active'}`, `${admin}@${process.env.SWAP_PERMISSION || 'active'}`]
                     })
                     .then(results => {
                         console.log(__line); console.log("results:", results);
