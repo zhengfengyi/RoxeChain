@@ -12,6 +12,7 @@
     "async": "^3.1.0",
     "colors": "*",
     "dotenv": "^6.0.0",
+    "dotenv-parse-variables": "^1.0.1",
     "eosjs": "^16.0.9",
     "eosjs-api": "^7.0.4",
     "fetch": "^1.1.0",

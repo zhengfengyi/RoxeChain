@@ -1,8 +1,8 @@
 const chain = require('./chain');
 const wallet = require('./wallet');
 
-let HOST = '10.11.5.37';
-let CHAIN_PORT = '8000';
+let HOST = '10.100.1.10';
+let CHAIN_PORT = '8888';
 let WALLET_PORT = '6666';
 
 module.exports = {
