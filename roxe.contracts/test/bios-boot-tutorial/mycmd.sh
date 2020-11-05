@@ -17,9 +17,11 @@ $CLS system newaccount roxe1 carol1111111 ROXE6bYcFRBBLugKtxfkNxnyyrxUFV2LMGT3h9
 $CLS set contract eosdosxtoken /data/roxe/balanceos/RoxeChain/roxe.contracts/build/contracts/roxe.token -p eosdosxtoken
 $CLS set contract ethbasemkr11 /data/roxe/balanceos/RoxeChain/roxe.contracts/build/contracts/roxe.token -p ethbasemkr11
 $CLS set contract ethquotemkr1 /data/roxe/balanceos/RoxeChain/roxe.contracts/build/contracts/roxe.token -p ethquotemkr1
+;;
+"e")  
 $CLS set contract eosdoseosdos /data/roxe/balanceos/RoxeChain/roxe.contracts/build/contracts/eosdos -p eosdoseosdos
 ;;
-"d") 
+"s") 
 $CLS system newaccount roxe1 daimkrdaimkr ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH --stake-net "10000.0000 ROC" --stake-cpu "10000.0000 ROC" --buy-ram "10000.0000 ROC" -p roxe1@active
 $CLS set contract daimkrdaimkr /data/roxe/balanceos/RoxeChain/roxe.contracts/build/contracts/roxe.token -p ethquotemkr1
 ;;
