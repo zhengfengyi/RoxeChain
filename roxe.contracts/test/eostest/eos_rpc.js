@@ -3,13 +3,24 @@ let { chain, wallet } = require('../eos-rpc');
 // Host defaults to 127.0.0.1, chain_port: 8888, wallet_port: 8888
 const c = chain();
 const w = wallet();
-const WALLET_NAME = String(Date.now());
-let password = '';
+const WALLET_NAME = "nn";//String(Date.now());   PW5JUgVnkvL6TwRU1kVZc6VBPTfgXmVzDwgEcJ3utkt8oGox1ToAn
+let password = 'PW5JUgVnkvL6TwRU1kVZc6VBPTfgXmVzDwgEcJ3utkt8oGox1ToAn';
 module.exports = () => {
     const api = {};
+    api.create_wallet = async (wallet_name) => {
+        const name = `${WALLET_NAME}`
+        let res = await w.create(wallet_name);
+        console.log(wallet_name, "===", JSON.stringify(res));
+        password = res;
+        for (const pvt of private_keys) {
+            res = await w.import_key(name, pvt)
+        }
+        return res;
+    };
     api.import_keys = async (private_keys) => {
-        const name = `dos${WALLET_NAME}`
-        let res = await w.create(name)
+        const name = `${WALLET_NAME}`
+        let res = await w.unlock(name, password);;///await w.create(name);
+        console.log(JSON.stringify(res));
         password = res;
         for (const pvt of private_keys) {
             res = await w.import_key(name, pvt)
@@ -31,6 +42,13 @@ module.exports = () => {
         const b = await c.get_block(ref_block_num)
         const ref_block_prefix = b.ref_block_prefix;
         const expiration = new Date(new Date(b.timestamp).getTime() + ((8 * 60 + 2) * 60000)).toISOString().split('.')[0]; //"2018-01-09T10:28:49"
+        try {
+            const name = `${WALLET_NAME}`
+            res = await w.unlock(name, password);
+            console.log("====", name, "======unlock======", JSON.stringify(res));
+        } catch (error) {
+            console.log("unlock", error);
+        }
 
         let bin = {};
         // get abi_json_to_bin
@@ -39,6 +57,7 @@ module.exports = () => {
             // set data in message
             a.data = bin.binargs;
         }
+
 
         // const available_keys = [
         //     'EOS4toFS3YXEQCkuuw1aqDLrtHim86Gz9u3hBdcBw5KNPZcursVHq',
@@ -65,7 +84,7 @@ module.exports = () => {
         // push the transaction
         const xAction = await c.push_transaction(compression, { expiration, ref_block_num, ref_block_prefix, context_free_actions, actions, transaction_extensions }, sig.signatures);
 
-        return [xAction,bin,sig];
+        return [bin, sig, xAction];
     };
 
 

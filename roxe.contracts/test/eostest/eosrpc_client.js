@@ -65,6 +65,8 @@ const dosContract = process.env.DOS_CONTRACT;
 //        dodo_ethbase_name  = N(ethbasemkr11);
 //        dodo_ethquote_name = N(ethquotemkr1);
 
+//cosnt      doowner            = "dodoowner111";
+const bp = "roxe1";
 const lp = "alice1111111";
 const trader = "bob111111111";
 const hexuser = "carol1111111";
@@ -72,18 +74,24 @@ const admin = "eosdoseosdos";
 const tokenowner = "eosdosxtoken";
 const tokenissuer = "tokenissuer1";
 const maintainer = "maintainer11";
+const oracleadmin = "eosdosoracle";
+const doowner = admin;
 const dodo_ethbase_name = "ethbasemkr11";
 const dodo_ethquote_name = "ethquotemkr1";
+const dodo_stablecoin_name = "daimkrdaimkr";
 const admin_pub = "ROXE6m2TpGWE59yDPWuBaB3xSJSgYWkggzSTuDv5vLfS3hYzB6UTU2";
 const tokenowner_pub = "ROXE5rM2nqtmCqyeRMpmQQMVTMYYZ9VYq9JDgve4t3Gzy6gVU1wB1z";
 const pub = "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH";
 const trader_pub = "ROXE6bYcFRBBLugKtxfkNxnyyrxUFV2LMGT3h9GcDisd6QYUyt2xfX";
 
 acc2pub_keys = {
-    "eosdoseosdos": "ROXE6m2TpGWE59yDPWuBaB3xSJSgYWkggzSTuDv5vLfS3hYzB6UTU2",
+    "roxe1": "ROXE6m2TpGWE59yDPWuBaB3xSJSgYWkggzSTuDv5vLfS3hYzB6UTU2",
+    "eosdoseosdos": "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH",
     "eosdosxtoken": "ROXE5rM2nqtmCqyeRMpmQQMVTMYYZ9VYq9JDgve4t3Gzy6gVU1wB1z",
+    "eosdosoracle": "ROXE5rM2nqtmCqyeRMpmQQMVTMYYZ9VYq9JDgve4t3Gzy6gVU1wB1z",
     "ethbasemkr11": "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH",
     "ethquotemkr1": "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH",
+    "daimkrdaimkr": "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH",
     "tokenissuer1": "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH",
     "maintainer11": "ROXE6m2TpGWE59yDPWuBaB3xSJSgYWkggzSTuDv5vLfS3hYzB6UTU2",
     "alice1111111": "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH",
@@ -206,19 +214,35 @@ function to_max_supply(sym) {
 }
 
 function get_core_symbol() {
-    return { sym: "4,ROC", contract: 'roxe.token' };
+    return { symbol: "4,ROC", contract: 'roxe.token' };
 }
 
 function to_sym(sym) {
-    return { sym: "4," + sym, contract: 'eosdosxtoken' };
+    return { symbol: "4," + sym, contract: 'eosdosxtoken' };
+}
+const decimals = Math.pow(10, 4);
+function tounit(value) {
+    return todecimal(scalar_decimals(value));
+}
+
+function todecimal(value) {
+    return Number(Number(value) / Number(decimals)).toFixed(4)+ " ";
+}
+
+function scalar_decimals(value) {
+    return Number(value) * Number(decimals);
+}
+
+function to_core_asset(value, sym) {
+    return { quantity: tounit(value) + sym, contract: "roxe.token" };
 }
 
 function to_asset(value, sym) {
-    return { quantity: value + ".0000 " + sym, contract: "eosdosxtoken" };
+    return { quantity: todecimal(value) + sym, contract: "eosdosxtoken" };
 }
 
 function to_wei_asset(value, sym) {
-    return to_asset(value + "00", sym);
+    return to_asset(scalar_decimals(value), sym);
 }
 
 class EosClient {
@@ -234,7 +258,6 @@ class EosClient {
         for (let acc of accounts) {
             this.allowDosContract(acc, acc2pub_keys[acc]);
         }
-
     }
 
     async import_keys() {
@@ -267,9 +290,9 @@ class EosClient {
         console.log(__line); prettyJson(results);
     }
 
-    async mint(issuer, to, amount) {
+    async mint(to, amount) {
 
-        const results = await pushTransaction(issuer, "mint", {
+        const results = await pushTransaction(to, "mint", {
             msg_sender: to,
             amt: amount
         });
@@ -284,11 +307,11 @@ class EosClient {
             token: token
         });
 
-        console.log(__line); console.log("results:", JSON.stringify(results));
+        console.log(__line); prettyJson(results);
     }
 
     async setprice(msg_sender, amt) {
-        const results = await pushTransaction(admin, "setprice", {
+        const results = await pushTransaction(msg_sender, "setprice", {
             msg_sender: msg_sender,
             amt: amt
         });
@@ -303,25 +326,27 @@ class EosClient {
     }
 
     async enablex(msg_sender, dodo_name, action_name) {
-        const results = await pushTransaction(admin, dodo_name, action_name, {
+        const results = await pushTransaction(msg_sender, action_name, {
             msg_sender: msg_sender,
             dodo_name: dodo_name
         });
         console.log(__line); prettyJson(results);
     }
 
-    async depositquote(msg_sender, dodo_name) {
+    async depositquote(msg_sender, dodo_name, amt) {
         const results = await pushTransaction(msg_sender, "depositquote", {
             msg_sender: msg_sender,
-            dodo_name: dodo_name
+            dodo_name: dodo_name,
+            amt: amt
         });
         console.log(__line); prettyJson(results);
     }
 
-    async depositbase(msg_sender, dodo_name) {
+    async depositbase(msg_sender, dodo_name, amt) {
         const results = await pushTransaction(msg_sender, "depositbase", {
             msg_sender: msg_sender,
-            dodo_name: dodo_ethdodo_namebase_name
+            dodo_name: dodo_name,
+            amt: amt
         });
         console.log(__line); prettyJson(results);
     }
@@ -362,8 +387,28 @@ class EosClient {
         console.log(__line); prettyJson(results);
     }
 
+    async sellbastoken(msg_sender, dodo_name, amount, minReceiveQuote) {
+        const results = await pushTransaction(msg_sender, "sellbastoken", {
+            msg_sender: msg_sender,
+            dodo_name: dodo_name,
+            amount: amount,
+            minReceiveQuote: minReceiveQuote
+        });
+        console.log(__line); prettyJson(results);
+    }
+
+    async buybasetoken(msg_sender, dodo_name, amount, maxPayQuote) {
+        const results = await pushTransaction(msg_sender, "buybasetoken", {
+            msg_sender: msg_sender,
+            dodo_name: dodo_name,
+            amount: amount,
+            maxPayQuote: maxPayQuote
+        });
+        console.log(__line); prettyJson(results);
+    }
+
     async depositethab(msg_sender, ethtokenamount, quoteToken) {
-        //   depositethab(lp, to_wei_asset("WETH", 10), to_sym("MKR"));
+        //   depositethab(lp, to_wei_asset(10,"WETH"), to_sym("MKR"));
         const results = await pushTransaction(msg_sender, "depositethab", {
             msg_sender: msg_sender,
             ethtokenamount: ethtokenamount,
@@ -417,14 +462,22 @@ class EosClient {
 
     }
 
-    async extransfer() {
-        const results = await pushTransaction(admin, "extransfer", {
-            from: lp,
-            to: admin,
-            quantity: "1.0000 ROC@roxe.token",
+    async extransfer(acc) {
+        const results = await pushTransaction(bp, "extransfer", {
+            from: bp,
+            to: acc,
+            quantity: to_core_asset(10000, "ROC"),
             memo: ""
         });
 
+        console.log(__line); prettyJson(results);
+    }
+
+    async extransfers() {
+        const accounts = Object.keys(acc2pub_keys);
+        for (let acc of accounts) {
+            this.extransfer(acc);
+        }
         console.log(__line); prettyJson(results);
     }
 
@@ -440,7 +493,6 @@ process.argv.forEach(function (val, index, array) {
 });
 
 const client = new EosClient(dodo_ethbase_name);
-const client1 = new EosClient(dodo_ethquote_name);
 
 let handlers = {
     "i": (async function () {
@@ -449,34 +501,48 @@ let handlers = {
     "a": (async function () {
         await client.allowDosContracts();
     }),
+    "t": (async function () {
+        await client.extransfers();
+    }),
+    "tt": (async function () {
+        await client.extransfer(lp);
+    }),
     "ip": (async function () {
         await client.init(admin, maintainer, to_sym("WETH"), get_core_symbol());
     }),
     "n": (async function () {
         await client.newtoken(tokenissuer, to_max_supply("WETH"));
+        await client.newtoken(tokenissuer, to_max_supply("DAI"));
         await client.newtoken(tokenissuer, to_max_supply("MKR"));
     }),
     "m": (async function () {
         await client.mint(lp, to_wei_asset(1000, "MKR"));
         await client.mint(trader, to_wei_asset(1000, "MKR"));
     }),
+    "ms": (async function () {
+        await client.mint(lp, to_wei_asset(10000, "DAI"));
+        await client.mint(trader, to_wei_asset(10000, "DAI"));
+        await client.mint(lp, to_wei_asset(10000, "MKR"));
+        await client.mint(trader, to_wei_asset(10000, "MKR"));
+    }),
     "o": (async function () {
         await client.neworacle(oracleadmin, to_sym("WETH"));
+        await client.neworacle(oracleadmin, to_sym("DAI"));
         await client.neworacle(oracleadmin, to_sym("MKR"));
     }),
-    "t": (async function () {
-        await client.extransfer();
+    "sp": (async function () {
+        await client.setprice(oracleadmin, to_wei_asset(1, "DAI"));
     }),
     "b": (async function () {
         //  init(admin, maintainer, to_sym("WETH"), get_core_symbol());
         // // dodoZoo, weth, core_symbol
         // // newethtoken(tokenissuer, to_maximum_supply("WETH"));
         // newtoken(tokenissuer, to_maximum_supply("MKR"));
-        // mint(lp, to_wei_asset("MKR", 1000));
-        // mint(trader, to_wei_asset("MKR", 1000));
+        // mint(lp, to_wei_asset(1000,"MKR"));
+        // mint(trader, to_wei_asset(1000,"MKR"));
         // await client.neworacle(oracleadmin, to_sym("WETH"));
         // await client. neworacle(oracleadmin, to_sym("MKR"));
-        //   setprice(oracleadmin, to_asset("WETH", 1000000));
+        //   setprice(oracleadmin, to_asset(1000000,"WETH"));
         await client.setprice(oracleadmin, to_wei_asset(100, "WETH"));
         const msg_sender = admin;
         const dodo_name = dodo_ethbase_name;
@@ -494,21 +560,19 @@ let handlers = {
         await client.enablex(admin, dodo_name, "enablequodep");
         await client.enablex(admin, dodo_name, "enablebasdep");
         await client.depositquote(lp, dodo_ethbase_name, to_wei_asset(1000, "MKR"));
-        depositethab(lp, to_wei_asset("WETH", 10), to_sym("MKR"));
-        ///////
-        depositbase(lp, dodo_ethquote_name, to_wei_asset("MKR", 1000));
-        depositethaq(lp, to_wei_asset("WETH", 10), to_sym("MKR"));
+        await client.depositethab(lp, to_wei_asset(10, "WETH"), to_sym("MKR"));
+
     }),
     "q": (async function () {
-          //  init(admin, maintainer, to_sym("WETH"), get_core_symbol());
+        //  init(admin, maintainer, to_sym("WETH"), get_core_symbol());
         // // dodoZoo, weth, core_symbol
         // // newethtoken(tokenissuer, to_maximum_supply("WETH"));
         // newtoken(tokenissuer, to_maximum_supply("MKR"));
-        // mint(lp, to_wei_asset("MKR", 1000));
-        // mint(trader, to_wei_asset("MKR", 1000));
+        // mint(lp, to_wei_asset(1000,"MKR"));
+        // mint(trader, to_wei_asset(1000,"MKR"));
         // await client.neworacle(oracleadmin, to_sym("WETH"));
         // await client. neworacle(oracleadmin, to_sym("MKR"));
-        //   setprice(oracleadmin, to_asset("WETH", 1000000));
+        //   setprice(oracleadmin, to_asset(1000000,"WETH"));
         await client.setprice(oracleadmin, to_asset(100, "MKR"));
 
         const msg_sender = admin;
@@ -522,25 +586,68 @@ let handlers = {
         const k = 1;
         const gasPriceLimit = 0; // gweiStr("100")
         await client.breeddodo(
-            msg_sender, dodo_name, maintainer,  quoteToken,baseToken, oracle, lpFeeRate, mtFeeRate, k, gasPriceLimit);
+            msg_sender, dodo_name, maintainer, quoteToken, baseToken, oracle, lpFeeRate, mtFeeRate, k, gasPriceLimit);
         await client.enablex(admin, dodo_name, "enabletradin");
         await client.enablex(admin, dodo_name, "enablequodep");
         await client.enablex(admin, dodo_name, "enablebasdep");
-        depositbase(lp, dodo_ethquote_name, to_wei_asset( 1000,"MKR"));
-        depositethaq(lp, to_wei_asset( 10,"WETH"), to_sym("MKR"));
+        await client.depositbase(lp, dodo_ethquote_name, to_wei_asset(1000, "MKR"));
+        await client.depositethaq(lp, to_wei_asset(10, "WETH"), to_sym("MKR"));
     }),
     "s": (async function () {
-        buyethtoken(trader, to_wei_asset("WETH", 1), to_wei_asset("MKR", 200));
-        sellethtoken(trader, to_wei_asset("WETH", 1), to_wei_asset("MKR", 50));
-        withdraweab(lp, to_wei_asset("WETH", 5), to_sym("MKR"));
-        withdrawaeab(lp, to_sym("MKR"));
-        buytokeneth(trader, to_wei_asset("MKR", 200), to_asset("WETH", 21000));
-        selltokeneth(trader, to_wei_asset("MKR", 50), to_asset("WETH", 4500));
-        withdraweaq(lp, to_wei_asset("WETH", 5), to_sym("MKR"));
-        withdrawaeaq(lp, to_sym("MKR"));
+        //  init(admin, maintainer, to_sym("WETH"), get_core_symbol());
+        // // dodoZoo, weth, core_symbol
+        // // newethtoken(tokenissuer, to_maximum_supply("WETH"));
+        // newtoken(tokenissuer, to_maximum_supply("MKR"));
+        // mint(lp, to_wei_asset(1000,"MKR"));
+        // mint(trader, to_wei_asset(1000,"MKR"));
+        // await client.neworacle(oracleadmin, to_sym("WETH"));
+        // await client. neworacle(oracleadmin, to_sym("MKR"));
+        //   setprice(oracleadmin, to_asset(1000000,"WETH"));
+        await client.setprice(oracleadmin, to_wei_asset(1, "DAI"));
+        const msg_sender = admin;
+        const dodo_name = dodo_stablecoin_name;
+        const maintainer = doowner;
+        const baseToken = to_sym("DAI");
+        const quoteToken = to_sym("MKR");
+        const oracle = to_sym("DAI");
+        const lpFeeRate = 1;
+        const mtFeeRate = 0;
+        const k = 1;
+        const gasPriceLimit = 0; // gweiStr("100")
+        await client.breeddodo(
+            msg_sender, dodo_name, maintainer, baseToken, quoteToken, oracle, lpFeeRate, mtFeeRate, k, gasPriceLimit);
+        await client.enablex(admin, dodo_name, "enabletradin");
+        await client.enablex(admin, dodo_name, "enablequodep");
+        await client.enablex(admin, dodo_name, "enablebasdep");
+        await client.depositbase(lp, dodo_name, to_wei_asset(10000, "DAI"));
+        await client.depositquote(lp, dodo_name, to_wei_asset(10000, "MKR"));
+    }),
+    "scd": (async function () {
+        const dodo_name = dodo_stablecoin_name;
+        await client.depositbase(lp, dodo_name, to_wei_asset(10000, "DAI"));
+        await client.depositquote(lp, dodo_name, to_wei_asset(10000, "MKR"));
+    }),
+    "buy": (async function () {
+        await client.buyethtoken(trader, to_wei_asset(1, "WETH"), to_wei_asset(200, "MKR"));
+        await client.sellethtoken(trader, to_wei_asset(1, "WETH"), to_wei_asset(50, "MKR"));
+        await client.withdraweab(lp, to_wei_asset(5, "WETH"), to_sym("MKR"));
+        await client.withdrawaeab(lp, to_sym("MKR"));
+        await client.buytokeneth(trader, to_wei_asset(200, "MKR"), to_asset(21000, "WETH"));
+        await client.selltokeneth(trader, to_wei_asset(50, "MKR"), to_asset(4500, "WETH"));
+        await client.withdraweaq(lp, to_wei_asset(5, "WETH"), to_sym("MKR"));
+        await client.withdrawaeaq(lp, to_sym("MKR"));
+        await client.buybasetoken(trader, to_wei_asset(1000, "DAI"), to_wei_asset(1001, "MKR"));
+        await client.sellbastoken(trader, to_wei_asset(8990, "DAI"), to_wei_asset(10000, "MKR"));
+    }),
+    "bbt": (async function () {
+        await client.buybasetoken(trader, dodo_stablecoin_name, to_wei_asset(1000, "DAI"), to_wei_asset(1001, "MKR"));
+    }),
+    "sbt": (async function () {
+        await client.sellbastoken(trader, dodo_stablecoin_name, to_wei_asset(8990, "DAI"), to_wei_asset(9000, "MKR"));
     }),
     "default": (async function () {
-        console.log(__line); console.log("test option");
+
+        console.log(__line); console.log(todecimal(scalarunit(1000)), "test option", todecimal(1000),);
     })
 
 };
