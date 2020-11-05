@@ -351,6 +351,40 @@ class EosClient {
         console.log(__line); prettyJson(results);
     }
 
+    async withdrawquote(msg_sender, dodo_name, amt) {
+        const results = await pushTransaction(msg_sender, "withdrawquote", {
+            msg_sender: msg_sender,
+            dodo_name: dodo_name,
+            amt: amt
+        });
+        console.log(__line); prettyJson(results);
+    }
+
+    async withdrawbase(msg_sender, dodo_name, amt) {
+        const results = await pushTransaction(msg_sender, "withdrawbase", {
+            msg_sender: msg_sender,
+            dodo_name: dodo_name,
+            amt: amt
+        });
+        console.log(__line); prettyJson(results);
+    }
+
+    async withdrawallq(msg_sender, dodo_name) {
+        const results = await pushTransaction(msg_sender, "withdrawallq", {
+            msg_sender: msg_sender,
+            dodo_name: dodo_name
+        });
+        console.log(__line); prettyJson(results);
+    }
+
+    async withdrawallb(msg_sender, dodo_name, amt) {
+        const results = await pushTransaction(msg_sender, "withdrawallb", {
+            msg_sender: msg_sender,
+            dodo_name: dodo_name
+        });
+        console.log(__line); prettyJson(results);
+    }
+
     async sellethtoken(ethToken, minReceiveToken) {
         const results = await pushTransaction(msg_sender, "sellethtoken", {
             msg_sender: msg_sender,
@@ -626,6 +660,16 @@ let handlers = {
         const dodo_name = dodo_stablecoin_name;
         await client.depositbase(lp, dodo_name, to_wei_asset(10000, "DAI"));
         await client.depositquote(lp, dodo_name, to_wei_asset(10000, "MKR"));
+    }),
+    "scw": (async function () {
+        const dodo_name = dodo_stablecoin_name;
+        await client.withdrawbase(lp, dodo_name, to_wei_asset(10000, "DAI"));
+        await client.withdrawquote(lp, dodo_name, to_wei_asset(10000, "MKR"));
+    }),
+    "scwa": (async function () {
+        const dodo_name = dodo_stablecoin_name;
+        await client.withdrawallb(lp, dodo_name);
+        await client.withdrawallq(lp, dodo_name);
     }),
     "buy": (async function () {
         await client.buyethtoken(trader, to_wei_asset(1, "WETH"), to_wei_asset(200, "MKR"));
