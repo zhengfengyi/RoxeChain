@@ -26,6 +26,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    static constexpr roxe::name     admin_account{"eosdoseosdos"_n};
    static constexpr roxe::name     doowner_account{"dodoowner111"_n};
    static constexpr roxe::name     tokenissuer_account{"tokenissuer1"_n};
+   static constexpr eosio::name     dostoken_account{"eosdosxtoken"_n};
    static constexpr roxe::name     maintainer_account{"maintainer11"_n};
    static constexpr roxe::name     oracle_account{"eosdosoracle"_n};
    static constexpr extended_symbol weth_symbol = {symbol(symbol_code("WETH"), 4), "eosdosxtoken"_n};
