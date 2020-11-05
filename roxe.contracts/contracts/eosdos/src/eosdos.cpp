@@ -262,6 +262,20 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) { (void)dodo.depositBase(amt.quantity.amount); });
    }
+   [[roxe::action]] void sellbastoken(
+       name msg_sender, name dodo_name, const extended_asset& amount, const extended_asset& minReceiveQuote) {
+      proxy.setMsgSender(msg_sender);
+      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
+         (void)dodo.sellBaseToken(amount.quantity.amount, minReceiveQuote.quantity.amount, {});
+      });
+   }
+   [[roxe::action]] void buybasetoken(
+       name msg_sender, name dodo_name, const extended_asset& amount, const extended_asset& maxPayQuote) {
+      proxy.setMsgSender(msg_sender);
+      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
+         (void)dodo.buyBaseToken(amount.quantity.amount, maxPayQuote.quantity.amount, {});
+      });
+   }
    ////////////////////   Oracle////////////////////////
    [[roxe::action]] void neworacle(name msg_sender, const extended_symbol& token) {
       check(oracle_account == msg_sender, "no oracle admin");
@@ -283,25 +297,18 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    [[roxe::action]] void newtoken(name msg_sender, const extended_asset& token) {
       check(tokenissuer_account == msg_sender, "no  token issuer");
       proxy.setMsgSender(msg_sender);
-      _instance_mgmt.newToken<TestERC20>(msg_sender, token);
-   }
-
-   [[roxe::action]] void newethtoken(name msg_sender, const extended_asset& token) {
-      check(tokenissuer_account == msg_sender, "no  token issuer");
-      proxy.setMsgSender(msg_sender);
-      _instance_mgmt.newToken<WETH9>(msg_sender, token);
+      if (token.contract == dostoken_account &&
+          token.get_extended_symbol().get_symbol().code().to_string().compare("WETH") == 0) {
+         _instance_mgmt.newToken<WETH9>(msg_sender, token);
+      } else {
+         _instance_mgmt.newToken<TestERC20>(msg_sender, token);
+      }
    }
 
    //    /////test interface /////
    [[roxe::action]] void mint(name msg_sender, const extended_asset& amt) {
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_token<TestERC20>(
-          msg_sender, amt.get_extended_symbol(), [&](auto& _token_) { _token_.mint(msg_sender, amt.quantity.amount); });
-   }
-
-   [[roxe::action]] void mintweth(name msg_sender, const extended_asset& amt) {
-      proxy.setMsgSender(msg_sender);
-      _instance_mgmt.get_token<WETH9>(
           msg_sender, amt.get_extended_symbol(), [&](auto& _token_) { _token_.mint(msg_sender, amt.quantity.amount); });
    }
 
