@@ -38,7 +38,7 @@ module.exports = () => {
         let res = {};
         for (const pvt of private_keys) {
             try {
-                res = await w.import_key(name, pvt)
+                res = await w.import_key(wallet_name, pvt)
             } catch (error) {
                 console.log(JSON.stringify(error));
                 res = error;
