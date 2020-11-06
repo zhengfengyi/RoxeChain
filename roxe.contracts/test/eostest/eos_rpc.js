@@ -8,23 +8,47 @@ let password = 'PW5JUgVnkvL6TwRU1kVZc6VBPTfgXmVzDwgEcJ3utkt8oGox1ToAn';
 module.exports = () => {
     const api = {};
     api.create_wallet = async (wallet_name) => {
-        const name = `${WALLET_NAME}`
-        let res = await w.create(wallet_name);
-        console.log(wallet_name, "===", JSON.stringify(res));
-        password = res;
+        let res = {};
+        try {
+            let res = await w.create(wallet_name);
+            console.log(wallet_name, "===", JSON.stringify(res));
+            password = res;
+        } catch (error) {
+            console.log(JSON.stringify(error));
+            res = error;
+        }
+        return res;
+    };
+    api.unlock_wallet = async (wallet_name, password) => {
+        const name = wallet_name;
+        let res = {};
+        try {
+            let res = await w.unlock(name, password);
+            console.log(wallet_name, "===", JSON.stringify(res));
+            password = res;
+        } catch (error) {
+            console.log(JSON.stringify(error));
+            res = error;
+        }
+        return res;
+    };
+    api.import_keys_by_wallet_name = async (private_keys, wallet_name, wallet_password) => {
+        await api.create_wallet(wallet_name);
+        await api.unlock_wallet(wallet_name, wallet_password);
+        let res = {};
         for (const pvt of private_keys) {
-            res = await w.import_key(name, pvt)
+            try {
+                res = await w.import_key(name, pvt)
+            } catch (error) {
+                console.log(JSON.stringify(error));
+                res = error;
+            }
         }
         return res;
     };
     api.import_keys = async (private_keys) => {
         const name = `${WALLET_NAME}`
-        let res = await w.unlock(name, password);;///await w.create(name);
-        console.log(JSON.stringify(res));
-        password = res;
-        for (const pvt of private_keys) {
-            res = await w.import_key(name, pvt)
-        }
+        let res = await api.import_keys_by_wallet_name(private_keys,name, password);
         return res;
     };
     api.transaction = async (tx_data) => {
