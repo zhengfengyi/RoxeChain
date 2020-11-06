@@ -13,8 +13,10 @@ let sleep = require('sleep');
 // var request = require('request'); // https://www.npmjs.com/package/request
 let async = require('async'); // https://www.npmjs.com/package/async
 // const { logTime } = require("./log_aop");
-require("./log_aop");
+require("../lib/log_aop");
 const jq = require('node-jq');
+const EOS_RPC = require('../lib/eos_rpc')
+const eosrpc = EOS_RPC();
 
 const prettyJson = async (log) => {
     let jsonstr = await jq.run('.', JSON.stringify(log), { input: 'string', output: 'pretty' });
@@ -24,8 +26,7 @@ const prettyJson = async (log) => {
 dotenv.load();
 // # http://10.100.1.10:8889/v1/wallet/list_wallets
 
-const EOS_RPC = require('./eos_rpc')
-const eosrpc = EOS_RPC();
+
 
 const interval = process.env.FREQ;
 const owner = process.env.ADMIN;
@@ -226,7 +227,7 @@ function tounit(value) {
 }
 
 function todecimal(value) {
-    return Number(Number(value) / Number(decimals)).toFixed(4)+ " ";
+    return Number(Number(value) / Number(decimals)).toFixed(4) + " ";
 }
 
 function scalar_decimals(value) {
@@ -258,6 +259,12 @@ class EosClient {
         for (let acc of accounts) {
             this.allowDosContract(acc, acc2pub_keys[acc]);
         }
+    }
+
+    async create_wallet() {
+        const results = await eosrpc.create_default_wallet();
+
+        console.log(__line); prettyJson(results);
     }
 
     async import_keys() {
@@ -529,6 +536,9 @@ process.argv.forEach(function (val, index, array) {
 const client = new EosClient(dodo_ethbase_name);
 
 let handlers = {
+    "c": (async function () {
+        await client.create_wallet();
+    }),
     "i": (async function () {
         await client.import_keys();
     }),
@@ -691,7 +701,7 @@ let handlers = {
     }),
     "default": (async function () {
 
-        console.log(__line); console.log(todecimal(scalarunit(1000)), "test option", todecimal(1000),);
+        console.log(__line); console.log(todecimal((1000)), "test option", todecimal(1000),);
     })
 
 };
