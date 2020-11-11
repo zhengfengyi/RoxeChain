@@ -5503,16 +5503,9 @@ var filter_fields = ["_BASE_BALANCE_LIMIT_",
 var t = new Trader();
 var galldodos = {};
 var galloracles = {};
-function extractDodos(dodo) {
-    var obj = {};
-    for (var _i = 0, filter_fields_1 = filter_fields; _i < filter_fields_1.length; _i++) {
-        var f = filter_fields_1[_i];
-        obj[f] = dodo[f];
-    }
-    return obj;
-}
+
 function filterDodos(origindodos) {
-    var dodos = origindodos.rows[0]["dodos"];
+    var dodos = origindodos;//.rows[0]["dodos"];
     var alldodos = {};
     for (var _i = 0, dodos_1 = dodos; _i < dodos_1.length; _i++) {
         var dodo = dodos_1[_i];
@@ -5524,14 +5517,9 @@ function filterDodos(origindodos) {
     }
     return alldodos;
 }
-function extractOraclePrices(oracle) {
-    var arr = oracle.tokenPrice.quantity.split(" ");
-    var alloracles = {};
-    alloracles["_ORACLE_PRICE_"] = Number(arr[0]);
-    return alloracles;
-}
+
 function filterOraclePrices(originoracles) {
-    var oracles = originoracles.rows[0]["oracles"];
+    var oracles = originoracles;//.rows[0]["oracles"];
     var alloracles = {};
     for (var _i = 0, oracles_1 = oracles; _i < oracles_1.length; _i++) {
         var oracle = oracles_1[_i];
@@ -5540,33 +5528,28 @@ function filterOraclePrices(originoracles) {
     }
     return alloracles;
 }
-function initOrSyncParameters(dodos, oracles) {
-    galldodos = filterDodos(dodos);
-    galloracles = filterOraclePrices(oracles);
+
+function init(strdodos) {
+    var dodos = JSON.parse(strdodos);
+    galldodos = filterDodos(dodos.dodos);
+    galloracles = filterOraclePrices(dodos.oracles);
+
 }
-function setDodo(baseToken, quoteToken) {
+
+function queryDodo(baseToken, quoteToken) {
     var dodo_name = baseToken.toLowerCase() + "2" + quoteToken.toLowerCase() + "11111";
     dodo_name = dodo_name.substr(0, 12);
     var testdodo_name = { "dai2mkr11111": "daimkrdaimkr", "eth2mkr11111": "ethbasemkr11" };
-    // //console.log(dodo_name);
-    var dodo = galldodos[testdodo_name[dodo_name]];
+    dodo_name = testdodo_name[dodo_name];
+
+    // console.log(dodo_name);
+    var dodo = galldodos[dodo_name];
     dodo._ORACLE_PRICE_ = Number(galloracles[baseToken]);
-    // //console.log(dodo);
-    t.setParameters(dodo);
+    // console.log(dodo);
+
     return dodo;
 }
-function queryBuyToken(amount, baseToken, quoteToken) {
-    setDodo(baseToken, quoteToken);
-    var r = t.queryBuyBaseToken(amount);
-    //console.log(r);
-    return r;
-}
-function querySellToken(amount, baseToken, quoteToken) {
-    setDodo(baseToken, quoteToken);
-    var r = t.querySellBaseToken(amount);
-    //console.log(r);
-    return r;
-}
+
 function queryBuyTokenWithDodo(amount, dodo) {
     t.setParameters(dodo);
     //console.log(amount, dodo);
@@ -5580,7 +5563,7 @@ function querySellTokenWithDodo(amount, dodo) {
     //console.log(r);
     return r;
 }
-var  Object_assign = function (target) {
+var Object_assign = function (target) {
     for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
         for (var key in source) {
@@ -5592,319 +5575,379 @@ var  Object_assign = function (target) {
     return target;
 };
 
-function buy(amount, dodo, oracle) {
-    var dodojson = extractDodos(JSON.parse(dodo));
-    var oraclejson = extractOraclePrices(JSON.parse(oracle));
-    Object_assign(dodojson, oraclejson);
-
+function buy(amount, baseToken, quoteToken) {
+    var dodo = queryDodo(baseToken, quoteToken);
     ////console.log(amount, dodojson);
-    var r = queryBuyTokenWithDodo(amount, dodojson);
+    var r = queryBuyTokenWithDodo(amount, dodo);
     ////console.log(r);
     return Number(r);
 }
-function sell(amount, dodo, oracle) {
-    var dodojson = extractDodos(JSON.parse(dodo));
-    var oraclejson = extractOraclePrices(JSON.parse(oracle));
-    Object_assign(dodojson, oraclejson);
-    var r = querySellTokenWithDodo(amount, dodojson);
+function sell(amount, baseToken, quoteToken) {
+    var dodo = queryDodo(baseToken, quoteToken);
+    var r = querySellTokenWithDodo(amount, dodo);
     ////console.log(r);
     return Number(r);
 }
-function test() {
-    var dodotablerows = {
-        "rows": [
+
+function testbuysell() {
+    var dodotablerows =
+    {
+        "dodos": [
             {
-                "dodos": [
-                    {
-                        "key": "daimkrdaimkr",
-                        "value": {
-                            "dodo_name": "daimkrdaimkr",
-                            "initownable": {
-                                "_OWNER_": "eosdoseosdos",
-                                "_NEW_OWNER_": ""
-                            },
-                            "guard": {
-                                "_ENTERED_": 0
-                            },
-                            "_INITIALIZED_": 1,
-                            "_CLOSED_": 0,
-                            "_DEPOSIT_QUOTE_ALLOWED_": 1,
-                            "_DEPOSIT_BASE_ALLOWED_": 1,
-                            "_TRADE_ALLOWED_": 1,
-                            "_GAS_PRICE_LIMIT_": 0,
-                            "_BUYING_ALLOWED_": 1,
-                            "_SELLING_ALLOWED_": 1,
-                            "_BASE_BALANCE_LIMIT_": "18446744073709551615",
-                            "_QUOTE_BALANCE_LIMIT_": "18446744073709551615",
-                            "_SUPERVISOR_": "eosdoseosdos",
-                            "_MAINTAINER_": "eosdoseosdos",
-                            "_BASE_TOKEN_": {
-                                "symbol": "4,DAI",
-                                "contract": "eosdosxtoken"
-                            },
-                            "_QUOTE_TOKEN_": {
-                                "symbol": "4,MKR",
-                                "contract": "eosdosxtoken"
-                            },
-                            "_ORACLE_": {
-                                "symbol": "4,DAI",
-                                "contract": "eosdosxtoken"
-                            },
-                            "_LP_FEE_RATE_": 1,
-                            "_MT_FEE_RATE_": 0,
-                            "_K_": 1,
-                            "_R_STATUS_": 2,
-                            "_TARGET_BASE_TOKEN_AMOUNT_": 90000000,
-                            "_TARGET_QUOTE_TOKEN_AMOUNT_": 100009982,
-                            "_BASE_BALANCE_": 179900000,
-                            "_QUOTE_BALANCE_": 10189239,
-                            "_BASE_CAPITAL_TOKEN_": {
-                                "symbol": "4,DAI",
-                                "contract": "daimkrdaimkr"
-                            },
-                            "_QUOTE_CAPITAL_TOKEN_": {
-                                "symbol": "4,MKR",
-                                "contract": "daimkrdaimkr"
-                            },
-                            "_BASE_CAPITAL_RECEIVE_QUOTE_": 0,
-                            "_QUOTE_CAPITAL_RECEIVE_BASE_": 0,
-                            "_CLAIMED_": []
-                        }
+                "key": "daimkrdaimkr",
+                "value": {
+                    "dodo_name": "daimkrdaimkr",
+                    "initownable": {
+                        "_OWNER_": "eosdoseosdos",
+                        "_NEW_OWNER_": ""
                     },
-                    {
-                        "key": "ethbasemkr11",
-                        "value": {
-                            "dodo_name": "ethbasemkr11",
-                            "initownable": {
-                                "_OWNER_": "eosdoseosdos",
-                                "_NEW_OWNER_": ""
-                            },
-                            "guard": {
-                                "_ENTERED_": 0
-                            },
-                            "_INITIALIZED_": 1,
-                            "_CLOSED_": 0,
-                            "_DEPOSIT_QUOTE_ALLOWED_": 1,
-                            "_DEPOSIT_BASE_ALLOWED_": 1,
-                            "_TRADE_ALLOWED_": 1,
-                            "_GAS_PRICE_LIMIT_": 0,
-                            "_BUYING_ALLOWED_": 1,
-                            "_SELLING_ALLOWED_": 1,
-                            "_BASE_BALANCE_LIMIT_": "18446744073709551615",
-                            "_QUOTE_BALANCE_LIMIT_": "18446744073709551615",
-                            "_SUPERVISOR_": "eosdoseosdos",
-                            "_MAINTAINER_": "eosdoseosdos",
-                            "_BASE_TOKEN_": {
-                                "symbol": "4,WETH",
-                                "contract": "eosdosxtoken"
-                            },
-                            "_QUOTE_TOKEN_": {
-                                "symbol": "4,MKR",
-                                "contract": "eosdosxtoken"
-                            },
-                            "_ORACLE_": {
-                                "symbol": "4,WETH",
-                                "contract": "eosdosxtoken"
-                            },
-                            "_LP_FEE_RATE_": 2,
-                            "_MT_FEE_RATE_": 1,
-                            "_K_": 1,
-                            "_R_STATUS_": 0,
-                            "_TARGET_BASE_TOKEN_AMOUNT_": 0,
-                            "_TARGET_QUOTE_TOKEN_AMOUNT_": 0,
-                            "_BASE_BALANCE_": 0,
-                            "_QUOTE_BALANCE_": 0,
-                            "_BASE_CAPITAL_TOKEN_": {
-                                "symbol": "4,WETH",
-                                "contract": "ethbasemkr11"
-                            },
-                            "_QUOTE_CAPITAL_TOKEN_": {
-                                "symbol": "4,MKR",
-                                "contract": "ethbasemkr11"
-                            },
-                            "_BASE_CAPITAL_RECEIVE_QUOTE_": 0,
-                            "_QUOTE_CAPITAL_RECEIVE_BASE_": 0,
-                            "_CLAIMED_": []
-                        }
-                    }
-                ]
+                    "guard": {
+                        "_ENTERED_": 0
+                    },
+                    "_INITIALIZED_": 1,
+                    "_CLOSED_": 0,
+                    "_DEPOSIT_QUOTE_ALLOWED_": 1,
+                    "_DEPOSIT_BASE_ALLOWED_": 1,
+                    "_TRADE_ALLOWED_": 1,
+                    "_GAS_PRICE_LIMIT_": 0,
+                    "_BUYING_ALLOWED_": 1,
+                    "_SELLING_ALLOWED_": 1,
+                    "_BASE_BALANCE_LIMIT_": "18446744073709551615",
+                    "_QUOTE_BALANCE_LIMIT_": "18446744073709551615",
+                    "_SUPERVISOR_": "eosdoseosdos",
+                    "_MAINTAINER_": "eosdoseosdos",
+                    "_BASE_TOKEN_": {
+                        "symbol": "4,DAI",
+                        "contract": "eosdosxtoken"
+                    },
+                    "_QUOTE_TOKEN_": {
+                        "symbol": "4,MKR",
+                        "contract": "eosdosxtoken"
+                    },
+                    "_ORACLE_": {
+                        "symbol": "4,DAI",
+                        "contract": "eosdosxtoken"
+                    },
+                    "_LP_FEE_RATE_": 1,
+                    "_MT_FEE_RATE_": 0,
+                    "_K_": 1,
+                    "_R_STATUS_": 2,
+                    "_TARGET_BASE_TOKEN_AMOUNT_": 90000000,
+                    "_TARGET_QUOTE_TOKEN_AMOUNT_": 100009982,
+                    "_BASE_BALANCE_": 179900000,
+                    "_QUOTE_BALANCE_": 10189239,
+                    "_BASE_CAPITAL_TOKEN_": {
+                        "symbol": "4,DAI",
+                        "contract": "daimkrdaimkr"
+                    },
+                    "_QUOTE_CAPITAL_TOKEN_": {
+                        "symbol": "4,MKR",
+                        "contract": "daimkrdaimkr"
+                    },
+                    "_BASE_CAPITAL_RECEIVE_QUOTE_": 0,
+                    "_QUOTE_CAPITAL_RECEIVE_BASE_": 0,
+                    "_CLAIMED_": []
+                }
+            },
+            {
+                "key": "ethbasemkr11",
+                "value": {
+                    "dodo_name": "ethbasemkr11",
+                    "initownable": {
+                        "_OWNER_": "eosdoseosdos",
+                        "_NEW_OWNER_": ""
+                    },
+                    "guard": {
+                        "_ENTERED_": 0
+                    },
+                    "_INITIALIZED_": 1,
+                    "_CLOSED_": 0,
+                    "_DEPOSIT_QUOTE_ALLOWED_": 1,
+                    "_DEPOSIT_BASE_ALLOWED_": 1,
+                    "_TRADE_ALLOWED_": 1,
+                    "_GAS_PRICE_LIMIT_": 0,
+                    "_BUYING_ALLOWED_": 1,
+                    "_SELLING_ALLOWED_": 1,
+                    "_BASE_BALANCE_LIMIT_": "18446744073709551615",
+                    "_QUOTE_BALANCE_LIMIT_": "18446744073709551615",
+                    "_SUPERVISOR_": "eosdoseosdos",
+                    "_MAINTAINER_": "eosdoseosdos",
+                    "_BASE_TOKEN_": {
+                        "symbol": "4,WETH",
+                        "contract": "eosdosxtoken"
+                    },
+                    "_QUOTE_TOKEN_": {
+                        "symbol": "4,MKR",
+                        "contract": "eosdosxtoken"
+                    },
+                    "_ORACLE_": {
+                        "symbol": "4,WETH",
+                        "contract": "eosdosxtoken"
+                    },
+                    "_LP_FEE_RATE_": 2,
+                    "_MT_FEE_RATE_": 1,
+                    "_K_": 1,
+                    "_R_STATUS_": 0,
+                    "_TARGET_BASE_TOKEN_AMOUNT_": 0,
+                    "_TARGET_QUOTE_TOKEN_AMOUNT_": 0,
+                    "_BASE_BALANCE_": 0,
+                    "_QUOTE_BALANCE_": 0,
+                    "_BASE_CAPITAL_TOKEN_": {
+                        "symbol": "4,WETH",
+                        "contract": "ethbasemkr11"
+                    },
+                    "_QUOTE_CAPITAL_TOKEN_": {
+                        "symbol": "4,MKR",
+                        "contract": "ethbasemkr11"
+                    },
+                    "_BASE_CAPITAL_RECEIVE_QUOTE_": 0,
+                    "_QUOTE_CAPITAL_RECEIVE_BASE_": 0,
+                    "_CLAIMED_": []
+                }
             }
         ],
-        "more": false
-    };
-    var oracletablerows = {
-        "rows": [
+        "oracles": [
             {
-                "oracles": [
-                    {
-                        "key": "0x04444149000000003015a4b9639a3055",
-                        "value": {
-                            "ownable": {
-                                "_OWNER_": "",
-                                "_NEW_OWNER_": ""
-                            },
-                            "_OWNER_": "eosdosoracle",
-                            "tokenPrice": {
-                                "quantity": "1.0000 DAI",
-                                "contract": "eosdosxtoken"
-                            }
-                        }
+                "key": "0x04444149000000003015a4b9639a3055",
+                "value": {
+                    "ownable": {
+                        "_OWNER_": "",
+                        "_NEW_OWNER_": ""
                     },
-                    {
-                        "key": "0x044d4b52000000003015a4b9639a3055",
-                        "value": {
-                            "ownable": {
-                                "_OWNER_": "",
-                                "_NEW_OWNER_": ""
-                            },
-                            "_OWNER_": "eosdosoracle",
-                            "tokenPrice": {
-                                "quantity": "0.0100 MKR",
-                                "contract": "eosdosxtoken"
-                            }
-                        }
-                    },
-                    {
-                        "key": "0x04574554480000003015a4b9639a3055",
-                        "value": {
-                            "ownable": {
-                                "_OWNER_": "",
-                                "_NEW_OWNER_": ""
-                            },
-                            "_OWNER_": "eosdosoracle",
-                            "tokenPrice": {
-                                "quantity": "100.0000 WETH",
-                                "contract": "eosdosxtoken"
-                            }
-                        }
+                    "_OWNER_": "eosdosoracle",
+                    "tokenPrice": {
+                        "quantity": "1.0000 DAI",
+                        "contract": "eosdosxtoken"
                     }
-                ]
+                }
+            },
+            {
+                "key": "0x044d4b52000000003015a4b9639a3055",
+                "value": {
+                    "ownable": {
+                        "_OWNER_": "",
+                        "_NEW_OWNER_": ""
+                    },
+                    "_OWNER_": "eosdosoracle",
+                    "tokenPrice": {
+                        "quantity": "0.0100 MKR",
+                        "contract": "eosdosxtoken"
+                    }
+                }
+            },
+            {
+                "key": "0x04574554480000003015a4b9639a3055",
+                "value": {
+                    "ownable": {
+                        "_OWNER_": "",
+                        "_NEW_OWNER_": ""
+                    },
+                    "_OWNER_": "eosdosoracle",
+                    "tokenPrice": {
+                        "quantity": "100.0000 WETH",
+                        "contract": "eosdosxtoken"
+                    }
+                }
             }
-        ],
-        "more": false
+        ]
     };
-    initOrSyncParameters(dodotablerows, oracletablerows);
+
+    var dodostr = JSON.stringify(dodotablerows);
+    init(dodostr);
     var amount = 10000;
     var baseToken = "DAI";
     var quoteToken = "MKR";
-    var b = queryBuyToken(amount, baseToken, quoteToken);
+    var b = buy(amount, baseToken, quoteToken);
     //console.log("==b==", b, "=====");
-    var s = querySellToken(amount, baseToken, quoteToken);
+    var s = sell(amount, baseToken, quoteToken);
     //console.log("==s==", s, "=====");
-}
-// test();
-function testWithDodo() {
-    var dodo = {
-        _BASE_BALANCE_LIMIT_: '18446744073709551615',
-        _QUOTE_BALANCE_LIMIT_: '18446744073709551615',
-        _LP_FEE_RATE_: 1,
-        _MT_FEE_RATE_: 0,
-        _K_: 1,
-        _R_STATUS_: 2,
-        _TARGET_BASE_TOKEN_AMOUNT_: 90000000,
-        _TARGET_QUOTE_TOKEN_AMOUNT_: 100009982,
-        _BASE_BALANCE_: 179900000,
-        _QUOTE_BALANCE_: 10189239,
-        _ORACLE_PRICE_: 1
-    };
-    var amount = 10000;
-    var b = queryBuyTokenWithDodo(amount, dodo);
-    //console.log("==b==", b, "=====");
-    var s = querySellTokenWithDodo(amount, dodo);
-    //console.log("==s==", s, "=====");
-}
-// testWithDodo();
-function testbuysell() {
-    var dodotablerows = {
-        "dodo_name": "daimkrdaimkr",
-        "initownable": {
-            "_OWNER_": "eosdoseosdos",
-            "_NEW_OWNER_": ""
-        },
-        "guard": {
-            "_ENTERED_": 0
-        },
-        "_INITIALIZED_": 1,
-        "_CLOSED_": 0,
-        "_DEPOSIT_QUOTE_ALLOWED_": 1,
-        "_DEPOSIT_BASE_ALLOWED_": 1,
-        "_TRADE_ALLOWED_": 1,
-        "_GAS_PRICE_LIMIT_": 0,
-        "_BUYING_ALLOWED_": 1,
-        "_SELLING_ALLOWED_": 1,
-        "_BASE_BALANCE_LIMIT_": "18446744073709551615",
-        "_QUOTE_BALANCE_LIMIT_": "18446744073709551615",
-        "_SUPERVISOR_": "eosdoseosdos",
-        "_MAINTAINER_": "eosdoseosdos",
-        "_BASE_TOKEN_": {
-            "symbol": "4,DAI",
-            "contract": "eosdosxtoken"
-        },
-        "_QUOTE_TOKEN_": {
-            "symbol": "4,MKR",
-            "contract": "eosdosxtoken"
-        },
-        "_ORACLE_": {
-            "symbol": "4,DAI",
-            "contract": "eosdosxtoken"
-        },
-        "_LP_FEE_RATE_": 1,
-        "_MT_FEE_RATE_": 0,
-        "_K_": 1,
-        "_R_STATUS_": 2,
-        "_TARGET_BASE_TOKEN_AMOUNT_": 90000000,
-        "_TARGET_QUOTE_TOKEN_AMOUNT_": 100009982,
-        "_BASE_BALANCE_": 179900000,
-        "_QUOTE_BALANCE_": 10189239,
-        "_BASE_CAPITAL_TOKEN_": {
-            "symbol": "4,DAI",
-            "contract": "daimkrdaimkr"
-        },
-        "_QUOTE_CAPITAL_TOKEN_": {
-            "symbol": "4,MKR",
-            "contract": "daimkrdaimkr"
-        },
-        "_BASE_CAPITAL_RECEIVE_QUOTE_": 0,
-        "_QUOTE_CAPITAL_RECEIVE_BASE_": 0,
-        "_CLAIMED_": []
-    };
-    var oracletablerows = {
-        "ownable": {
-            "_OWNER_": "",
-            "_NEW_OWNER_": ""
-        },
-        "_OWNER_": "eosdosoracle",
-        "tokenPrice": {
-            "quantity": "1.0000 DAI",
-            "contract": "eosdosxtoken"
-        }
-    };
-    var dodostr = JSON.stringify(dodotablerows);
-    var oraclestr = JSON.stringify(oracletablerows);
-    var amount = 10000;
-    var b = buy(amount, dodostr, oraclestr);
-    //console.log("==b==", b, "=====");
-    var s = sell(amount, dodostr, oraclestr);
+    // var b = buy(amount, dodostr, );
+    // //console.log("==b==", b, "=====");
+    // var s = sell(amount, dodostr, oraclestr);
     //console.log("==s==", s, "=====");
 }
 testbuysell();
-// (async function () {
-//     let dodo: any = {
-//         _BASE_BALANCE_LIMIT_: '18446744073709551615',
-//         _QUOTE_BALANCE_LIMIT_: '18446744073709551615',
-//         _LP_FEE_RATE_: 1,
-//         _MT_FEE_RATE_: 0,
-//         _K_: 1,
-//         _R_STATUS_: 2,
-//         _TARGET_BASE_TOKEN_AMOUNT_: 90000000,
-//         _TARGET_QUOTE_TOKEN_AMOUNT_: 100009982,
-//         _BASE_BALANCE_: 179900000,
-//         _QUOTE_BALANCE_: 10189239,
-//         _ORACLE_PRICE_: 1
-//     };
-//     t.setParameters(dodo);
-//     let amount: number = 10000;
-//     const r: any = t.querySellBaseToken(amount);
-//     //console.log("==r==", r, "=====");
-// })();
-//# sourceMappingURL=PricingFormulaMin.js.map
+
+
+// function test() {
+// var dodotablerows = {
+//     "rows": [
+//         {
+//             "dodos": [
+//                 {
+//                     "key": "daimkrdaimkr",
+//                     "value": {
+//                         "dodo_name": "daimkrdaimkr",
+//                         "initownable": {
+//                             "_OWNER_": "eosdoseosdos",
+//                             "_NEW_OWNER_": ""
+//                         },
+//                         "guard": {
+//                             "_ENTERED_": 0
+//                         },
+//                         "_INITIALIZED_": 1,
+//                         "_CLOSED_": 0,
+//                         "_DEPOSIT_QUOTE_ALLOWED_": 1,
+//                         "_DEPOSIT_BASE_ALLOWED_": 1,
+//                         "_TRADE_ALLOWED_": 1,
+//                         "_GAS_PRICE_LIMIT_": 0,
+//                         "_BUYING_ALLOWED_": 1,
+//                         "_SELLING_ALLOWED_": 1,
+//                         "_BASE_BALANCE_LIMIT_": "18446744073709551615",
+//                         "_QUOTE_BALANCE_LIMIT_": "18446744073709551615",
+//                         "_SUPERVISOR_": "eosdoseosdos",
+//                         "_MAINTAINER_": "eosdoseosdos",
+//                         "_BASE_TOKEN_": {
+//                             "symbol": "4,DAI",
+//                             "contract": "eosdosxtoken"
+//                         },
+//                         "_QUOTE_TOKEN_": {
+//                             "symbol": "4,MKR",
+//                             "contract": "eosdosxtoken"
+//                         },
+//                         "_ORACLE_": {
+//                             "symbol": "4,DAI",
+//                             "contract": "eosdosxtoken"
+//                         },
+//                         "_LP_FEE_RATE_": 1,
+//                         "_MT_FEE_RATE_": 0,
+//                         "_K_": 1,
+//                         "_R_STATUS_": 2,
+//                         "_TARGET_BASE_TOKEN_AMOUNT_": 90000000,
+//                         "_TARGET_QUOTE_TOKEN_AMOUNT_": 100009982,
+//                         "_BASE_BALANCE_": 179900000,
+//                         "_QUOTE_BALANCE_": 10189239,
+//                         "_BASE_CAPITAL_TOKEN_": {
+//                             "symbol": "4,DAI",
+//                             "contract": "daimkrdaimkr"
+//                         },
+//                         "_QUOTE_CAPITAL_TOKEN_": {
+//                             "symbol": "4,MKR",
+//                             "contract": "daimkrdaimkr"
+//                         },
+//                         "_BASE_CAPITAL_RECEIVE_QUOTE_": 0,
+//                         "_QUOTE_CAPITAL_RECEIVE_BASE_": 0,
+//                         "_CLAIMED_": []
+//                     }
+//                 },
+//                 {
+//                     "key": "ethbasemkr11",
+//                     "value": {
+//                         "dodo_name": "ethbasemkr11",
+//                         "initownable": {
+//                             "_OWNER_": "eosdoseosdos",
+//                             "_NEW_OWNER_": ""
+//                         },
+//                         "guard": {
+//                             "_ENTERED_": 0
+//                         },
+//                         "_INITIALIZED_": 1,
+//                         "_CLOSED_": 0,
+//                         "_DEPOSIT_QUOTE_ALLOWED_": 1,
+//                         "_DEPOSIT_BASE_ALLOWED_": 1,
+//                         "_TRADE_ALLOWED_": 1,
+//                         "_GAS_PRICE_LIMIT_": 0,
+//                         "_BUYING_ALLOWED_": 1,
+//                         "_SELLING_ALLOWED_": 1,
+//                         "_BASE_BALANCE_LIMIT_": "18446744073709551615",
+//                         "_QUOTE_BALANCE_LIMIT_": "18446744073709551615",
+//                         "_SUPERVISOR_": "eosdoseosdos",
+//                         "_MAINTAINER_": "eosdoseosdos",
+//                         "_BASE_TOKEN_": {
+//                             "symbol": "4,WETH",
+//                             "contract": "eosdosxtoken"
+//                         },
+//                         "_QUOTE_TOKEN_": {
+//                             "symbol": "4,MKR",
+//                             "contract": "eosdosxtoken"
+//                         },
+//                         "_ORACLE_": {
+//                             "symbol": "4,WETH",
+//                             "contract": "eosdosxtoken"
+//                         },
+//                         "_LP_FEE_RATE_": 2,
+//                         "_MT_FEE_RATE_": 1,
+//                         "_K_": 1,
+//                         "_R_STATUS_": 0,
+//                         "_TARGET_BASE_TOKEN_AMOUNT_": 0,
+//                         "_TARGET_QUOTE_TOKEN_AMOUNT_": 0,
+//                         "_BASE_BALANCE_": 0,
+//                         "_QUOTE_BALANCE_": 0,
+//                         "_BASE_CAPITAL_TOKEN_": {
+//                             "symbol": "4,WETH",
+//                             "contract": "ethbasemkr11"
+//                         },
+//                         "_QUOTE_CAPITAL_TOKEN_": {
+//                             "symbol": "4,MKR",
+//                             "contract": "ethbasemkr11"
+//                         },
+//                         "_BASE_CAPITAL_RECEIVE_QUOTE_": 0,
+//                         "_QUOTE_CAPITAL_RECEIVE_BASE_": 0,
+//                         "_CLAIMED_": []
+//                     }
+//                 }
+//             ]
+//         }
+//     ],
+//     "more": false
+// };
+// var oracletablerows = {
+//     "rows": [
+//         {
+//             "oracles": [
+//                 {
+//                     "key": "0x04444149000000003015a4b9639a3055",
+//                     "value": {
+//                         "ownable": {
+//                             "_OWNER_": "",
+//                             "_NEW_OWNER_": ""
+//                         },
+//                         "_OWNER_": "eosdosoracle",
+//                         "tokenPrice": {
+//                             "quantity": "1.0000 DAI",
+//                             "contract": "eosdosxtoken"
+//                         }
+//                     }
+//                 },
+//                 {
+//                     "key": "0x044d4b52000000003015a4b9639a3055",
+//                     "value": {
+//                         "ownable": {
+//                             "_OWNER_": "",
+//                             "_NEW_OWNER_": ""
+//                         },
+//                         "_OWNER_": "eosdosoracle",
+//                         "tokenPrice": {
+//                             "quantity": "0.0100 MKR",
+//                             "contract": "eosdosxtoken"
+//                         }
+//                     }
+//                 },
+//                 {
+//                     "key": "0x04574554480000003015a4b9639a3055",
+//                     "value": {
+//                         "ownable": {
+//                             "_OWNER_": "",
+//                             "_NEW_OWNER_": ""
+//                         },
+//                         "_OWNER_": "eosdosoracle",
+//                         "tokenPrice": {
+//                             "quantity": "100.0000 WETH",
+//                             "contract": "eosdosxtoken"
+//                         }
+//                     }
+//                 }
+//             ]
+//         }
+//     ],
+//     "more": false
+// };
+//     initOrSyncParameters(dodotablerows, oracletablerows);
+//     var amount = 10000;
+//     var baseToken = "DAI";
+//     var quoteToken = "MKR";
+//     var b = queryBuyToken(amount, baseToken, quoteToken);
+//     //console.log("==b==", b, "=====");
+//     var s = querySellToken(amount, baseToken, quoteToken);
+//     //console.log("==s==", s, "=====");
+// }

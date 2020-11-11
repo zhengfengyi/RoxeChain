@@ -18,6 +18,21 @@ public class TestApiDemo {
     * @param args 运行参数
     */
    public static void main(String[] args) {
+      String dodo = "";
+      try {
+         dodo = readJsonData("./dodo.json");
+         init(dodo);
+      } catch (IOException e) {
+         e.getStackTrace();
+      }
+      double amount     = 10000;
+      String baseToken  = "DAI";
+      String quoteToken = "MKR";
+      query("buy", amount, baseToken, quoteToken);
+      query("sell", amount, baseToken, quoteToken);
+   }
+
+   private static void showEngines() {
       // 构造一个脚本引擎管理器
       ScriptEngineManager manager = new ScriptEngineManager();
       // 遍历所有的引擎工厂，输出引擎工厂的信息
@@ -36,17 +51,6 @@ public class TestApiDemo {
             // callJavaScriptFromFile(engine);
          }
       }
-      String dodo   = null;
-      String oracle = null;
-      try {
-         dodo   = readJsonData("./dodo.json");
-         oracle = readJsonData("./oracle.json");
-      } catch (IOException e) {
-         e.getStackTrace();
-      }
-      double amount = 10000;
-      query("buy", amount, dodo, oracle);
-      query("sell", amount, dodo, oracle);
    }
 
    /**
@@ -82,49 +86,19 @@ public class TestApiDemo {
    }
 
    /**
-    * 从简单字符串执行JavaScript脚本
-    * @param engine 脚本引擎
-    */
-   private static void callSimpleJavaScript(ScriptEngine engine) {
-      try {
-         final String script1 = "var k = 0;";
-         final String script2 = "k + 5;";
-         System.out.println(script1 + " 的执行结果是：" + engine.eval(script1));
-         System.out.println(script2 + " 的执行结果是：" + engine.eval(script2));
-      } catch (ScriptException e) {
-         e.printStackTrace();
-      }
-   }
-
-   /**
     * 从JavaScript文件执行JavaScript脚本
     * @param engine 脚本引擎
     */
-   private static void callJavaScriptFromFile(ScriptEngine engine) {
+   private static void init(String dodo) {
       try {
-         // ScriptEngineManager manager = new ScriptEngineManager();
-         // 		ScriptEngine engine = manager.getEngineByName("javascript");
-         final String fileName = "./PricingFormulaMin.js";
-         File         file     = new File(fileName);
-         if (file.exists()) {
-            System.out.println("从 " + fileName + " 的执行结果是：" + engine.eval(new FileReader(file)));
-            Invocable invoke = (Invocable)engine; // 调用方法，并传入两个参数
-
+         Invocable invoke = getEngine();
+         if (null != invoke) {
             // 方式1 通过对象调用方法， 获取结果
-            Object c = invoke.invokeFunction("m", 10000);
-            System.out.println(c);
-
-            // // 方式2 执行js脚本调用方法， 获取结果
-            // engine.eval("var res = add(2,3);");
-
-            // // 获取新定义的变量，会覆盖原有同名变量
-            // Object o = engine.get("res");
-            // System.out.println(o);
-
+            invoke.invokeFunction("init", dodo);
          } else {
-            System.err.println(fileName + " 不存在，无法执行脚本");
+            System.err.println(" 不存在，无法执行脚本");
          }
-      } catch (NoSuchMethodException | ScriptException | FileNotFoundException e) {
+      } catch (NoSuchMethodException | ScriptException e) {
          e.printStackTrace();
       }
    }
@@ -146,21 +120,28 @@ public class TestApiDemo {
          } else {
             System.err.println(" 不存在，无法执行脚本");
          }
-      } catch (NoSuchMethodException | ScriptException  e) {
+      } catch (NoSuchMethodException | ScriptException e) {
          e.printStackTrace();
       }
 
       return result;
    }
 
+   static ScriptEngine engine = null;
+
    /**
     * 从JavaScript文件执行JavaScript脚本
     * @param engine 脚本引擎
     */
    private static Invocable getEngine() {
+      if (null != engine) {
+         Invocable invoke = (Invocable)engine; // 调用方法，并传入两个参数
+         return invoke;
+      }
+
       try {
          ScriptEngineManager manager = new ScriptEngineManager();
-         ScriptEngine        engine  = manager.getEngineByName("ECMAScript");
+         engine                      = manager.getEngineByName("ECMAScript");
          final String fileName       = "./PricingFormulaMin.js";
          File         file           = new File(fileName);
          if (file.exists()) {
@@ -170,7 +151,7 @@ public class TestApiDemo {
          } else {
             System.err.println(fileName + " 不存在，无法执行脚本");
          }
-      } catch ( ScriptException | FileNotFoundException e) {
+      } catch (ScriptException | FileNotFoundException e) {
          e.printStackTrace();
       }
 
