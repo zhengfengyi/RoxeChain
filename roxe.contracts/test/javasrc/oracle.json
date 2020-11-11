@@ -1,0 +1,4 @@
+{ "ownable" : {"_OWNER_" : "", "_NEW_OWNER_" : ""}, "_OWNER_" : "eosdosoracle", "tokenPrice" : {
+"quantity" : "1.0000 DAI", "contract" : "eosdosxtoken"
+}
+}
