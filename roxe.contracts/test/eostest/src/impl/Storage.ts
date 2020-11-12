@@ -77,8 +77,8 @@ export class Storage {
         // ============ Advanced Controls ============
         this._BUYING_ALLOWED_ = false;
         this._SELLING_ALLOWED_ = false;
-        this._BASE_BALANCE_LIMIT_ = 18446744073709551615;
-        this._QUOTE_BALANCE_LIMIT_ = 18446744073709551615;
+        this._BASE_BALANCE_LIMIT_ = Number(18446744073709551615);
+        this._QUOTE_BALANCE_LIMIT_ = Number(18446744073709551615);
 
         // ============ Core Address ============
 

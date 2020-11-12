@@ -323,8 +323,8 @@ class DoStorage {
         // ============ Advanced Controls ============
         this._BUYING_ALLOWED_ = false;
         this._SELLING_ALLOWED_ = false;
-        this._BASE_BALANCE_LIMIT_ = 18446744073709551615;
-        this._QUOTE_BALANCE_LIMIT_ = 18446744073709551615;
+        this._BASE_BALANCE_LIMIT_ = Number(18446744073709551615);
+        this._QUOTE_BALANCE_LIMIT_ = Number(18446744073709551615);
 
         // ============ Core Address ============
 
@@ -754,8 +754,7 @@ class Trader extends Pricing {
     }
 }
 
-const filter_fields: any[] = ["_BASE_BALANCE_LIMIT_",
-    "_QUOTE_BALANCE_LIMIT_",
+const filter_fields: any[] = [
     "_LP_FEE_RATE_",
     "_MT_FEE_RATE_",
     "_K_",
@@ -778,6 +777,14 @@ function extractDodos(dodo: any) {
     return obj;
 }
 
+
+function extractOraclePrices(oracle: any) {
+    let arr: any[] = oracle.tokenPrice.quantity.split(" ");
+    let alloracles: { [name: string]: any } = {};
+    alloracles["_ORACLE_PRICE_"] = Number(arr[0]);
+    return alloracles;
+}
+
 function filterDodos(origindodos: any) {
     let dodos = origindodos.rows[0]["dodos"];
     let alldodos: { [name: string]: any } = {};
@@ -789,13 +796,6 @@ function filterDodos(origindodos: any) {
     }
 
     return alldodos;
-}
-
-function extractOraclePrices(oracle: any) {
-    let arr: any[] = oracle.tokenPrice.quantity.split(" ");
-    let alloracles: { [name: string]: any } = {};
-    alloracles["_ORACLE_PRICE_"] = Number(arr[0]);
-    return alloracles;
 }
 
 function filterOraclePrices(originoracles: any) {
@@ -842,7 +842,7 @@ function querySellToken(amount: number, baseToken: string, quoteToken: string) {
 
 function queryBuyTokenWithDodo(amount: number, dodo: any) {
     t.setParameters(dodo);
-    console.log(amount,dodo);
+    console.log(amount, dodo);
     const r: any = t.queryBuyBaseToken(amount);
     console.log(r);
     return r;
@@ -859,7 +859,7 @@ function buy(amount: number, dodo: any, oracle: any) {
     let dodojson = extractDodos(JSON.parse(dodo));
     let oraclejson = extractOraclePrices(JSON.parse(oracle));
     Object.assign(dodojson, oraclejson);
-    console.log(amount,dodojson);
+    console.log(amount, dodojson);
     const r: any = queryBuyTokenWithDodo(amount, dodojson);
     console.log(r);
     return r;
@@ -1144,16 +1144,16 @@ function testbuysell() {
     };
 
     const oracletablerows: any = {
-                            "ownable": {
-                                "_OWNER_": "",
-                                "_NEW_OWNER_": ""
-                            },
-                            "_OWNER_": "eosdosoracle",
-                            "tokenPrice": {
-                                "quantity": "1.0000 DAI",
-                                "contract": "eosdosxtoken"
-                            }
-                        };
+        "ownable": {
+            "_OWNER_": "",
+            "_NEW_OWNER_": ""
+        },
+        "_OWNER_": "eosdosoracle",
+        "tokenPrice": {
+            "quantity": "1.0000 DAI",
+            "contract": "eosdosxtoken"
+        }
+    };
     let dodostr: string = JSON.stringify(dodotablerows);
     let oraclestr: string = JSON.stringify(oracletablerows);
     let amount: number = 10000;

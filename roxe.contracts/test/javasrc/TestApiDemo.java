@@ -18,6 +18,23 @@ public class TestApiDemo {
     * @param args 运行参数
     */
    public static void main(String[] args) {
+      testRefactoring();
+      // testbuysell(); 
+   }
+
+   public static void testRefactoring() {
+      String dodo   = "";
+      String oracle = "";
+      try {
+         dodo   = readJsonData("./dodotable.json");
+         oracle = readJsonData("./oracletable.json");
+         refactoringJson(dodo, oracle);
+      } catch (IOException e) {
+         e.getStackTrace();
+      }
+   }
+
+   public static void testbuysell() {
       String dodo = "";
       try {
          dodo = readJsonData("./dodo.json");
@@ -127,12 +144,31 @@ public class TestApiDemo {
       return result;
    }
 
-   static ScriptEngine engine = null;
-
    /**
     * 从JavaScript文件执行JavaScript脚本
     * @param engine 脚本引擎
     */
+   private static String refactoringJson(String dodo, String oracle) {
+      String result = "";
+      try {
+         Invocable invoke = getRefactoringEngine();
+         if (null != invoke) {
+            // 方式1 通过对象调用方法， 获取结果
+            Object c = invoke.invokeFunction("refactoringTableDataJson", dodo, oracle);
+            System.out.println(c);
+            result = c == null ? "" : c.toString();
+         } else {
+            System.err.println(" 不存在，无法执行脚本");
+         }
+      } catch (NoSuchMethodException | ScriptException e) {
+         e.printStackTrace();
+      }
+
+      return result;
+   }
+
+   static ScriptEngine engine = null;
+
    private static Invocable getEngine() {
       if (null != engine) {
          Invocable invoke = (Invocable)engine; // 调用方法，并传入两个参数
@@ -143,6 +179,31 @@ public class TestApiDemo {
          ScriptEngineManager manager = new ScriptEngineManager();
          engine                      = manager.getEngineByName("ECMAScript");
          final String fileName       = "./PricingFormulaMin.js";
+         File         file           = new File(fileName);
+         if (file.exists()) {
+            engine.eval(new FileReader(file));
+            Invocable invoke = (Invocable)engine; // 调用方法，并传入两个参数
+            return invoke;
+         } else {
+            System.err.println(fileName + " 不存在，无法执行脚本");
+         }
+      } catch (ScriptException | FileNotFoundException e) {
+         e.printStackTrace();
+      }
+
+      return null;
+   }
+
+   private static Invocable getRefactoringEngine() {
+      if (null != engine) {
+         Invocable invoke = (Invocable)engine; // 调用方法，并传入两个参数
+         return invoke;
+      }
+
+      try {
+         ScriptEngineManager manager = new ScriptEngineManager();
+         engine                      = manager.getEngineByName("ECMAScript");
+         final String fileName       = "./RefactoringTableJsonMin.js";
          File         file           = new File(fileName);
          if (file.exists()) {
             engine.eval(new FileReader(file));

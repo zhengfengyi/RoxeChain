@@ -13,8 +13,7 @@ const prettyJson = async (log: any) => {
 // console.log(n.divCeil(7));
 export class TraderPricingApi {
 
-    filter_fields: any[] = ["_BASE_BALANCE_LIMIT_",
-        "_QUOTE_BALANCE_LIMIT_",
+    filter_fields: any[] = [
         "_LP_FEE_RATE_",
         "_MT_FEE_RATE_",
         "_K_",
