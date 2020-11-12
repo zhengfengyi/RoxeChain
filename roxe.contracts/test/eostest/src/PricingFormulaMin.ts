@@ -1,6 +1,6 @@
 const Decimal = require('decimal.js');
 // import {Decimal} from 'decimal.js';
-
+import {dodotablerows} from './testjson'
 enum Types_RStatus { ONE, ABOVE_ONE, BELOW_ONE }
 
 class SafeMath {
@@ -365,8 +365,8 @@ class DoStorage {
 
     setParameters(para: any) {
 
-        this._BASE_BALANCE_LIMIT_ = para._BASE_BALANCE_LIMIT_;
-        this._QUOTE_BALANCE_LIMIT_ = para._QUOTE_BALANCE_LIMIT_;
+        // this._BASE_BALANCE_LIMIT_ = para._BASE_BALANCE_LIMIT_;
+        // this._QUOTE_BALANCE_LIMIT_ = para._QUOTE_BALANCE_LIMIT_;
 
         // ============ Variables for PMM Algorithm ============
 
@@ -766,425 +766,50 @@ const filter_fields: any[] = [
 ];
 let t: Trader = new Trader();
 let galldodos: { [name: string]: any } = {};
-let galloracles: { [name: string]: any } = {};
 
-function extractDodos(dodo: any) {
-    let obj: any = {};
-    for (let f of filter_fields) {
-        obj[f] = dodo[f];
-    }
-
-    return obj;
+function init(dodos: any) {
+    galldodos = dodos;
 }
 
-
-function extractOraclePrices(oracle: any) {
-    let arr: any[] = oracle.tokenPrice.quantity.split(" ");
-    let alloracles: { [name: string]: any } = {};
-    alloracles["_ORACLE_PRICE_"] = Number(arr[0]);
-    return alloracles;
-}
-
-function filterDodos(origindodos: any) {
-    let dodos = origindodos.rows[0]["dodos"];
-    let alldodos: { [name: string]: any } = {};
-    for (let dodo of dodos) {
-        alldodos[dodo.key] = {};
-        for (let f of filter_fields) {
-            alldodos[dodo.key][f] = dodo.value[f];
-        }
-    }
-
-    return alldodos;
-}
-
-function filterOraclePrices(originoracles: any) {
-    let oracles = originoracles.rows[0]["oracles"];
-    let alloracles: { [name: string]: any } = {};
-    for (let oracle of oracles) {
-        let arr = oracle.value.tokenPrice.quantity.split(" ");
-        alloracles[arr[1]] = arr[0];
-    }
-    return alloracles;
-}
-
-function initOrSyncParameters(dodos: any, oracles: any) {
-    galldodos = filterDodos(dodos);
-    galloracles = filterOraclePrices(oracles);
-}
-
-function setDodo(baseToken: string, quoteToken: string) {
+function queryDodo(baseToken: string, quoteToken: string) {
     let dodo_name = baseToken.toLowerCase() + "2" + quoteToken.toLowerCase() + "11111";
     dodo_name = dodo_name.substr(0, 12);
     const testdodo_name: { [name: string]: string } = { "dai2mkr11111": "daimkrdaimkr", "eth2mkr11111": "ethbasemkr11" };
     // console.log(dodo_name);
     let dodo = galldodos[testdodo_name[dodo_name]];
-    dodo._ORACLE_PRICE_ = Number(galloracles[baseToken]);
-    // console.log(dodo);
-    t.setParameters(dodo);
 
     return dodo;
 }
 
-function queryBuyToken(amount: number, baseToken: string, quoteToken: string) {
-    setDodo(baseToken, quoteToken);
+function buy(amount: number, baseToken: string, quoteToken: string) {
+    let dodo = queryDodo(baseToken, quoteToken);
+    t.setParameters(dodo);
     const r: any = t.queryBuyBaseToken(amount);
     console.log(r);
     return r;
 }
 
-function querySellToken(amount: number, baseToken: string, quoteToken: string) {
-    setDodo(baseToken, quoteToken);
-    const r: any = t.querySellBaseToken(amount);
-    console.log(r);
-    return r;
-}
-
-function queryBuyTokenWithDodo(amount: number, dodo: any) {
-    t.setParameters(dodo);
-    console.log(amount, dodo);
-    const r: any = t.queryBuyBaseToken(amount);
-    console.log(r);
-    return r;
-}
-
-function querySellTokenWithDodo(amount: number, dodo: any) {
+function sell(amount: number, baseToken: string, quoteToken: string) {
+    let dodo = queryDodo(baseToken, quoteToken);
     t.setParameters(dodo);
     const r: any = t.querySellBaseToken(amount);
-    console.log(r);
-    return r;
-}
-
-function buy(amount: number, dodo: any, oracle: any) {
-    let dodojson = extractDodos(JSON.parse(dodo));
-    let oraclejson = extractOraclePrices(JSON.parse(oracle));
-    Object.assign(dodojson, oraclejson);
-    console.log(amount, dodojson);
-    const r: any = queryBuyTokenWithDodo(amount, dodojson);
-    console.log(r);
-    return r;
-}
-
-function sell(amount: number, dodo: any, oracle: any) {
-    let dodojson = extractDodos(JSON.parse(dodo));
-    let oraclejson = extractOraclePrices(JSON.parse(oracle));
-    Object.assign(dodojson, oraclejson);
-    const r: any = querySellTokenWithDodo(amount, dodojson);
     console.log(r);
     return r;
 }
 
 function test() {
-    const dodotablerows = {
-        "rows": [
-            {
-                "dodos": [
-                    {
-                        "key": "daimkrdaimkr",
-                        "value": {
-                            "dodo_name": "daimkrdaimkr",
-                            "initownable": {
-                                "_OWNER_": "eosdoseosdos",
-                                "_NEW_OWNER_": ""
-                            },
-                            "guard": {
-                                "_ENTERED_": 0
-                            },
-                            "_INITIALIZED_": 1,
-                            "_CLOSED_": 0,
-                            "_DEPOSIT_QUOTE_ALLOWED_": 1,
-                            "_DEPOSIT_BASE_ALLOWED_": 1,
-                            "_TRADE_ALLOWED_": 1,
-                            "_GAS_PRICE_LIMIT_": 0,
-                            "_BUYING_ALLOWED_": 1,
-                            "_SELLING_ALLOWED_": 1,
-                            "_BASE_BALANCE_LIMIT_": "18446744073709551615",
-                            "_QUOTE_BALANCE_LIMIT_": "18446744073709551615",
-                            "_SUPERVISOR_": "eosdoseosdos",
-                            "_MAINTAINER_": "eosdoseosdos",
-                            "_BASE_TOKEN_": {
-                                "symbol": "4,DAI",
-                                "contract": "eosdosxtoken"
-                            },
-                            "_QUOTE_TOKEN_": {
-                                "symbol": "4,MKR",
-                                "contract": "eosdosxtoken"
-                            },
-                            "_ORACLE_": {
-                                "symbol": "4,DAI",
-                                "contract": "eosdosxtoken"
-                            },
-                            "_LP_FEE_RATE_": 1,
-                            "_MT_FEE_RATE_": 0,
-                            "_K_": 1,
-                            "_R_STATUS_": 2,
-                            "_TARGET_BASE_TOKEN_AMOUNT_": 90000000,
-                            "_TARGET_QUOTE_TOKEN_AMOUNT_": 100009982,
-                            "_BASE_BALANCE_": 179900000,
-                            "_QUOTE_BALANCE_": 10189239,
-                            "_BASE_CAPITAL_TOKEN_": {
-                                "symbol": "4,DAI",
-                                "contract": "daimkrdaimkr"
-                            },
-                            "_QUOTE_CAPITAL_TOKEN_": {
-                                "symbol": "4,MKR",
-                                "contract": "daimkrdaimkr"
-                            },
-                            "_BASE_CAPITAL_RECEIVE_QUOTE_": 0,
-                            "_QUOTE_CAPITAL_RECEIVE_BASE_": 0,
-                            "_CLAIMED_": []
-                        }
-                    },
-                    {
-                        "key": "ethbasemkr11",
-                        "value": {
-                            "dodo_name": "ethbasemkr11",
-                            "initownable": {
-                                "_OWNER_": "eosdoseosdos",
-                                "_NEW_OWNER_": ""
-                            },
-                            "guard": {
-                                "_ENTERED_": 0
-                            },
-                            "_INITIALIZED_": 1,
-                            "_CLOSED_": 0,
-                            "_DEPOSIT_QUOTE_ALLOWED_": 1,
-                            "_DEPOSIT_BASE_ALLOWED_": 1,
-                            "_TRADE_ALLOWED_": 1,
-                            "_GAS_PRICE_LIMIT_": 0,
-                            "_BUYING_ALLOWED_": 1,
-                            "_SELLING_ALLOWED_": 1,
-                            "_BASE_BALANCE_LIMIT_": "18446744073709551615",
-                            "_QUOTE_BALANCE_LIMIT_": "18446744073709551615",
-                            "_SUPERVISOR_": "eosdoseosdos",
-                            "_MAINTAINER_": "eosdoseosdos",
-                            "_BASE_TOKEN_": {
-                                "symbol": "4,WETH",
-                                "contract": "eosdosxtoken"
-                            },
-                            "_QUOTE_TOKEN_": {
-                                "symbol": "4,MKR",
-                                "contract": "eosdosxtoken"
-                            },
-                            "_ORACLE_": {
-                                "symbol": "4,WETH",
-                                "contract": "eosdosxtoken"
-                            },
-                            "_LP_FEE_RATE_": 2,
-                            "_MT_FEE_RATE_": 1,
-                            "_K_": 1,
-                            "_R_STATUS_": 0,
-                            "_TARGET_BASE_TOKEN_AMOUNT_": 0,
-                            "_TARGET_QUOTE_TOKEN_AMOUNT_": 0,
-                            "_BASE_BALANCE_": 0,
-                            "_QUOTE_BALANCE_": 0,
-                            "_BASE_CAPITAL_TOKEN_": {
-                                "symbol": "4,WETH",
-                                "contract": "ethbasemkr11"
-                            },
-                            "_QUOTE_CAPITAL_TOKEN_": {
-                                "symbol": "4,MKR",
-                                "contract": "ethbasemkr11"
-                            },
-                            "_BASE_CAPITAL_RECEIVE_QUOTE_": 0,
-                            "_QUOTE_CAPITAL_RECEIVE_BASE_": 0,
-                            "_CLAIMED_": []
-                        }
-                    }
-                ]
-            }
-        ],
-        "more": false
-    };
-
-    const oracletablerows = {
-        "rows": [
-            {
-                "oracles": [
-                    {
-                        "key": "0x04444149000000003015a4b9639a3055",
-                        "value": {
-                            "ownable": {
-                                "_OWNER_": "",
-                                "_NEW_OWNER_": ""
-                            },
-                            "_OWNER_": "eosdosoracle",
-                            "tokenPrice": {
-                                "quantity": "1.0000 DAI",
-                                "contract": "eosdosxtoken"
-                            }
-                        }
-                    },
-                    {
-                        "key": "0x044d4b52000000003015a4b9639a3055",
-                        "value": {
-                            "ownable": {
-                                "_OWNER_": "",
-                                "_NEW_OWNER_": ""
-                            },
-                            "_OWNER_": "eosdosoracle",
-                            "tokenPrice": {
-                                "quantity": "0.0100 MKR",
-                                "contract": "eosdosxtoken"
-                            }
-                        }
-                    },
-                    {
-                        "key": "0x04574554480000003015a4b9639a3055",
-                        "value": {
-                            "ownable": {
-                                "_OWNER_": "",
-                                "_NEW_OWNER_": ""
-                            },
-                            "_OWNER_": "eosdosoracle",
-                            "tokenPrice": {
-                                "quantity": "100.0000 WETH",
-                                "contract": "eosdosxtoken"
-                            }
-                        }
-                    }
-                ]
-            }
-        ],
-        "more": false
-    };
-
-
-
-    initOrSyncParameters(dodotablerows, oracletablerows);
+    // let dodotablerows: any = dodotablerows;
+    init(dodotablerows);
     let amount: number = 10000;
     let baseToken = "DAI";
     let quoteToken = "MKR";
-    const b: any = queryBuyToken(amount, baseToken, quoteToken);
+    const b: any = buy(amount, baseToken, quoteToken);
     console.log("==b==", b, "=====");
-    const s: any = querySellToken(amount, baseToken, quoteToken);
+    const s: any = sell(amount, baseToken, quoteToken);
     console.log("==s==", s, "=====");
 }
 
 
-// test();
-function testWithDodo() {
-    let dodo: any = {
-        _BASE_BALANCE_LIMIT_: '18446744073709551615',
-        _QUOTE_BALANCE_LIMIT_: '18446744073709551615',
-        _LP_FEE_RATE_: 1,
-        _MT_FEE_RATE_: 0,
-        _K_: 1,
-        _R_STATUS_: 2,
-        _TARGET_BASE_TOKEN_AMOUNT_: 90000000,
-        _TARGET_QUOTE_TOKEN_AMOUNT_: 100009982,
-        _BASE_BALANCE_: 179900000,
-        _QUOTE_BALANCE_: 10189239,
-        _ORACLE_PRICE_: 1
-    };
-    let amount: number = 10000;
-    const b: any = queryBuyTokenWithDodo(amount, dodo);
-    console.log("==b==", b, "=====");
-    const s: any = querySellTokenWithDodo(amount, dodo);
-    console.log("==s==", s, "=====");
-
-}
-
-// testWithDodo();
-
-
-function testbuysell() {
-    const dodotablerows: any = {
-        "dodo_name": "daimkrdaimkr",
-        "initownable": {
-            "_OWNER_": "eosdoseosdos",
-            "_NEW_OWNER_": ""
-        },
-        "guard": {
-            "_ENTERED_": 0
-        },
-        "_INITIALIZED_": 1,
-        "_CLOSED_": 0,
-        "_DEPOSIT_QUOTE_ALLOWED_": 1,
-        "_DEPOSIT_BASE_ALLOWED_": 1,
-        "_TRADE_ALLOWED_": 1,
-        "_GAS_PRICE_LIMIT_": 0,
-        "_BUYING_ALLOWED_": 1,
-        "_SELLING_ALLOWED_": 1,
-        "_BASE_BALANCE_LIMIT_": "18446744073709551615",
-        "_QUOTE_BALANCE_LIMIT_": "18446744073709551615",
-        "_SUPERVISOR_": "eosdoseosdos",
-        "_MAINTAINER_": "eosdoseosdos",
-        "_BASE_TOKEN_": {
-            "symbol": "4,DAI",
-            "contract": "eosdosxtoken"
-        },
-        "_QUOTE_TOKEN_": {
-            "symbol": "4,MKR",
-            "contract": "eosdosxtoken"
-        },
-        "_ORACLE_": {
-            "symbol": "4,DAI",
-            "contract": "eosdosxtoken"
-        },
-        "_LP_FEE_RATE_": 1,
-        "_MT_FEE_RATE_": 0,
-        "_K_": 1,
-        "_R_STATUS_": 2,
-        "_TARGET_BASE_TOKEN_AMOUNT_": 90000000,
-        "_TARGET_QUOTE_TOKEN_AMOUNT_": 100009982,
-        "_BASE_BALANCE_": 179900000,
-        "_QUOTE_BALANCE_": 10189239,
-        "_BASE_CAPITAL_TOKEN_": {
-            "symbol": "4,DAI",
-            "contract": "daimkrdaimkr"
-        },
-        "_QUOTE_CAPITAL_TOKEN_": {
-            "symbol": "4,MKR",
-            "contract": "daimkrdaimkr"
-        },
-        "_BASE_CAPITAL_RECEIVE_QUOTE_": 0,
-        "_QUOTE_CAPITAL_RECEIVE_BASE_": 0,
-        "_CLAIMED_": []
-    };
-
-    const oracletablerows: any = {
-        "ownable": {
-            "_OWNER_": "",
-            "_NEW_OWNER_": ""
-        },
-        "_OWNER_": "eosdosoracle",
-        "tokenPrice": {
-            "quantity": "1.0000 DAI",
-            "contract": "eosdosxtoken"
-        }
-    };
-    let dodostr: string = JSON.stringify(dodotablerows);
-    let oraclestr: string = JSON.stringify(oracletablerows);
-    let amount: number = 10000;
-    const b: any = buy(amount, dodostr, oraclestr);
-    console.log("==b==", b, "=====");
-    const s: any = sell(amount, dodostr, oraclestr);
-    console.log("==s==", s, "=====");
-}
-
-testbuysell();
-
-// (async function () {
-//     let dodo: any = {
-//         _BASE_BALANCE_LIMIT_: '18446744073709551615',
-//         _QUOTE_BALANCE_LIMIT_: '18446744073709551615',
-//         _LP_FEE_RATE_: 1,
-//         _MT_FEE_RATE_: 0,
-//         _K_: 1,
-//         _R_STATUS_: 2,
-//         _TARGET_BASE_TOKEN_AMOUNT_: 90000000,
-//         _TARGET_QUOTE_TOKEN_AMOUNT_: 100009982,
-//         _BASE_BALANCE_: 179900000,
-//         _QUOTE_BALANCE_: 10189239,
-//         _ORACLE_PRICE_: 1
-//     };
-//     t.setParameters(dodo);
-//     let amount: number = 10000;
-//     const r: any = t.querySellBaseToken(amount);
-//     console.log("==r==", r, "=====");
-
-// })();
 
 
 
