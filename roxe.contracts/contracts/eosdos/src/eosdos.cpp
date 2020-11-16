@@ -261,9 +261,13 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
       _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
          if (para_name == "k"_n) {
             dodo.setK(para_value);
-         } else {
+         } else  if (para_name == "lpfeerate"_n) {
+            dodo.setLiquidityProviderFeeRate(para_value);
+         }else{
             dodo.setMaintainerFeeRate(para_value);
          }
+
+
       });
    }
 

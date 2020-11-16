@@ -78,7 +78,7 @@ const oracleadmin = "eosdosoracle";
 const doowner = admin;
 const dodo_ethbase_name = "ethbasemkr11";
 const dodo_ethquote_name = "ethquotemkr1";
-const dodo_stablecoin_name = "daimkrdaimkr";
+const dodo_stablecoin_name = "dai2mkr11111";//daimkrdaimkr
 const admin_pub = "ROXE6m2TpGWE59yDPWuBaB3xSJSgYWkggzSTuDv5vLfS3hYzB6UTU2";
 const tokenowner_pub = "ROXE5rM2nqtmCqyeRMpmQQMVTMYYZ9VYq9JDgve4t3Gzy6gVU1wB1z";
 const pub = "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH";
@@ -92,6 +92,7 @@ acc2pub_keys = {
     "ethbasemkr11": "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH",
     "ethquotemkr1": "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH",
     "daimkrdaimkr": "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH",
+    "dai2mkr11111": "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH",
     "tokenissuer1": "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH",
     "maintainer11": "ROXE6m2TpGWE59yDPWuBaB3xSJSgYWkggzSTuDv5vLfS3hYzB6UTU2",
     "alice1111111": "ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH",
@@ -316,10 +317,11 @@ class EosClient {
         console.log(__line); prettyJson(results);
     }
 
-    async setprice(msg_sender, amt) {
+    async setprice(msg_sender, basetoken, quotetoken) {
         const results = await pushTransaction(msg_sender, "setprice", {
             msg_sender: msg_sender,
-            amt: amt
+            basetoken: basetoken,
+            quotetoken: quotetoken
         });
         console.log(__line); prettyJson(results);
     }
@@ -338,6 +340,17 @@ class EosClient {
         });
         console.log(__line); prettyJson(results);
     }
+
+    async setparameter(msg_sender, dodo_name, para_name, para_value) {
+        const results = await pushTransaction(msg_sender, "setparameter", {
+            msg_sender: msg_sender,
+            dodo_name: dodo_name,
+            para_name: para_name,
+            para_value: para_value
+        });
+        console.log(__line); prettyJson(results);
+    }
+
 
     async depositquote(msg_sender, dodo_name, amt) {
         const results = await pushTransaction(msg_sender, "depositquote", {
@@ -574,7 +587,12 @@ let handlers = {
         await client.neworacle(oracleadmin, to_sym("MKR"));
     }),
     "sp": (async function () {
-        await client.setprice(oracleadmin, to_wei_asset(1, "DAI"));
+        await client.setprice(oracleadmin, to_sym("DAI"), to_wei_asset(1, "MKR"));
+    }),
+    "spa": (async function () {
+        await client.setparameter(admin, dodo_stablecoin_name, "k", 100);
+        await client.setparameter(admin, dodo_stablecoin_name, "lpfeerate", 2);
+        await client.setparameter(admin, dodo_stablecoin_name, "mtfeerate", 3);
     }),
     "b": (async function () {
         //  init(admin, maintainer, to_sym("WETH"), get_core_symbol());
@@ -646,7 +664,7 @@ let handlers = {
         // await client.neworacle(oracleadmin, to_sym("WETH"));
         // await client. neworacle(oracleadmin, to_sym("MKR"));
         //   setprice(oracleadmin, to_asset(1000000,"WETH"));
-        await client.setprice(oracleadmin, to_wei_asset(1, "DAI"));
+        await client.setprice(oracleadmin, to_sym("DAI"), to_wei_asset(1, "MKR"));
         const msg_sender = admin;
         const dodo_name = dodo_stablecoin_name;
         const maintainer = doowner;
@@ -664,6 +682,35 @@ let handlers = {
         await client.enablex(admin, dodo_name, "enablebasdep");
         await client.depositbase(lp, dodo_name, to_wei_asset(10000, "DAI"));
         await client.depositquote(lp, dodo_name, to_wei_asset(10000, "MKR"));
+    }),
+    "ss": (async function () {
+        //  init(admin, maintainer, to_sym("WETH"), get_core_symbol());
+        // // dodoZoo, weth, core_symbol
+        // // newethtoken(tokenissuer, to_maximum_supply("WETH"));
+        // newtoken(tokenissuer, to_maximum_supply("MKR"));
+        // mint(lp, to_wei_asset(1000,"MKR"));
+        // mint(trader, to_wei_asset(1000,"MKR"));
+        // await client.neworacle(oracleadmin, to_sym("WETH"));
+        // await client. neworacle(oracleadmin, to_sym("MKR"));
+        //   setprice(oracleadmin, to_asset(1000000,"WETH"));
+        await client.setprice(oracleadmin, to_sym("MKR"), to_wei_asset(1, "DAI"));
+        const msg_sender = admin;
+        const dodo_name = dodo_stablecoin_name;
+        const maintainer = doowner;
+        const baseToken = to_sym("WETH");
+        const quoteToken = to_sym("DAI");
+        const oracle = to_sym("WETH");
+        const lpFeeRate = 1;
+        const mtFeeRate = 0;
+        const k = 1;
+        const gasPriceLimit = 0; // gweiStr("100")
+        await client.breeddodo(
+            msg_sender, dodo_name, maintainer, baseToken, quoteToken, oracle, lpFeeRate, mtFeeRate, k, gasPriceLimit);
+        await client.enablex(admin, dodo_name, "enabletradin");
+        await client.enablex(admin, dodo_name, "enablequodep");
+        await client.enablex(admin, dodo_name, "enablebasdep");
+        await client.depositbase(lp, dodo_name, to_wei_asset(10000, "WETH"));
+        await client.depositquote(lp, dodo_name, to_wei_asset(10000, "DAI"));
     }),
     "scd": (async function () {
         const dodo_name = dodo_stablecoin_name;
