@@ -69,7 +69,7 @@ class transfer_mgmt {
    }
 
    symbol core_symbol() const {
-      symbol _core_symbol = symbol(symbol_code("ROC"), 4);
+      symbol _core_symbol = symbol(symbol_code("EOS"), 4);
       return _core_symbol;
    }
 

@@ -23,6 +23,14 @@ struct [[roxe::table("dodo"), roxe::contract("eosdos")]] DODOStorage {
 
 typedef roxe::singleton<"dodo"_n, DODOStorage> DODOStorageSingleton;
 
+struct [[roxe::table, roxe::contract("eosdos")]] dodo_storage {
+   name      dodo;
+   DODOStore dodos;
+   uint64_t  primary_key() const { return dodo.value; }
+};
+
+typedef roxe::multi_index<"dodos"_n, dodo_storage> dodo_storage_table;
+
 struct [[roxe::table("proxy"), roxe::contract("eosdos")]] ProxyStorage {
    DODOEthProxyStore    proxy;
    ReentrancyGuardStore guard;

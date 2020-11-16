@@ -31,8 +31,8 @@ class storage_mgmt {
    HelperStorage          helper_storage;
    TokenStorageSingleton  token_storage_singleton;
    TokenStorage           token_storage;
-   OracleStorageSingleton oracle_storage_singleton;
-   OracleStorage          oracle_storage;
+   oracle_storage_table   oracle_table;
+   dodo_storage_table     dodo_table;
 
  public:
    storage_mgmt(name _self)
@@ -42,13 +42,13 @@ class storage_mgmt {
        , proxy_storage_singleton(_self, _self.value)
        , helper_storage_singleton(_self, _self.value)
        , token_storage_singleton(_self, _self.value)
-       , oracle_storage_singleton(_self, _self.value) {
+       , oracle_table(_self, _self.value)
+       , dodo_table(_self, _self.value) {
       zoo_storage    = zoo_storage_singleton.exists() ? zoo_storage_singleton.get() : ZooStorage{};
       dodo_storage   = dodo_storage_singleton.exists() ? dodo_storage_singleton.get() : DODOStorage{};
       proxy_storage  = proxy_storage_singleton.exists() ? proxy_storage_singleton.get() : ProxyStorage{};
       helper_storage = helper_storage_singleton.exists() ? helper_storage_singleton.get() : HelperStorage{};
       token_storage  = token_storage_singleton.exists() ? token_storage_singleton.get() : TokenStorage{};
-      oracle_storage = oracle_storage_singleton.exists() ? oracle_storage_singleton.get() : OracleStorage{};
    }
    ~storage_mgmt() {
       zoo_storage_singleton.set(zoo_storage, self);
@@ -56,7 +56,6 @@ class storage_mgmt {
       proxy_storage_singleton.set(proxy_storage, self);
       helper_storage_singleton.set(helper_storage, self);
       token_storage_singleton.set(token_storage, self);
-      oracle_storage_singleton.set(oracle_storage, self);
    }
 
    ZooStorage&    get_zoo_store() { return zoo_storage; }
@@ -81,14 +80,6 @@ class storage_mgmt {
       return t->second;
    }
 
-   OracleStore& get_oracle_store(const extended_symbol& oracle) {
-      namesym oracle_name = to_namesym(oracle);
-      auto    t           = oracle_storage.oracles.find(oracle_name);
-      bool    f           = (t != oracle_storage.oracles.end());
-      require(f, "NO_ORACLE");
-      return t->second;
-   }
-
    TokenStore& newTokenStore(const extended_symbol& token) {
       namesym token_name = to_namesym(token);
       auto    t          = token_storage.tokens.find(token_name);
@@ -100,17 +91,6 @@ class storage_mgmt {
       return pb.first->second;
    }
 
-   OracleStore& newOracleStore(const extended_symbol& oracle) {
-      namesym oracle_name = to_namesym(oracle);
-      auto    t           = oracle_storage.oracles.find(oracle_name);
-      bool    f           = (t == oracle_storage.oracles.end());
-      require(f, "ALREADY_EXIST_ORACLE");
-
-      auto pb = oracle_storage.oracles.insert(std::map<namesym, OracleStore>::value_type(oracle_name, OracleStore()));
-      require(pb.second, "INSERT_TOKEN_FAIL");
-      return pb.first->second;
-   }
-
    DODOStore& newDodoStore(name dodo_name) {
       auto t = dodo_storage.dodos.find(dodo_name);
       bool f = (t == dodo_storage.dodos.end());
@@ -118,5 +98,59 @@ class storage_mgmt {
       auto pb = dodo_storage.dodos.insert(std::map<name, DODOStore>::value_type(dodo_name, DODOStore()));
       require(pb.second, "INSERT_DODO_FAIL");
       return pb.first->second;
+   }
+
+   const DODOStore& newDodo(name msg_sender,name dodo_name) {
+      auto t = dodo_table.find(dodo_name.value);
+      bool f = (t == dodo_table.end());
+      require(f, "ALREADY_EXIST_DODO");
+      t = dodo_table.emplace(msg_sender, [&](auto& o) {
+         o.dodo  = dodo_name;
+         o.dodos = DODOStore();
+      });
+      return t->dodos;
+   }
+
+   const DODOStore& get_dodo(name dodo_name) {
+      auto t = dodo_table.find(dodo_name.value);
+      bool f = (t != dodo_table.end());
+      require(f, "NO_DODO");
+      return t->dodos;
+   }
+
+   void saveDodo(name dodo_name,const DODOStore& dodos) {
+      auto t = dodo_table.find(dodo_name.value);
+      bool f = (t != dodo_table.end());
+      require(f, "NO_DODO");
+      dodo_table.modify(t, same_payer, [&](auto& d) { d.dodos = dodos; });
+   }
+
+   void save_oracle_price(name msg_sender, const extended_symbol& basetoken, const extended_asset& quotetoken) {
+      uint64_t key = get_hash_key(get_checksum256(
+          basetoken.get_contract().value, basetoken.get_symbol().raw(),
+          quotetoken.get_extended_symbol().get_contract().value, quotetoken.get_extended_symbol().get_symbol().raw()));
+
+      auto oracle = oracle_table.find(key);
+      if (oracle == oracle_table.end()) {
+         oracle_table.emplace(msg_sender, [&](auto& o) {
+            o.basetoken  = basetoken;
+            o.quotetoken = quotetoken;
+         });
+      } else {
+         oracle_table.modify(oracle, same_payer, [&](auto& o) {
+            o.basetoken  = basetoken;
+            o.quotetoken = quotetoken;
+         });
+      }
+   }
+
+   uint64_t get_oracle_price(const extended_symbol& basetoken, const extended_symbol& quotetoken) {
+      uint64_t key = get_hash_key(get_checksum256(
+          basetoken.get_contract().value, basetoken.get_symbol().raw(), quotetoken.get_contract().value,
+          quotetoken.get_symbol().raw()));
+
+      auto oracle = oracle_table.find(key);
+      check(oracle != oracle_table.end(), "no oracle");
+      return oracle->quotetoken.quantity.amount;
    }
 };

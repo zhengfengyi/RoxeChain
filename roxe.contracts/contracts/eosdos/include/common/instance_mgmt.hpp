@@ -15,7 +15,6 @@
 #include <common/storage_mgmt.hpp>
 #include <common/transfer_mgmt.hpp>
 #include <eosdos/dodo.hpp>
-#include <eosdos/helper/MinimumOracle.hpp>
 #include <eosdos/helper/TestERC20.hpp>
 #include <eosdos/helper/TestWETH.hpp>
 #include <eosdos/impl/DODOLpToken.hpp>
@@ -38,7 +37,7 @@ class instance_mgmt : public IFactory {
 
    template <typename T>
    void get_dodo(name _msg_sender, name dodo_name, T func) {
-      DODOStore& dodoStore = _storage_mgmt.get_dodo_store(dodo_name);
+      const DODOStore& dodoStore = _storage_mgmt.get_dodo(dodo_name);
       DODO       dodo(dodoStore, *this);
       dodo.setMsgSender(_msg_sender);
       func(dodo);
@@ -56,48 +55,33 @@ class instance_mgmt : public IFactory {
    template <typename T, typename F>
    void get_token(name _msg_sender, const extended_symbol& _token, F func) {
       TokenStore& tokenStore = _storage_mgmt.get_token_store(_token);
-      T          token(tokenStore);
+      T           token(tokenStore);
       token.setMsgSender(_msg_sender);
       func(token);
-   }
-
-   template <typename T>
-   void get_oracle(name _msg_sender, const extended_symbol& oracle, T func) {
-      OracleStore&  oracleStore = _storage_mgmt.get_oracle_store(oracle);
-      MinimumOracle minioracle(oracleStore);
-      minioracle.setMsgSender(_msg_sender);
-      func(minioracle);
    }
 
    void newDODO(
        name _msg_sender, name dodo_name, address owner, address supervisor, address maintainer,
        const extended_symbol& baseToken, const extended_symbol& quoteToken, const extended_symbol& oracle,
-       uint256 lpFeeRate, uint256 mtFeeRate, uint256 k, uint256 gasPriceLimit) {
-      DODOStore& dodoStore = _storage_mgmt.newDodoStore(dodo_name);
-      DODO       dodo(dodoStore, *this);
+       uint64_t lpFeeRate, uint64_t mtFeeRate, uint64_t k, uint64_t gasPriceLimit) {
+      const DODOStore& dodoStore = _storage_mgmt.newDodo(_msg_sender, dodo_name);
+      DODO             dodo(dodoStore, *this);
       dodo.setMsgSender(_msg_sender);
       dodo.init(
           dodo_name, owner, supervisor, maintainer, baseToken, quoteToken, oracle, lpFeeRate, mtFeeRate, k,
           gasPriceLimit);
    }
 
-   void newOracle(name _msg_sender, const extended_symbol& tokenx) {
-      OracleStore&  oracleStore = _storage_mgmt.newOracleStore(tokenx);
-      MinimumOracle minioracle(oracleStore);
-      minioracle.setMsgSender(_msg_sender);
-      minioracle.init();
-   }
-
    template <typename T>
    void newToken(name _msg_sender, const extended_asset& tokenx) {
       const extended_symbol& exsym      = tokenx.get_extended_symbol();
       TokenStore&            tokenStore = _storage_mgmt.newTokenStore(exsym);
-      T              otoken(tokenStore);
+      T                      otoken(tokenStore);
       otoken.setMsgSender(_msg_sender);
       otoken.init(tokenx);
    }
-   static const uint256 MAX_TOTAL_SUPPLY = 1000000000000000;
-   extended_symbol      newLpToken(name _msg_sender, name dodo_name, const extended_symbol& tokenx) override {
+   static const uint64_t MAX_TOTAL_SUPPLY = 1000000000000000;
+   extended_symbol       newLpToken(name _msg_sender, name dodo_name, const extended_symbol& tokenx) override {
       const symbol&   sym   = tokenx.get_symbol();
       extended_symbol exsym = extended_symbol(sym, dodo_name);
 

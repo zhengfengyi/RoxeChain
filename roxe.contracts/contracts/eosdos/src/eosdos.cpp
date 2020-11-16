@@ -254,6 +254,19 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
       _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) { dodo.enableBaseDeposit(); });
    }
 
+   [[roxe::action]] void setparameter(name msg_sender, name dodo_name, name para_name, uint64_t para_value) {
+      check(admin_account == msg_sender, "no  admin");
+      check(para_name == "k"_n || para_name == "feerate"_n, "no  parameter");
+      proxy.setMsgSender(msg_sender);
+      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
+         if (para_name == "k"_n) {
+            dodo.setK(para_value);
+         } else {
+            dodo.setMaintainerFeeRate(para_value);
+         }
+      });
+   }
+
    ////////////////////  LiquidityProvider dodo////////////////////////
    [[roxe::action]] void depositquote(name msg_sender, name dodo_name, const extended_asset& amt) {
       proxy.setMsgSender(msg_sender);
@@ -265,7 +278,8 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    }
    [[roxe::action]] void withdrawquote(name msg_sender, name dodo_name, const extended_asset& amt) {
       proxy.setMsgSender(msg_sender);
-      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) { (void)dodo.withdrawQuote(amt.quantity.amount); });
+      _instance_mgmt.get_dodo(
+          msg_sender, dodo_name, [&](auto& dodo) { (void)dodo.withdrawQuote(amt.quantity.amount); });
    }
    [[roxe::action]] void withdrawbase(name msg_sender, name dodo_name, const extended_asset& amt) {
       proxy.setMsgSender(msg_sender);
@@ -294,16 +308,11 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
       });
    }
    ////////////////////   Oracle////////////////////////
-   [[roxe::action]] void neworacle(name msg_sender, const extended_symbol& token) {
+   [[roxe::action]] void setprice(
+       name msg_sender, const extended_symbol& basetoken, const extended_asset& quotetoken) {
       check(oracle_account == msg_sender, "no oracle admin");
       proxy.setMsgSender(msg_sender);
-      _instance_mgmt.newOracle(msg_sender, token);
-   }
-
-   [[roxe::action]] void setprice(name msg_sender, const extended_asset& amt) {
-      check(oracle_account == msg_sender, "no oracle admin");
-      proxy.setMsgSender(msg_sender);
-      _instance_mgmt.get_oracle(msg_sender, amt.get_extended_symbol(), [&](auto& oracle) { oracle.setPrice(amt); });
+      _instance_mgmt.get_storage_mgmt().save_oracle_price(msg_sender, basetoken, quotetoken);
    }
 
    ////////////////////  TOKEN////////////////////////
@@ -343,7 +352,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
             auto           paras = transfer_mgmt::parse_string(action_event.param);
             name           pool_name;
             extended_asset balance;
-            uint64_t        denorm;
+            uint64_t       denorm;
             proxy.setMsgSender(action_event.msg_sender);
             // proxy.pool(pool_name, [&](auto& pool) { pool.bind(balance, denorm); });
          }
@@ -352,7 +361,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
 
    [[roxe::on_notify("*::transfer")]] void on_transfer_by_non(name from, name to, asset quantity, std::string memo) {
       check(get_first_receiver() != "roxe.token"_n, "should not be roxe.token");
-      my_print_f("On notify ACTION_STEP::STEP_TWO :% % % % %", get_first_receiver(), from, to, quantity, memo);
+      my_print_f("On notify 2 :% % % % %", get_first_receiver(), from, to, quantity, memo);
       _instance_mgmt.get_transfer_mgmt().non_eosiotoken_transfer(
           from, to, quantity, memo, [&](const auto& action_event) {
 

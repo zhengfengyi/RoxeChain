@@ -6,7 +6,8 @@
 #include <roxe/singleton.hpp>
 #include <roxe/symbol.hpp>
 #include <roxe/system.hpp>
-
+#include <common/dos.functions.hpp>
+#include <common/dos.types.hpp>
 // DEBUG(format,...) printf("FILE: "__FILE__", LINE: %d: "format"/n", __LINE__, ##__VA_ARGS__)
 #define EOSDOS_CONTRACT_DEBUG
 
@@ -21,7 +22,7 @@ using namespace roxe;
 using bytes   = std::vector<char>;
 using bytes32 = std::vector<char>;
 using address = name;
-using uint256 = uint64_t;
+using uint256 = uint128_t;
 using uint112 = uint64_t;
 using uint8   = uint8_t;
 using uint32  = uint32_t;
