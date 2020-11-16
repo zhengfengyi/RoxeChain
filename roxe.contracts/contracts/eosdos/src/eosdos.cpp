@@ -256,7 +256,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
 
    [[roxe::action]] void setparameter(name msg_sender, name dodo_name, name para_name, uint64_t para_value) {
       check(admin_account == msg_sender, "no  admin");
-      check(para_name == "k"_n || para_name == "feerate"_n, "no  parameter");
+      check(para_name == "k"_n || para_name == "lpfeerate"_n|| para_name == "mtfeerate"_n, "no  parameter");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
          if (para_name == "k"_n) {
@@ -266,8 +266,6 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
          }else{
             dodo.setMaintainerFeeRate(para_value);
          }
-
-
       });
    }
 
