@@ -26,6 +26,13 @@ $CLS set contract eosdoseosdos /data/roxe/balanceos/RoxeChain/roxe.contracts/bui
 $CLS system newaccount roxe1 daimkrdaimkr ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH --stake-net "10000.0000 ROC" --stake-cpu "10000.0000 ROC" --buy-ram "10000.0000 ROC" -p roxe1@active
 $CLS set contract daimkrdaimkr /data/roxe/balanceos/RoxeChain/roxe.contracts/build/contracts/roxe.token -p daimkrdaimkr
 ;;
+"ss") 
+$CLS system newaccount roxe1 dai2mkr11111 ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH --stake-net "10000.0000 ROC" --stake-cpu "10000.0000 ROC" --buy-ram "10000.0000 ROC" -p roxe1@active
+$CLS set contract dai2mkr11111 /data/roxe/balanceos/RoxeChain/roxe.contracts/build/contracts/roxe.token -p daimkrdaimkr
+;;
+"t") 
+$CLS transfer rox1 dai2mkr11111 "1000000.0000 ROC"
+;;
 *) echo "u --unlock \n n --new account \n d  --depoly contract";;
 esac
 
