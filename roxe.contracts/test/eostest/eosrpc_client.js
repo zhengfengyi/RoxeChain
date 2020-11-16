@@ -587,6 +587,8 @@ let handlers = {
         await client.neworacle(oracleadmin, to_sym("MKR"));
     }),
     "sp": (async function () {
+        await client.setprice(oracleadmin, to_sym("WETH"), to_wei_asset(1, "DAI"));
+        await client.setprice(oracleadmin, to_sym("MKR"), to_wei_asset(1, "DAI"));
         await client.setprice(oracleadmin, to_sym("DAI"), to_wei_asset(1, "MKR"));
     }),
     "spa": (async function () {
@@ -693,7 +695,7 @@ let handlers = {
         // await client.neworacle(oracleadmin, to_sym("WETH"));
         // await client. neworacle(oracleadmin, to_sym("MKR"));
         //   setprice(oracleadmin, to_asset(1000000,"WETH"));
-        await client.setprice(oracleadmin, to_sym("MKR"), to_wei_asset(1, "DAI"));
+        await client.setprice(oracleadmin, to_sym("WETH"), to_wei_asset(1, "DAI"));
         const msg_sender = admin;
         const dodo_name = dodo_stablecoin_name;
         const maintainer = doowner;

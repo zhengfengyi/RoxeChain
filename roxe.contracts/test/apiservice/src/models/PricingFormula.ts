@@ -28,16 +28,16 @@ export class PricingApi {
     async getDodo() {
         let dodo = await this.getDodos();
         let oracle = await this.getOraclePrices();
-        // let dodojsonstr = new RefactoringTableJsonMin().refactoringTableDataJson(dodo, oracle);
+        let dodojsonstr = await new RefactoringTableJsonMin().refactoringTableDataJson(dodo, oracle);
         // await prettyJson(dodojsonstr);
-        // return dodojsonstr;
+        return dodojsonstr;
     }
 }
 
 (async function () {
     const api = new PricingApi();
     let b: any = await api.getDodo();
-    // console.log("==b==", b, "=====");
+    console.log( JSON.stringify(b) );
     // let s: any = await api.querySellToken(10000, "DAI", "MKR");
     // console.log("=s==", s, "===");
 })();

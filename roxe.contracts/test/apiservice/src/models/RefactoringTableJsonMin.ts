@@ -1,3 +1,4 @@
+import { isConstructorDeclaration } from "typescript";
 
 export class RefactoringTableJsonMin {
     refactoring_fields: any[] = [
@@ -11,38 +12,44 @@ export class RefactoringTableJsonMin {
         "_QUOTE_BALANCE_"
     ];
 
-    refactoringTableDataJson(dodotablejson: any, oracletablejson: any) {
-// console.log(dodotablejson,oracletablejson);
+    async refactoringTableDataJson(dodotablejson: any, oracletablejson: any) {
+        // console.log(dodotablejson,oracletablejson);
         // let dodotablejson = JSON.parse(dodotablejsonstr);
         // let oracletablejson = JSON.parse(oracletablejsonstr);
-        let oraclejson = this.refactoringOracleTableJson(oracletablejson);
-        let dodos = this.refactoringDodoTableJson(dodotablejson, oraclejson);
+        let oraclejson = await this.refactoringOracleTableJson(oracletablejson);
+
+        let dodos = await this.refactoringDodoTableJson(dodotablejson, oraclejson);
         return dodos;
         // return JSON.stringify(dodos);
     }
 
-    refactoringDodoTableJson(dodotablejson: any, oraclejson: any) {
-        let dodos = dodotablejson.rows[0]["dodos"];
-        let alldodos: { [name: string]: any } = {};
-        for (let dodo of dodos) {
-            alldodos[dodo.key] = {};
-            let basetoken = dodo.value._BASE_TOKEN_.symbol.split(",")[1];
-            alldodos[dodo.key]._ORACLE_PRICE_ = Number(oraclejson[basetoken]);
+    async refactoringDodoTableJson(dodotablejson: any, oraclejson: any) {
+        let dodos = dodotablejson.rows;//[0]["dodos"];
+        let alldodos: any = {};
+        for (let d of dodos) {
+            alldodos[d.dodo] = {};
+            let basetoken = d.dodos._BASE_TOKEN_.symbol.split(",")[1];
+            let quotetoken = d.dodos._QUOTE_TOKEN_.symbol.split(",")[1];
+            alldodos[d.dodo]["_ORACLE_PRICE_"] = Number(oraclejson[basetoken][quotetoken]);
             for (let f of this.refactoring_fields) {
-                alldodos[dodo.key][f] = dodo.value[f];
+                alldodos[d.dodo][f] = d.dodos[f];
             }
         }
 
         return alldodos;
     }
 
-    refactoringOracleTableJson(oracletablejson: any) {
-        let oracles = oracletablejson.rows[0]["oracles"];
-        let alloracles: { [name: string]: any } = {};
+    async refactoringOracleTableJson(oracletablejson: any) {
+        let oracles = oracletablejson.rows;//[0]["oracles"];
+        let alloracles: any = {};
         for (let oracle of oracles) {
-            let arr = oracle.value.tokenPrice.quantity.split(" ");
-            alloracles[arr[1]] = arr[0];
+            let b = oracle.basetoken.symbol.split(",");
+            let q = oracle.quotetoken.quantity.split(" ");
+            alloracles[b[1]] = {};
+            alloracles[b[1]][q[1]] = q[0];
+            // Object.assign(alloracles, { [b[1]]: { [q[1]]: q[0] } });
         }
+
         return alloracles;
     }
 }
