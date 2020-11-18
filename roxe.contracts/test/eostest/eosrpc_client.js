@@ -18,8 +18,8 @@ const EOS_RPC = require('../lib/eos_rpc')
 const eosrpc = EOS_RPC();
 
 const prettyJson = async (log) => {
-    let jsonstr = await jq.run('.', JSON.stringify(log), { input: 'string', output: 'pretty' });
-    console.log(jsonstr);
+    // let jsonstr = await jq.run('.', JSON.stringify(log), { input: 'string', output: 'pretty' });
+    console.log(JSON.stringify(log));
 };
 
 dotenv.load();
@@ -393,7 +393,8 @@ class EosClient {
             msg_sender: msg_sender,
             dodo_name: dodo_name
         });
-        console.log(__line); prettyJson(results);
+        console.log(__line);
+        prettyJson(results);
     }
 
     async withdrawallb(msg_sender, dodo_name, amt) {
@@ -576,6 +577,8 @@ let handlers = {
         await client.mint(trader, to_wei_asset(1000, "MKR"));
     }),
     "ms": (async function () {
+        await client.mint(lp, to_wei_asset(10000, "WETH"));
+        await client.mint(trader, to_wei_asset(10000, "WETH"));
         await client.mint(lp, to_wei_asset(10000, "DAI"));
         await client.mint(trader, to_wei_asset(10000, "DAI"));
         await client.mint(lp, to_wei_asset(10000, "MKR"));
@@ -716,8 +719,8 @@ let handlers = {
     }),
     "scd": (async function () {
         const dodo_name = dodo_stablecoin_name;
-        await client.depositbase(lp, dodo_name, to_wei_asset(10000, "DAI"));
-        await client.depositquote(lp, dodo_name, to_wei_asset(10000, "MKR"));
+        await client.depositbase(lp, dodo_name, to_wei_asset(10000, "WETH"));
+        // await client.depositquote(lp, dodo_name, to_wei_asset(10000, "MKR"));
     }),
     "scw": (async function () {
         const dodo_name = dodo_stablecoin_name;

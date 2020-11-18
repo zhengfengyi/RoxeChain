@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { BaseRoute } from "./route";
-import { PricingApi } from "../models/PricingFormula"
+import { PricingApi } from "../models/PricingApi"
 
 import debug from "debug";
 debug('dodo');

@@ -20,7 +20,7 @@ using namespace roxe;
 using bytes = std::vector<char>;
 
 using address = name;
-using uint = uint64_t;
+using uint256 = uint128_t;
 using uint8 = uint8_t;
 using namesym =uint128_t;
 

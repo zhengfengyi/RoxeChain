@@ -1,4 +1,4 @@
-import { isConstructorDeclaration } from "typescript";
+// import { isConstructorDeclaration } from "typescript";
 
 export class RefactoringTableJsonMin {
     refactoring_fields: any[] = [

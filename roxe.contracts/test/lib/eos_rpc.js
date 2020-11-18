@@ -5,7 +5,7 @@ let { chain, wallet } = require('../eos-rpc');
 const c = chain();
 const w = wallet();
 // const WALLET_NAME = "x";//String(Date.now());   PW5JUgVnkvL6TwRU1kVZc6VBPTfgXmVzDwgEcJ3utkt8oGox1ToAn
-const DEFAULT_WALLET_NAME = '345';
+const DEFAULT_WALLET_NAME = '34567';
 let password = '';
 const pwdfn = "._";
 module.exports = () => {

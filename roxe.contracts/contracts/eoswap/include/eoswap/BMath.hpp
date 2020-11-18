@@ -28,13 +28,13 @@ public:
   // wO = tokenWeightOut //
   // sF = swapFee //
   **********************************************************************************************/
-  uint calcSpotPrice(uint tokenBalanceIn, uint tokenWeightIn,
-                     uint tokenBalanceOut, uint tokenWeightOut, uint swapFee) {
-    uint numer = bdiv(tokenBalanceIn, tokenWeightIn);
-    uint denom = bdiv(tokenBalanceOut, tokenWeightOut);
-    uint ratio = bdiv(numer, denom);
-    uint scale = bdiv(BONE, bsub(BONE, swapFee));
-    uint spotPrice = bmul(ratio, scale);
+  uint256 calcSpotPrice(uint256 tokenBalanceIn, uint256 tokenWeightIn,
+                     uint256 tokenBalanceOut, uint256 tokenWeightOut, uint256 swapFee) {
+    uint256 numer = bdiv(tokenBalanceIn, tokenWeightIn);
+    uint256 denom = bdiv(tokenBalanceOut, tokenWeightOut);
+    uint256 ratio = bdiv(numer, denom);
+    uint256 scale = bdiv(BONE, bsub(BONE, swapFee));
+    uint256 spotPrice = bmul(ratio, scale);
     return spotPrice;
   }
 
@@ -50,16 +50,16 @@ public:
   // wO = tokenWeightOut //
   // sF = swapFee //
   **********************************************************************************************/
-  uint calcOutGivenIn(uint tokenBalanceIn, uint tokenWeightIn,
-                      uint tokenBalanceOut, uint tokenWeightOut,
-                      uint tokenAmountIn, uint swapFee) {
-    uint weightRatio = bdiv(tokenWeightIn, tokenWeightOut);
-    uint adjustedIn = bsub(BONE, swapFee);
+  uint256 calcOutGivenIn(uint256 tokenBalanceIn, uint256 tokenWeightIn,
+                      uint256 tokenBalanceOut, uint256 tokenWeightOut,
+                      uint256 tokenAmountIn, uint256 swapFee) {
+    uint256 weightRatio = bdiv(tokenWeightIn, tokenWeightOut);
+    uint256 adjustedIn = bsub(BONE, swapFee);
     adjustedIn = bmul(tokenAmountIn, adjustedIn);
-    uint y = bdiv(tokenBalanceIn, badd(tokenBalanceIn, adjustedIn));
-    uint foo = bpow(y, weightRatio);
-    uint bar = bsub(BONE, foo);
-    uint tokenAmountOut = bmul(tokenBalanceOut, bar);
+    uint256 y = bdiv(tokenBalanceIn, badd(tokenBalanceIn, adjustedIn));
+    uint256 foo = bpow(y, weightRatio);
+    uint256 bar = bsub(BONE, foo);
+    uint256 tokenAmountOut = bmul(tokenBalanceOut, bar);
     return tokenAmountOut;
   }
 
@@ -77,15 +77,15 @@ public:
   // wO = tokenWeightOut                          ( 1 - sF ) //
   // sF = swapFee //
   **********************************************************************************************/
-  uint calcInGivenOut(uint tokenBalanceIn, uint tokenWeightIn,
-                      uint tokenBalanceOut, uint tokenWeightOut,
-                      uint tokenAmountOut, uint swapFee) {
-    uint weightRatio = bdiv(tokenWeightOut, tokenWeightIn);
-    uint diff = bsub(tokenBalanceOut, tokenAmountOut);
-    uint y = bdiv(tokenBalanceOut, diff);
-    uint foo = bpow(y, weightRatio);
+  uint256 calcInGivenOut(uint256 tokenBalanceIn, uint256 tokenWeightIn,
+                      uint256 tokenBalanceOut, uint256 tokenWeightOut,
+                      uint256 tokenAmountOut, uint256 swapFee) {
+    uint256 weightRatio = bdiv(tokenWeightOut, tokenWeightIn);
+    uint256 diff = bsub(tokenBalanceOut, tokenAmountOut);
+    uint256 y = bdiv(tokenBalanceOut, diff);
+    uint256 foo = bpow(y, weightRatio);
     foo = bsub(foo, BONE);
-    uint tokenAmountIn = bsub(BONE, swapFee);
+    uint256 tokenAmountIn = bsub(BONE, swapFee);
     tokenAmountIn = bdiv(bmul(tokenBalanceIn, foo), tokenAmountIn);
     return tokenAmountIn;
   }
@@ -103,24 +103,24 @@ public:
   // pS = poolSupply            \\                    tBi               / / //
   // sF = swapFee                \ /              //
   **********************************************************************************************/
-  uint calcPoolOutGivenSingleIn(uint tokenBalanceIn, uint tokenWeightIn,
-                                uint poolSupply, uint totalWeight,
-                                uint tokenAmountIn, uint swapFee) {
+  uint256 calcPoolOutGivenSingleIn(uint256 tokenBalanceIn, uint256 tokenWeightIn,
+                                uint256 poolSupply, uint256 totalWeight,
+                                uint256 tokenAmountIn, uint256 swapFee) {
     // Charge the trading fee for the proportion of tokenAi
     ///  which is implicitly traded to the other pool tokens.
     // That proportion is (1- weightTokenIn)
     // tokenAiAfterFee = tAi * (1 - (1-weightTi) * poolFee);
-    uint normalizedWeight = bdiv(tokenWeightIn, totalWeight);
-    uint zaz = bmul(bsub(BONE, normalizedWeight), swapFee);
-    uint tokenAmountInAfterFee = bmul(tokenAmountIn, bsub(BONE, zaz));
+    uint256 normalizedWeight = bdiv(tokenWeightIn, totalWeight);
+    uint256 zaz = bmul(bsub(BONE, normalizedWeight), swapFee);
+    uint256 tokenAmountInAfterFee = bmul(tokenAmountIn, bsub(BONE, zaz));
 
-    uint newTokenBalanceIn = badd(tokenBalanceIn, tokenAmountInAfterFee);
-    uint tokenInRatio = bdiv(newTokenBalanceIn, tokenBalanceIn);
+    uint256 newTokenBalanceIn = badd(tokenBalanceIn, tokenAmountInAfterFee);
+    uint256 tokenInRatio = bdiv(newTokenBalanceIn, tokenBalanceIn);
 
-    // uint newPoolSupply = (ratioTi ^ weightTi) * poolSupply;
-    uint poolRatio = bpow(tokenInRatio, normalizedWeight);
-    uint newPoolSupply = bmul(poolRatio, poolSupply);
-    uint poolAmountOut = bsub(newPoolSupply, poolSupply);
+    // uint256 newPoolSupply = (ratioTi ^ weightTi) * poolSupply;
+    uint256 poolRatio = bpow(tokenInRatio, normalizedWeight);
+    uint256 newPoolSupply = bmul(poolRatio, poolSupply);
+    uint256 poolAmountOut = bsub(newPoolSupply, poolSupply);
     return poolAmountOut;
   }
 
@@ -136,24 +136,24 @@ public:
   // tW = totalWeight                          |  1 - ----  |  * sF //
   // sF = swapFee                               \      tW  / //
   **********************************************************************************************/
-  uint calcSingleInGivenPoolOut(uint tokenBalanceIn, uint tokenWeightIn,
-                                uint poolSupply, uint totalWeight,
-                                uint poolAmountOut, uint swapFee) {
-    uint normalizedWeight = bdiv(tokenWeightIn, totalWeight);
-    uint newPoolSupply = badd(poolSupply, poolAmountOut);
-    uint poolRatio = bdiv(newPoolSupply, poolSupply);
+  uint256 calcSingleInGivenPoolOut(uint256 tokenBalanceIn, uint256 tokenWeightIn,
+                                uint256 poolSupply, uint256 totalWeight,
+                                uint256 poolAmountOut, uint256 swapFee) {
+    uint256 normalizedWeight = bdiv(tokenWeightIn, totalWeight);
+    uint256 newPoolSupply = badd(poolSupply, poolAmountOut);
+    uint256 poolRatio = bdiv(newPoolSupply, poolSupply);
 
-    // uint newBalTi = poolRatio^(1/weightTi) * balTi;
-    uint boo = bdiv(BONE, normalizedWeight);
-    uint tokenInRatio = bpow(poolRatio, boo);
-    uint newTokenBalanceIn = bmul(tokenInRatio, tokenBalanceIn);
-    uint tokenAmountInAfterFee = bsub(newTokenBalanceIn, tokenBalanceIn);
+    // uint256 newBalTi = poolRatio^(1/weightTi) * balTi;
+    uint256 boo = bdiv(BONE, normalizedWeight);
+    uint256 tokenInRatio = bpow(poolRatio, boo);
+    uint256 newTokenBalanceIn = bmul(tokenInRatio, tokenBalanceIn);
+    uint256 tokenAmountInAfterFee = bsub(newTokenBalanceIn, tokenBalanceIn);
     // Do reverse order of fees charged in joinswap_ExternAmountIn, this way
     //     ``` pAo == joinswap_ExternAmountIn(Ti, joinswap_PoolAmountOut(pAo,
     //     Ti)) ```
-    // uint tAi = tAiAfterFee / (1 - (1-weightTi) * swapFee) ;
-    uint zar = bmul(bsub(BONE, normalizedWeight), swapFee);
-    uint tokenAmountIn = bdiv(tokenAmountInAfterFee, bsub(BONE, zar));
+    // uint256 tAi = tAiAfterFee / (1 - (1-weightTi) * swapFee) ;
+    uint256 zar = bmul(bsub(BONE, normalizedWeight), swapFee);
+    uint256 tokenAmountIn = bdiv(tokenAmountInAfterFee, bsub(BONE, zar));
     return tokenAmountIn;
   }
 
@@ -171,27 +171,27 @@ public:
   // sF = swapFee                    *  | 1 - |  1 - ---- | * sF  | //
   // eF = exitFee                        \     \      tW /       / //
   **********************************************************************************************/
-  uint calcSingleOutGivenPoolIn(uint tokenBalanceOut, uint tokenWeightOut,
-                                uint poolSupply, uint totalWeight,
-                                uint poolAmountIn, uint swapFee) {
-    uint normalizedWeight = bdiv(tokenWeightOut, totalWeight);
+  uint256 calcSingleOutGivenPoolIn(uint256 tokenBalanceOut, uint256 tokenWeightOut,
+                                uint256 poolSupply, uint256 totalWeight,
+                                uint256 poolAmountIn, uint256 swapFee) {
+    uint256 normalizedWeight = bdiv(tokenWeightOut, totalWeight);
     // charge exit fee on the pool token side
     // pAiAfterExitFee = pAi*(1-exitFee)
-    uint poolAmountInAfterExitFee = bmul(poolAmountIn, bsub(BONE, EXIT_FEE));
-    uint newPoolSupply = bsub(poolSupply, poolAmountInAfterExitFee);
-    uint poolRatio = bdiv(newPoolSupply, poolSupply);
+    uint256 poolAmountInAfterExitFee = bmul(poolAmountIn, bsub(BONE, EXIT_FEE));
+    uint256 newPoolSupply = bsub(poolSupply, poolAmountInAfterExitFee);
+    uint256 poolRatio = bdiv(newPoolSupply, poolSupply);
 
     // newBalTo = poolRatio^(1/weightTo) * balTo;
-    uint tokenOutRatio = bpow(poolRatio, bdiv(BONE, normalizedWeight));
-    uint newTokenBalanceOut = bmul(tokenOutRatio, tokenBalanceOut);
+    uint256 tokenOutRatio = bpow(poolRatio, bdiv(BONE, normalizedWeight));
+    uint256 newTokenBalanceOut = bmul(tokenOutRatio, tokenBalanceOut);
 
-    uint tokenAmountOutBeforeSwapFee =
+    uint256 tokenAmountOutBeforeSwapFee =
         bsub(tokenBalanceOut, newTokenBalanceOut);
 
     // charge swap fee on the output token side
-    // uint tAo = tAoBeforeSwapFee * (1 - (1-weightTo) * swapFee)
-    uint zaz = bmul(bsub(BONE, normalizedWeight), swapFee);
-    uint tokenAmountOut = bmul(tokenAmountOutBeforeSwapFee, bsub(BONE, zaz));
+    // uint256 tAo = tAoBeforeSwapFee * (1 - (1-weightTo) * swapFee)
+    uint256 zaz = bmul(bsub(BONE, normalizedWeight), swapFee);
+    uint256 tokenAmountOut = bmul(tokenAmountOutBeforeSwapFee, bsub(BONE, zaz));
     return tokenAmountOut;
   }
 
@@ -211,29 +211,29 @@ public:
   // sF = swapFee                                        ( 1 - eF ) //
   // eF = exitFee //
   **********************************************************************************************/
-  uint calcPoolInGivenSingleOut(uint tokenBalanceOut, uint tokenWeightOut,
-                                uint poolSupply, uint totalWeight,
-                                uint tokenAmountOut, uint swapFee) {
+  uint256 calcPoolInGivenSingleOut(uint256 tokenBalanceOut, uint256 tokenWeightOut,
+                                uint256 poolSupply, uint256 totalWeight,
+                                uint256 tokenAmountOut, uint256 swapFee) {
 
     // charge swap fee on the output token side
-    uint normalizedWeight = bdiv(tokenWeightOut, totalWeight);
-    // uint tAoBeforeSwapFee = tAo / (1 - (1-weightTo) * swapFee) ;
-    uint zoo = bsub(BONE, normalizedWeight);
-    uint zar = bmul(zoo, swapFee);
-    uint tokenAmountOutBeforeSwapFee = bdiv(tokenAmountOut, bsub(BONE, zar));
+    uint256 normalizedWeight = bdiv(tokenWeightOut, totalWeight);
+    // uint256 tAoBeforeSwapFee = tAo / (1 - (1-weightTo) * swapFee) ;
+    uint256 zoo = bsub(BONE, normalizedWeight);
+    uint256 zar = bmul(zoo, swapFee);
+    uint256 tokenAmountOutBeforeSwapFee = bdiv(tokenAmountOut, bsub(BONE, zar));
 
-    uint newTokenBalanceOut =
+    uint256 newTokenBalanceOut =
         bsub(tokenBalanceOut, tokenAmountOutBeforeSwapFee);
-    uint tokenOutRatio = bdiv(newTokenBalanceOut, tokenBalanceOut);
+    uint256 tokenOutRatio = bdiv(newTokenBalanceOut, tokenBalanceOut);
 
-    // uint newPoolSupply = (ratioTo ^ weightTo) * poolSupply;
-    uint poolRatio = bpow(tokenOutRatio, normalizedWeight);
-    uint newPoolSupply = bmul(poolRatio, poolSupply);
-    uint poolAmountInAfterExitFee = bsub(poolSupply, newPoolSupply);
+    // uint256 newPoolSupply = (ratioTo ^ weightTo) * poolSupply;
+    uint256 poolRatio = bpow(tokenOutRatio, normalizedWeight);
+    uint256 newPoolSupply = bmul(poolRatio, poolSupply);
+    uint256 poolAmountInAfterExitFee = bsub(poolSupply, newPoolSupply);
 
     // charge exit fee on the pool token side
     // pAi = pAiAfterExitFee/(1-exitFee)
-    uint poolAmountIn = bdiv(poolAmountInAfterExitFee, bsub(BONE, EXIT_FEE));
+    uint256 poolAmountIn = bdiv(poolAmountInAfterExitFee, bsub(BONE, EXIT_FEE));
     return poolAmountIn;
   }
 };

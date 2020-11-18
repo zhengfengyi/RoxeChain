@@ -32,10 +32,36 @@ $CLS system newaccount roxe1 dai2mkr11111 ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN
 $CLS set contract dai2mkr11111 /data/roxe/balanceos/RoxeChain/roxe.contracts/build/contracts/roxe.token -p dai2mkr11111
 ;;
 "t") 
-$CLS transfer rox1 dai2mkr11111 "1000000.0000 ROC"
+$CLS transfer rox1 eoswapeoswap "1000000.0000 ROC"
+;;
+"g") 
+ curl -X POST --url http://10.100.1.10:8888/v1/chain/get_account -d '{
+  "account_name": "eoswapeoswap"
+}'|jq
+;;
+"gt") 
+curl -X POST --url http://10.100.1.10:8888/v1/chain/get_table_rows -d '{  
+   "scope":"eoswapeoswap",
+   "code":"eoswapeoswap",
+   "table":"poolstore",
+   "json":true
+}' |jq
+;;
+"dodos") 
+curl -X POST --url http://10.100.1.10:8888/v1/chain/get_table_rows -d '{  
+   "scope":"eosdoseosdos",
+   "code":"eosdoseosdos",
+   "table":"dodos",
+   "json":true
+}' |jq
+;;
+"if") 
+curl http://10.100.1.10:8888/v1/chain/get_info|jq
+curl http://47.91.226.192:7878/v1/chain/get_info|jq
 ;;
 *) echo "u --unlock \n n --new account \n d  --depoly contract";;
 esac
+
 
 
 # ./clroxe create key --to-console
@@ -103,3 +129,46 @@ esac
 # http://10.100.1.10:8889/v1/wallet/list_wallets
 # http://10.100.1.10:8889/v1/wallet/create_key
 # curl http://localhost:6666/v1/wallet/create_key -X POST -d '["default","K1"]' default 为钱包名
+
+
+
+
+# python3 bios-boot-tutorial.py --cleos="cleos --wallet-url http://10.11.5.37:6666 " --nodeos=nodeos --keosd=keosd --contracts-dir="/Users/lisheng/mygit/vvvictorlee/eoswap/build/contracts" --old-contracts-dir="/Users/lisheng/testchaincontracts/eosio.contracts-1.8.x/build/contracts" -w -a
+
+
+# cleos --wallet-url http://10.11.5.37:6666 --url http://10.11.5.37:8000 set contract eoswapeoswap /Users/lisheng/mygit/vvvictorlee/eoswap/build/contracts/eoswap/
+
+
+# cleos --wallet-url http://10.11.5.37:6666 --url http://10.11.5.37:8000 push action eoswapeoswap extransfer '[["useraaaaaaab","useraaaaaaac",["1.0000 SYS","eosio.token"],""]]'
+
+# cleos --wallet-url http://10.11.5.37:6666 --url http://10.11.5.37:8000  set account permission useraaaaaaab  active '{"threshold": 1,"keys": [{"key": "'EOS7yBtksm8Kkg85r4in4uCbfN77uRwe82apM8jjbhFVDgEgz3w8S'","weight": 1}],"accounts": [{"permission":{"actor":"'eoswapeoswap'","permission":"eosio.code"},"weight":1}]}' owner -p useraaaaaaab@owner
+
+# cleos --wallet-url http://10.11.5.37:6666 --url http://10.11.5.37:8000 push action eoswapeoswap extransfer '["useraaaaaaab","useraaaaaaac",{quantity : "1.0000 SYS",contract : "eosio.token"},""]' -p useraaaaaaab@active
+
+# cleos --wallet-url http://10.11.5.37:6666 --url http://10.11.5.37:8000 get scope eosio.token stats
+
+# curl -X POST --url http://10.11.5.37:8000/v1/chain/get_table_by_scope -d '{
+#   "code": "eosio.token",
+#   "table": "accounts"
+# }'
+
+# curl -X POST --url http://10.11.5.37:8000/v1/chain/get_table_rows -d '{  
+#    "scope":"eosio",
+#    "code":"eosio.token",
+#    "table":"accounts",
+#    "json":true
+# }'
+
+
+
+# curl -X POST --url http://10.11.5.37:8000/v1/chain/get_code_hash -d '{
+#   "account_name": "eosio.token"
+# }'
+
+# curl -X POST --url http://10.11.5.37:8000/v1/chain/get_account -d '{
+#   "account_name": "eosio.token"
+# }'
+
+
+# curl  http://10.11.5.37:8000/v1/wallet/list_keys
+
