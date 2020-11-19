@@ -1,11 +1,11 @@
 import "./utils/number.extensions";
 import { Trader } from "./impl/Trader";
-const jq = require('node-jq');
+// const jq = require('node-jq');
 const { chain } = require('../../eos-rpc');
 const c = chain();
 const prettyJson = async (log: any) => {
-    let jsonstr = await jq.run('.', JSON.stringify(log), { input: 'string', output: 'pretty' });
-    console.log(jsonstr);
+    // let jsonstr = await jq.run('.', JSON.stringify(log), { input: 'string', output: 'pretty' });
+    console.log(JSON.stringify(log));
 };
 // import { SafeMath } from "./lib/SafeMath";
 // console.log(SafeMath.divCeil(70, 7));

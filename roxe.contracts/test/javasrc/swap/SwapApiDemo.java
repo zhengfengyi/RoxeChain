@@ -20,13 +20,13 @@ public class SwapApiDemo {
    public static void main(String[] args) { testbuysell(); }
 
    public static void testbuysell() {
-      //   String pool = "";
-      //   try {
-      //      pool = readJsonData("./pool.json");
-      //      init(pool);
-      //   } catch (IOException e) {
-      //      e.getStackTrace();
-      //   }
+        String pool = "";
+        try {
+           pool = readJsonData("./pool.json");
+           init(pool);
+        } catch (IOException e) {
+           e.getStackTrace();
+        }
       double tokenAmountIn  = 2;
       double tokenAmountOut = 1;
       String tokenIn        = "DAI";

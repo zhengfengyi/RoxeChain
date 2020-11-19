@@ -6,14 +6,13 @@ let sleep = require('sleep');
 let async = require('async'); // https://www.npmjs.com/package/async
 // const { logTime } = require("./log_aop");
 import { SwapAbiJson } from "../lib/abijson";
-const jq = require('node-jq');
+// const jq = require('node-jq');
 const EOS_RPC = require('../lib/eos_rpc')
 const eosrpc = EOS_RPC();
 
 const prettyJson = async (log: any) => {
+    // let jsonstr = await jq.run('.', JSON.stringify(log), { input: 'string', output: 'pretty' });
     console.log(JSON.stringify(log));
-    let jsonstr = await jq.run('.', JSON.stringify(log), { input: 'string', output: 'pretty' });
-    console.log("prettyJson==", jsonstr);
 };
 
 // # http://10.100.1.10:8889/v1/wallet/list_wallets

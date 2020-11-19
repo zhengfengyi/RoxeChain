@@ -9,7 +9,7 @@ export class SwapPricingApi {
 
     async getPools() {
         const res = await c.get_table_rows('eoswapeoswap', 'eoswapeoswap', 'poolstore', true);
-        console.log(JSON.stringify(res));
+        // console.log(JSON.stringify(res));
         // prettyJson(JSON.stringify(res));
         return res;
     }
@@ -30,13 +30,13 @@ export class SwapPricingApi {
     }
 }
 
-// (async function () {
-//     const api = new SwapPricingApi();
-//     let b: any = await api.getPool();
-//     console.log( JSON.stringify(b) );
-//     // let s: any = await api.querySellToken(10000, "DAI", "MKR");
-//     // console.log("=s==", s, "===");
-// })();
+(async function () {
+    const api = new SwapPricingApi();
+    let b: any = await api.getPool();
+    console.log( JSON.stringify(b) );
+    // let s: any = await api.querySellToken(10000, "DAI", "MKR");
+    // console.log("=s==", s, "===");
+})();
 
 
 

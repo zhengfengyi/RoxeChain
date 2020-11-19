@@ -1,5 +1,5 @@
 // import { SafeMath } from "../lib/SafeMath";
-const Decimaljs = require('Decimaljs.js');
+const Decimaljs = require('Decimal.js');
 // import {Decimaljs} from 'Decimaljs.js';
 
 
