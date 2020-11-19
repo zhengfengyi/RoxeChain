@@ -1,5 +1,5 @@
 // import { isConstructorDeclaration } from "typescript";
-import './arr2obj';
+// import './arr2obj';
 
 export class SwapRefactoringTableJson {
 
@@ -16,19 +16,36 @@ export class SwapRefactoringTableJson {
 
     async refactoringPoolTableJson(pooltablejson: any) {
         let pools = pooltablejson.rows[0]["pools"];
-        let poolsobj = arrToObjES2019(pools);
-        const actionjson = Object.keys().filter((obj: any) => a.indexOf(obj.name) >= 0);
+        // let poolsobj = arrToObjES2019(pools);
+        let allpools = pools.map((pool: any) => {
+            let refactoring_records = pool.value.records.map((record: any) => {
+                let token: any = record.value.exsym.symbol.split(",")[1];
+                let o: { [k: string]: any } = {};
+                o[token] = { denorm: record.value.denorm, balance: record.value.balance };
+                return o;
+            }).reduce((obj: any, o: any) => { Object.assign(obj, o); return obj }, {});
 
-
-        let allpools: any = {};
-        for (let d of pools) {
-            allpools[d.pool] = {};
-            let basetoken = d.pools._BASE_TOKEN_.symbol.split(",")[1];
-            let quotetoken = d.pools._QUOTE_TOKEN_.symbol.split(",")[1];
-            for (let f of this.refactoring_fields) {
-                allpools[d.pool][f] = d.pools[f];
-            }
+            Object.assign(refactoring_records, { swapFee: pool.value.swapFee }, { totalWeight: pool.value.totalWeight });
+            let po: { [k: string]: any } = {};
+            po[pool.key] = refactoring_records;
+            return po;
         }
+        );
+
+
+        // const json = Object.keys(pools).filter((obj: any) => obj.indexOf(obj.name) >= 0);
+
+        // console.log(JSON.stringify(allpools));
+
+        // let allpools: any = {};
+        // for (let d of pools) {
+        //     allpools[d.pool] = {};
+        //     let basetoken = d.pools._BASE_TOKEN_.symbol.split(",")[1];
+        //     let quotetoken = d.pools._QUOTE_TOKEN_.symbol.split(",")[1];
+        //     for (let f of this.refactoring_fields) {
+        //         allpools[d.pool][f] = d.pools[f];
+        //     }
+        // }
 
         return allpools;
     }
@@ -43,12 +60,11 @@ export class SwapRefactoringTableJson {
     //         alloracles[b[1]][q[1]] = q[0];
     //         // Object.assign(alloracles, { [b[1]]: { [q[1]]: q[0] } });
     //     }
-
     //     return alloracles;
     // }
 }
 
-function testRefactoring() {
+async function testRefactoring() {
     const pooltablerows = {
         "rows": [
             {
@@ -96,6 +112,152 @@ function testRefactoring() {
                             ],
                             "totalWeight": 10000000
                         }
+                    },
+                    {
+                        "key": "pool1",
+                        "value": {
+                            "mutex": 0,
+                            "factory": "eoswapeoswap",
+                            "controller": "eoswapeoswap",
+                            "publicSwap": 1,
+                            "swapFee": 3000,
+                            "finalized": 1,
+                            "tokens": [
+                                "0x04574554480000003015a4b957c33155",
+                                "0x04444149000000003015a4b957c33155"
+                            ],
+                            "records": [
+                                {
+                                    "key": "0x04444149000000003015a4b957c33155",
+                                    "value": {
+                                        "bound": 1,
+                                        "index": 1,
+                                        "denorm": 5000000,
+                                        "balance": 220000000,
+                                        "exsym": {
+                                            "symbol": "4,DAI",
+                                            "contract": "eoswapxtoken"
+                                        }
+                                    }
+                                },
+                                {
+                                    "key": "0x04574554480000003015a4b957c33155",
+                                    "value": {
+                                        "bound": 1,
+                                        "index": 0,
+                                        "denorm": 5000000,
+                                        "balance": 5500000,
+                                        "exsym": {
+                                            "symbol": "4,WETH",
+                                            "contract": "eoswapxtoken"
+                                        }
+                                    }
+                                }
+                            ],
+                            "totalWeight": 10000000
+                        }
+                    },
+                    {
+                        "key": "pool2",
+                        "value": {
+                            "mutex": 0,
+                            "factory": "eoswapeoswap",
+                            "controller": "eoswapeoswap",
+                            "publicSwap": 1,
+                            "swapFee": 3000,
+                            "finalized": 1,
+                            "tokens": [
+                                "0x04574554480000003015a4b957c33155",
+                                "0x04444149000000003015a4b957c33155"
+                            ],
+                            "records": [
+                                {
+                                    "key": "0x04444149000000003015a4b957c33155",
+                                    "value": {
+                                        "bound": 1,
+                                        "index": 1,
+                                        "denorm": 5000000,
+                                        "balance": 220000000,
+                                        "exsym": {
+                                            "symbol": "4,DAI",
+                                            "contract": "eoswapxtoken"
+                                        }
+                                    }
+                                },
+                                {
+                                    "key": "0x04574554480000003015a4b957c33155",
+                                    "value": {
+                                        "bound": 1,
+                                        "index": 0,
+                                        "denorm": 5000000,
+                                        "balance": 5500000,
+                                        "exsym": {
+                                            "symbol": "4,WETH",
+                                            "contract": "eoswapxtoken"
+                                        }
+                                    }
+                                }
+                            ],
+                            "totalWeight": 10000000
+                        }
+                    },
+                    {
+                        "key": "pool3",
+                        "value": {
+                            "mutex": 0,
+                            "factory": "eoswapeoswap",
+                            "controller": "eoswapeoswap",
+                            "publicSwap": 0,
+                            "swapFee": 1000,
+                            "finalized": 0,
+                            "tokens": [],
+                            "records": [],
+                            "totalWeight": 0
+                        }
+                    },
+                    {
+                        "key": "pool4",
+                        "value": {
+                            "mutex": 0,
+                            "factory": "eoswapeoswap",
+                            "controller": "eoswapeoswap",
+                            "publicSwap": 1,
+                            "swapFee": 1000,
+                            "finalized": 1,
+                            "tokens": [
+                                "0x04574554480000003015a4b957c33155",
+                                "0x04444149000000003015a4b957c33155"
+                            ],
+                            "records": [
+                                {
+                                    "key": "0x04444149000000003015a4b957c33155",
+                                    "value": {
+                                        "bound": 1,
+                                        "index": 1,
+                                        "denorm": 5000000,
+                                        "balance": 220000000,
+                                        "exsym": {
+                                            "symbol": "4,DAI",
+                                            "contract": "eoswapxtoken"
+                                        }
+                                    }
+                                },
+                                {
+                                    "key": "0x04574554480000003015a4b957c33155",
+                                    "value": {
+                                        "bound": 1,
+                                        "index": 0,
+                                        "denorm": 5000000,
+                                        "balance": 5500000,
+                                        "exsym": {
+                                            "symbol": "4,WETH",
+                                            "contract": "eoswapxtoken"
+                                        }
+                                    }
+                                }
+                            ],
+                            "totalWeight": 10000000
+                        }
                     }
                 ]
             }
@@ -106,13 +268,17 @@ function testRefactoring() {
 
     // let pooltablerowsstr = JSON.stringify(pooltablerows);
     // let oracletablerowsstr = JSON.stringify(oracletablerows);
-    let tablejson = new SwapRefactoringTableJson().refactoringTableDataJson(pooltablerows, oracletablerows);
-    console.log("==tablejson==", tablejson, "=====");
+    let tablejson = await new SwapRefactoringTableJson().refactoringTableDataJson(pooltablerows);
+    console.log(tablejson);
 
 }
 
 
-// testRefactoring();
 
 
+// (async function () {
+//     await testRefactoring();
 
+//     // let s: any = await api.querySellToken(10000, "DAI", "MKR");
+//     // console.log("=s==", s, "===");
+// })();

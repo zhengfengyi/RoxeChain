@@ -4,11 +4,38 @@ const refactoring_fields: any[] = [
     "records"
 ];
 
+const refactoring_records_fields: any[] = [
+    "denorm",
+    "balance",
+    "exsym"
+];
+
+
 // If your target environment supports ES2019, you could use Object.fromEntries(), like this:
 
 function arrToObjES2019(arr: any[]) {
-    return Object.fromEntries(arr.map(({ key, value }) => [key, value]));
+    return Object.fromEntries(arr.map(({ key, value }) => [key, 
+Object.keys(value).filter((v: any) => refactoring_fields.indexOf(v) >= 0).reduce((obj,p) => {
+obj[p]=value[p];
+Object.assign(obj,arrRecordsToObjES2019(obj.records));
+return obj;
 }
+)
+]));
+}
+
+function arrRecordsToObjES2019(arr: any[]) {
+    return Object.fromEntries(arr.map(({ key, value }) => [key, 
+Object.keys(value).filter((v: any) => refactoring_records_fields.indexOf(v) >= 0).reduce((obj,p) => {
+obj[p]=value[p];
+let sym = obj.exsym.symbol.split(",")[1];
+Object.assign(obj,{sym:{p:value[p]}};
+return obj;
+},{})
+]));
+}
+
+
 // Or, if not, you can make your own polyfill-like version of Object.fromEntries() using array reduce() on an empty object, like this:
 
 function fromEntries<V>(iterable: Iterable<[string, V]>) {
