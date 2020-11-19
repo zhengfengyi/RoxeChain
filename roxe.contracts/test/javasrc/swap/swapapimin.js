@@ -33,7 +33,7 @@
         PI = '3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155881748815209209628292540917153643678925903600113305305488204665213841469519415116094330572703657595919530921861173819326117931051185480744623799627495673518857527248912279381830119491298336733624406566430860213949463952247371907021798609437027705392171762931767523846748184676694051320005681271452635608277857713427577896091736371787214684409012249534301465495853710507922796892589235420199561121290219608640344181598136297747713099605187072113499999983729780499510597317328160963185950244594553469083026425223082533446850352619311881710100031378387528865875332083814206171776691473035982534904287554687311595628638823537875937519577818577805321712268066130019278766111959092164201989380952572010654858632789',
 
 
-        // The initial configuration properties of the Decimal constructor.
+        // The initial configuration properties of the Decimal varructor.
         DEFAULTS = {
 
             // These values must be integers within the stated ranges (inclusive).
@@ -197,7 +197,7 @@
      *
      */
     P.absoluteValue = P.abs = function () {
-        var x = new this.constructor(this);
+        var x = new this.varructor(this);
         if (x.s < 0) x.s = 1;
         return finalise(x);
     };
@@ -209,7 +209,7 @@
      *
      */
     P.ceil = function () {
-        return finalise(new this.constructor(this), this.e + 1, 2);
+        return finalise(new this.varructor(this), this.e + 1, 2);
     };
 
 
@@ -225,7 +225,7 @@
         var i, j, xdL, ydL,
             x = this,
             xd = x.d,
-            yd = (y = new x.constructor(y)).d,
+            yd = (y = new x.varructor(y)).d,
             xs = x.s,
             ys = y.s;
 
@@ -272,7 +272,7 @@
     P.cosine = P.cos = function () {
         var pr, rm,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (!x.d) return new Ctor(NaN);
 
@@ -312,7 +312,7 @@
     P.cubeRoot = P.cbrt = function () {
         var e, m, n, r, rep, s, sd, t, t3, t3plusx,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (!x.isFinite() || x.isZero()) return new Ctor(x);
         external = false;
@@ -444,7 +444,7 @@
      *
      */
     P.dividedBy = P.div = function (y) {
-        return divide(this, new this.constructor(y));
+        return divide(this, new this.varructor(y));
     };
 
 
@@ -455,7 +455,7 @@
      */
     P.dividedToIntegerBy = P.divToInt = function (y) {
         var x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
         return finalise(divide(x, new Ctor(y), 0, 1, 1), Ctor.precision, Ctor.rounding);
     };
 
@@ -475,7 +475,7 @@
      *
      */
     P.floor = function () {
-        return finalise(new this.constructor(this), this.e + 1, 3);
+        return finalise(new this.varructor(this), this.e + 1, 3);
     };
 
 
@@ -528,7 +528,7 @@
     P.hyperbolicCosine = P.cosh = function () {
         var k, n, pr, rm, len,
             x = this,
-            Ctor = x.constructor,
+            Ctor = x.varructor,
             one = new Ctor(1);
 
         if (!x.isFinite()) return new Ctor(x.s ? 1 / 0 : NaN);
@@ -601,7 +601,7 @@
     P.hyperbolicSine = P.sinh = function () {
         var k, pr, rm, len,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (!x.isFinite() || x.isZero()) return new Ctor(x);
 
@@ -667,7 +667,7 @@
     P.hyperbolicTangent = P.tanh = function () {
         var pr, rm,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (!x.isFinite()) return new Ctor(x.s);
         if (x.isZero()) return new Ctor(x);
@@ -703,7 +703,7 @@
     P.inverseCosine = P.acos = function () {
         var halfPi,
             x = this,
-            Ctor = x.constructor,
+            Ctor = x.varructor,
             k = x.abs().cmp(1),
             pr = Ctor.precision,
             rm = Ctor.rounding;
@@ -755,7 +755,7 @@
     P.inverseHyperbolicCosine = P.acosh = function () {
         var pr, rm,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (x.lte(1)) return new Ctor(x.eq(1) ? 0 : NaN);
         if (!x.isFinite()) return new Ctor(x);
@@ -795,7 +795,7 @@
     P.inverseHyperbolicSine = P.asinh = function () {
         var pr, rm,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (!x.isFinite() || x.isZero()) return new Ctor(x);
 
@@ -837,7 +837,7 @@
     P.inverseHyperbolicTangent = P.atanh = function () {
         var pr, rm, wpr, xsd,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (!x.isFinite()) return new Ctor(NaN);
         if (x.e >= 0) return new Ctor(x.abs().eq(1) ? x.s / 0 : x.isZero() ? x : NaN);
@@ -889,7 +889,7 @@
         var halfPi, k,
             pr, rm,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (x.isZero()) return new Ctor(x);
 
@@ -945,7 +945,7 @@
     P.inverseTangent = P.atan = function () {
         var i, j, k, n, px, t, r, wpr, x2,
             x = this,
-            Ctor = x.constructor,
+            Ctor = x.varructor,
             pr = Ctor.precision,
             rm = Ctor.rounding;
 
@@ -1109,7 +1109,7 @@
     P.logarithm = P.log = function (base) {
         var isBase10, d, denominator, k, inf, num, sd, r,
             arg = this,
-            Ctor = arg.constructor,
+            Ctor = arg.varructor,
             pr = Ctor.precision,
             rm = Ctor.rounding,
             guard = 5;
@@ -1201,7 +1201,7 @@
      *
     P.max = function () {
       Array.prototype.push.call(arguments, this);
-      return maxOrMin(this.constructor, arguments, 'lt');
+      return maxOrMin(this.varructor, arguments, 'lt');
     };
      */
 
@@ -1213,7 +1213,7 @@
      *
     P.min = function () {
       Array.prototype.push.call(arguments, this);
-      return maxOrMin(this.constructor, arguments, 'gt');
+      return maxOrMin(this.varructor, arguments, 'gt');
     };
      */
 
@@ -1242,7 +1242,7 @@
     P.minus = P.sub = function (y) {
         var d, e, i, j, k, len, pr, rm, xd, xe, xLTy, yd,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         y = new Ctor(y);
 
@@ -1416,7 +1416,7 @@
     P.modulo = P.mod = function (y) {
         var q,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         y = new Ctor(y);
 
@@ -1476,7 +1476,7 @@
      *
      */
     P.negated = P.neg = function () {
-        var x = new this.constructor(this);
+        var x = new this.varructor(this);
         x.s = -x.s;
         return finalise(x);
     };
@@ -1506,7 +1506,7 @@
     P.plus = P.add = function (y) {
         var carry, d, e, i, k, len, pr, rm, xd, yd,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         y = new Ctor(y);
 
@@ -1646,7 +1646,7 @@
      */
     P.round = function () {
         var x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         return finalise(new Ctor(x), x.e + 1, Ctor.rounding);
     };
@@ -1670,7 +1670,7 @@
     P.sine = P.sin = function () {
         var pr, rm,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (!x.isFinite()) return new Ctor(NaN);
         if (x.isZero()) return new Ctor(x);
@@ -1707,7 +1707,7 @@
             d = x.d,
             e = x.e,
             s = x.s,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         // Negative/NaN/Infinity/zero?
         if (s !== 1 || !d || !d[0]) {
@@ -1806,7 +1806,7 @@
     P.tangent = P.tan = function () {
         var pr, rm,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (!x.isFinite()) return new Ctor(NaN);
         if (x.isZero()) return new Ctor(x);
@@ -1851,7 +1851,7 @@
     P.times = P.mul = function (y) {
         var carry, e, i, k, r, rL, t, xdL, ydL,
             x = this,
-            Ctor = x.constructor,
+            Ctor = x.varructor,
             xd = x.d,
             yd = (y = new Ctor(y)).d;
 
@@ -1942,7 +1942,7 @@
      */
     P.toDecimalPlaces = P.toDP = function (dp, rm) {
         var x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         x = new Ctor(x);
         if (dp === void 0) return x;
@@ -1967,7 +1967,7 @@
     P.toExponential = function (dp, rm) {
         var str,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (dp === void 0) {
             str = finiteToString(x, true);
@@ -2004,7 +2004,7 @@
     P.toFixed = function (dp, rm) {
         var str, y,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (dp === void 0) {
             str = finiteToString(x);
@@ -2039,7 +2039,7 @@
         var d, d0, d1, d2, e, k, n, n0, n1, pr, q, r,
             x = this,
             xd = x.d,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (!xd) return new Ctor(x);
 
@@ -2129,7 +2129,7 @@
      */
     P.toNearest = function (y, rm) {
         var x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         x = new Ctor(x);
 
@@ -2246,7 +2246,7 @@
     P.toPower = P.pow = function (y) {
         var e, k, pr, r, rm, s,
             x = this,
-            Ctor = x.constructor,
+            Ctor = x.varructor,
             yn = +(y = new Ctor(y));
 
         // Either ±Infinity, NaN or ±0?
@@ -2357,7 +2357,7 @@
     P.toPrecision = function (sd, rm) {
         var str,
             x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (sd === void 0) {
             str = finiteToString(x, x.e <= Ctor.toExpNeg || x.e >= Ctor.toExpPos);
@@ -2391,7 +2391,7 @@
      */
     P.toSignificantDigits = P.toSD = function (sd, rm) {
         var x = this,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         if (sd === void 0) {
             sd = Ctor.precision;
@@ -2416,7 +2416,7 @@
      */
     P.toString = function () {
         var x = this,
-            Ctor = x.constructor,
+            Ctor = x.varructor,
             str = finiteToString(x, x.e <= Ctor.toExpNeg || x.e >= Ctor.toExpPos);
 
         return x.isNeg() && !x.isZero() ? '-' + str : str;
@@ -2428,7 +2428,7 @@
      *
      */
     P.truncated = P.trunc = function () {
-        return finalise(new this.constructor(this), this.e + 1, 1);
+        return finalise(new this.varructor(this), this.e + 1, 1);
     };
 
 
@@ -2439,7 +2439,7 @@
      */
     P.valueOf = P.toJSON = function () {
         var x = this,
-            Ctor = x.constructor,
+            Ctor = x.varructor,
             str = finiteToString(x, x.e <= Ctor.toExpNeg || x.e >= Ctor.toExpPos);
 
         return x.isNeg() ? '-' + str : str;
@@ -2716,7 +2716,7 @@
         return function (x, y, pr, rm, dp, base) {
             var cmp, e, i, k, logBase, more, prod, prodL, q, qd, rem, remL, rem0, sd, t, xi, xL, yd0,
                 yL, yz,
-                Ctor = x.constructor,
+                Ctor = x.varructor,
                 sign = x.s == y.s ? 1 : -1,
                 xd = x.d,
                 yd = y.d;
@@ -2933,7 +2933,7 @@
      */
     function finalise(x, sd, rm, isTruncated) {
         var digits, i, j, k, rd, roundUp, w, xd, xdi,
-            Ctor = x.constructor;
+            Ctor = x.varructor;
 
         // Don't round if sd is null or undefined.
         out: if (sd != null) {
@@ -3291,7 +3291,7 @@
             rep = 0,
             i = 0,
             k = 0,
-            Ctor = x.constructor,
+            Ctor = x.varructor,
             rm = Ctor.rounding,
             pr = Ctor.precision;
 
@@ -3383,7 +3383,7 @@
             guard = 10,
             x = y,
             xd = x.d,
-            Ctor = x.constructor,
+            Ctor = x.varructor,
             rm = Ctor.rounding,
             pr = Ctor.precision;
 
@@ -3555,20 +3555,20 @@
             if (external) {
 
                 // Overflow?
-                if (x.e > x.constructor.maxE) {
+                if (x.e > x.varructor.maxE) {
 
                     // Infinity.
                     x.d = null;
                     x.e = NaN;
 
                     // Underflow?
-                } else if (x.e < x.constructor.minE) {
+                } else if (x.e < x.varructor.minE) {
 
                     // Zero.
                     x.e = 0;
                     x.d = [0];
-                    // x.constructor.underflow = true;
-                } // else x.constructor.underflow = false;
+                    // x.varructor.underflow = true;
+                } // else x.varructor.underflow = false;
             }
         } else {
 
@@ -3619,7 +3619,7 @@
         // fraction part will be restored.
         i = str.indexOf('.');
         isFloat = i >= 0;
-        Ctor = x.constructor;
+        Ctor = x.varructor;
 
         if (isFloat) {
             str = str.replace('.', '');
@@ -3777,7 +3777,7 @@
      */
     function toStringBinary(x, baseOut, sd, rm) {
         var base, e, i, k, len, roundUp, str, xd, y,
-            Ctor = x.constructor,
+            Ctor = x.varructor,
             isExp = sd !== void 0;
 
         if (isExp) {
@@ -4150,7 +4150,7 @@
 
 
     /*
-     * Configure global settings for a Decimal constructor.
+     * Configure global settings for a Decimal varructor.
      *
      * `obj` is an object with one or more of the following properties,
      *
@@ -4236,15 +4236,15 @@
 
 
     /*
-     * Create and return a Decimal constructor with the same configuration properties as this Decimal
-     * constructor.
+     * Create and return a Decimal varructor with the same configuration properties as this Decimal
+     * varructor.
      *
      */
     function clone(obj) {
         var i, p, ps;
 
         /*
-         * The Decimal constructor and exported function.
+         * The Decimal varructor and exported function.
          * Return a new Decimal instance.
          *
          * v {number|string|Decimal} A numeric value.
@@ -4257,9 +4257,9 @@
             // Decimal called without new.
             if (!(x instanceof Decimal)) return new Decimal(v);
 
-            // Retain a reference to this Decimal constructor, and shadow Decimal.prototype.constructor
+            // Retain a reference to this Decimal varructor, and shadow Decimal.prototype.varructor
             // which points to Object.
-            x.constructor = Decimal;
+            x.varructor = Decimal;
 
             // Duplicate.
             if (v instanceof Decimal) {
@@ -4493,7 +4493,7 @@
 
 
     /*
-     * Return true if object is a Decimal instance (where Decimal is any Decimal constructor),
+     * Return true if object is a Decimal instance (where Decimal is any Decimal varructor),
      * otherwise return false.
      *
      */
@@ -4833,12 +4833,12 @@
     }
 
 
-    // Create and configure initial Decimal constructor.
+    // Create and configure initial Decimal varructor.
     Decimal = clone(DEFAULTS);
 
     Decimal['default'] = Decimal.Decimal = Decimal;
 
-    // Create the internal constants from their string values.
+    // Create the internal varants from their string values.
     LN10 = new Decimal(LN10);
     PI = new Decimal(PI);
 
@@ -4877,688 +4877,194 @@
     }
 })(this);
 
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = (function () { })))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function () { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function () { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
 // var Decimal = require('decimal.js');
-// import {Decimal} from 'decimal.js';
-var Types_RStatus;
-(function (Types_RStatus) {
-    Types_RStatus[Types_RStatus["ONE"] = 0] = "ONE";
-    Types_RStatus[Types_RStatus["ABOVE_ONE"] = 1] = "ABOVE_ONE";
-    Types_RStatus[Types_RStatus["BELOW_ONE"] = 2] = "BELOW_ONE";
-})(Types_RStatus || (Types_RStatus = {}));
-var SafeMath = /** @class */ (function () {
-    function SafeMath() {
-    }
-    // value: number;
-    // constructor(a: number) { this.value = a; }
-    // mul(b: number): number {
-    //     return this.imul(this.value, b);
-    // }
-    // div(b: number): number {
-    //     return this.idiv(this.value, b);
-    // }
-    // divCeil(b: number): number {
-    //     return this.idivCeil(this.value, b);
-    // }
-    // sub(b: number): number {
-    //     return this.isub(this.value, b);
-    // }
-    // add(b: number): number {
-    //     return this.iadd(this.value, b);
-    // }
-    // sqrt(): number {
-    //     return this.isqrt(this.value);
-    // }
-    SafeMath.mul = function (a, b) {
-        if (a == 0) {
-            return 0;
-        }
-        var c = a * b;
-        // //require(c / a == b, "MUL_ERROR");
-        return c;
-    };
-    SafeMath.div = function (a, b) {
-        //require(b > 0, "DIVIDING_ERROR");
-        // return a / b;
-        return Decimal(a).div(b);
-    };
-    SafeMath.divCeil = function (a, b) {
-        var quotient = SafeMath.div(a, b);
-        var remainder = a - quotient * b;
-        if (remainder > 0) {
-            return quotient + 1;
-        }
-        else {
-            return quotient;
-        }
-    };
-    SafeMath.sub = function (a, b) {
-        //require(b <= a, "SUB_ERROR");
-        return a - b;
-    };
-    SafeMath.add = function (a, b) {
-        var c = a + b;
-        //require(c >= a, "ADD_ERROR");
-        return c;
-    };
-    SafeMath.sqrt = function (x) {
-        var z = x / 2 + 1;
-        var y = x;
-        while (z < y) {
-            y = z;
-            z = (x / z + z) / 2;
-        }
-        return y;
-    };
-    return SafeMath;
-}());
-var DecimalMath = /** @class */ (function () {
-    function DecimalMath() {
-    }
-    DecimalMath.mul = function (target, d) {
-        return target.mul(d) / DecimalMath.ONE;
-    };
-    DecimalMath.mulCeil = function (target, d) {
-        // return target.mul(d).divCeil(DecimalMath.ONE);
-        return target.mul(d).div(DecimalMath.ONE);
-    };
-    DecimalMath.divFloor = function (target, d) {
-        return target.mul(DecimalMath.ONE).div(d);
-    };
-    DecimalMath.divCeil = function (target, d) {
-        // return target.mul(DecimalMath.ONE).divCeil(d);
-        return target.mul(DecimalMath.ONE).div(d);
-    };
-    DecimalMath.ONE = Math.pow(10, 4);
-    return DecimalMath;
-}());
-Number.prototype.mul = function (b) {
-    return Decimal(this).mul(b);
-};
-Number.prototype.div = function (b) {
-    return Decimal(this).div(b);
-};
-Number.prototype.sub = function (b) {
-    return Decimal(this).sub(b);
-};
-Number.prototype.add = function (b) {
-    return Decimal(this).add(b);
-};
-Number.prototype.sqrt = function () {
-    return Decimal(this).sqrt();
-};
-Number.prototype.divCeil = function (b) {
-    var a = this.valueOf();
-    var quotient = Decimal(a).div(b);
-    var remainder = a - quotient * b;
-    if (remainder > 0) {
-        return quotient + 1;
-    }
-    else {
-        return quotient;
-    }
-    // return 1;//Decimal(this).div(b);
-    // return SafeMath.div(this,b);
-};
-/*
 
-    Copyright 2020 DODO ZOO.
-    SPDX-License-Identifier: Apache-2.0
 
-*/
-var DODOMath = /** @class */ (function () {
-    function DODOMath() {
-    }
-    /*
-        Integrate dodo curve fron V1 to V2
-        require V0>=V1>=V2>0
-        res = (1-k)i(V1-V2)+ikV0*V0(1/V2-1/V1)
-        let V1-V2=delta
-        res = i*delta*(1-k+k(V0^2/V1/V2))
-    */
-    DODOMath._GeneralIntegrate = function (V0, V1, V2, i, k) {
-        var fairAmount = DecimalMath.mul(i, V1.sub(V2)); // i*delta
-        var V0V0V1V2 = DecimalMath.divCeil(V0.mul(V0).div(V1), V2);
-        var penalty = DecimalMath.mul(k, V0V0V1V2); // k(V0^2/V1/V2)
-        return DecimalMath.mul(fairAmount, DecimalMath.ONE.sub(k).add(penalty));
-    };
-    /*
-        The same with integration expression above, we have:
-        i*deltaB = (Q2-Q1)*(1-k+kQ0^2/Q1/Q2)
-        Given Q1 and deltaB, solve Q2
-        This is a quadratic  and the standard version is
-        aQ2^2 + bQ2 + c = 0, where
-        a=1-k
-        -b=(1-k)Q1-kQ0^2/Q1+i*deltaB
-        c=-kQ0^2
-        and Q2=(-b+sqrt(b^2+4(1-k)kQ0^2))/2(1-k)
-        note: another root is negative, abondan
-        if deltaBSig=true, then Q2>Q1
-        if deltaBSig=false, then Q2<Q1
-    */
-    DODOMath._SolveQuadraticForTrade = function (Q0, Q1, ideltaB, deltaBSig, k) {
-        // calculate -b value and sig
-        // -b = (1-k)Q1-kQ0^2/Q1+i*deltaB
-        var kQ02Q1 = DecimalMath.mul(k, Q0).mul(Q0).div(Q1); // kQ0^2/Q1
-        var b = DecimalMath.mul(DecimalMath.ONE.sub(k), Q1); // (1-k)Q1
-        var minusbSig = true;
-        if (deltaBSig) {
-            b = b.add(ideltaB); // (1-k)Q1+i*deltaB
-        }
-        else {
-            kQ02Q1 = kQ02Q1.add(ideltaB); // i*deltaB+kQ0^2/Q1
-        }
-        if (b >= kQ02Q1) {
-            b = b.sub(kQ02Q1);
-            minusbSig = true;
-        }
-        else {
-            b = kQ02Q1.sub(b);
-            minusbSig = false;
-        }
-        // calculate sqrt
-        var squareRoot = DecimalMath.mul(DecimalMath.ONE.sub(k).mul(4), DecimalMath.mul(k, Q0).mul(Q0)); // 4(1-k)kQ0^2
-        squareRoot = b.mul(b).add(squareRoot).sqrt(); // sqrt(b*b+4(1-k)kQ0*Q0)
-        // final res
-        var denominator = DecimalMath.ONE.sub(k).mul(2); // 2(1-k)
-        var numerator;
-        if (minusbSig) {
-            numerator = b.add(squareRoot);
-        }
-        else {
-            numerator = squareRoot.sub(b);
-        }
-        if (deltaBSig) {
-            return DecimalMath.divFloor(numerator, denominator);
-        }
-        else {
-            return DecimalMath.divCeil(numerator, denominator);
-        }
-    };
-    /*
-        Start from the integration
-        i*deltaB = (Q2-Q1)*(1-k+kQ0^2/Q1/Q2)
-        Assume Q2=Q0, Given Q1 and deltaB, solve Q0
-        let fairAmount = i*deltaB
-    */
-    DODOMath._SolveQuadraticForTarget = function (V1, k, fairAmount) {
-        // V0 = V1+V1*(sqrt-1)/2k
-        var sqrt = DecimalMath.divCeil(DecimalMath.mul(k, fairAmount).mul(4), V1);
-        sqrt = sqrt.add(DecimalMath.ONE).mul(DecimalMath.ONE).sqrt();
-        var premium = DecimalMath.divCeil(sqrt.sub(DecimalMath.ONE), k.mul(2));
-        // V0 is greater than or equal to V1 according to the solution
-        return DecimalMath.mul(V1, DecimalMath.ONE.add(premium));
-    };
-    return DODOMath;
-}());
-/**
- * @title DoStorage
- * @author DODO Breeder
- *
- * @notice Local Variables
- */
-var DoStorage = /** @class */ (function () {
-    function DoStorage() {
-        this._INITIALIZED_ = false;
-        this._CLOSED_ = false;
-        this._DEPOSIT_QUOTE_ALLOWED_ = false;
-        this._DEPOSIT_BASE_ALLOWED_ = false;
-        this._TRADE_ALLOWED_ = false;
-        this._GAS_PRICE_LIMIT_ = 0;
-        // ============ Advanced Controls ============
-        this._BUYING_ALLOWED_ = false;
-        this._SELLING_ALLOWED_ = false;
-        this._BASE_BALANCE_LIMIT_ = Number(18446744073709551615);
-        this._QUOTE_BALANCE_LIMIT_ = Number(18446744073709551615);
-        // ============ Core Address ============
-        this._SUPERVISOR_ = ""; // could freeze system in emergency
-        this._MAINTAINER_ = ""; // collect maintainer fee to buy food for DODO
-        this._BASE_TOKEN_ = "";
-        this._QUOTE_TOKEN_ = "";
-        this._ORACLE_ = "";
-        // ============ Variables for PMM Algorithm ============
-        this._LP_FEE_RATE_ = 0;
-        this._MT_FEE_RATE_ = 0;
-        this._K_ = 0.0001;
-        //   "_TARGET_BASE_TOKEN_AMOUNT_": 100002,
-        //   "_TARGET_QUOTE_TOKEN_AMOUNT_": 10000000,
-        //   "_BASE_BALANCE_": 89999,
-        //   "_QUOTE_BALANCE_": 11000300,
-        this._R_STATUS_ = Types_RStatus.ONE;
-        this._TARGET_BASE_TOKEN_AMOUNT_ = 100002;
-        this._TARGET_QUOTE_TOKEN_AMOUNT_ = 10000000;
-        this._BASE_BALANCE_ = 89999;
-        this._QUOTE_BALANCE_ = 11000300;
-        this._BASE_CAPITAL_TOKEN_ = "";
-        this._QUOTE_CAPITAL_TOKEN_ = "";
-        // ============ Variables for Final Settlement ============
-        this._BASE_CAPITAL_RECEIVE_QUOTE_ = 0;
-        this._QUOTE_CAPITAL_RECEIVE_BASE_ = 0;
-        // ============ Variables for Oracle Price ============
-        this._ORACLE_PRICE_ = 1;
-    }
-    DoStorage.prototype.setParameters = function (para) {
-        // this._BASE_BALANCE_LIMIT_ = para._BASE_BALANCE_LIMIT_;
-        // this._QUOTE_BALANCE_LIMIT_ = para._QUOTE_BALANCE_LIMIT_;
-        // ============ Variables for PMM Algorithm ============
-        this._LP_FEE_RATE_ = para._LP_FEE_RATE_;
-        this._MT_FEE_RATE_ = para._MT_FEE_RATE_;
-        this._K_ = para._K_;
-        this._R_STATUS_ = para._R_STATUS_;
-        this._TARGET_BASE_TOKEN_AMOUNT_ = para._TARGET_BASE_TOKEN_AMOUNT_;
-        this._TARGET_QUOTE_TOKEN_AMOUNT_ = para._TARGET_QUOTE_TOKEN_AMOUNT_;
-        this._BASE_BALANCE_ = para._BASE_BALANCE_;
-        this._QUOTE_BALANCE_ = para._QUOTE_BALANCE_;
-        this._ORACLE_PRICE_ = para._ORACLE_PRICE_;
-    };
-    DoStorage.prototype.getOraclePrice = function () {
-        return this._ORACLE_PRICE_;
-    };
-    DoStorage.prototype.getBaseCapitalBalanceOf = function (lp) {
-        // return IDODOLpToken(_BASE_CAPITAL_TOKEN_).balanceOf(lp);
-    };
-    DoStorage.prototype.getTotalBaseCapital = function () {
-        // return IDODOLpToken(_BASE_CAPITAL_TOKEN_).totalSupply();
-    };
-    DoStorage.prototype.getQuoteCapitalBalanceOf = function (lp) {
-        // return IDODOLpToken(_QUOTE_CAPITAL_TOKEN_).balanceOf(lp);
-    };
-    DoStorage.prototype.getTotalQuoteCapital = function () {
-        // return IDODOLpToken(_QUOTE_CAPITAL_TOKEN_).totalSupply();
-    };
-    return DoStorage;
-}());
-// {
-//   "dodo_name": "ethbasemkr11",
-//   "initownable": {
-//     "_OWNER_": "eosdoseosdos",
-//     "_NEW_OWNER_": ""
-//   },
-//   "guard": {
-//     "_ENTERED_": 0
-//   },
-//   "_INITIALIZED_": 1,
-//   "_CLOSED_": 0,
-//   "_DEPOSIT_QUOTE_ALLOWED_": 1,
-//   "_DEPOSIT_BASE_ALLOWED_": 1,
-//   "_TRADE_ALLOWED_": 1,
-//   "_GAS_PRICE_LIMIT_": 0,
-//   "_BUYING_ALLOWED_": 1,
-//   "_SELLING_ALLOWED_": 1,
-//   "_BASE_BALANCE_LIMIT_": "18446744073709551615",
-//   "_QUOTE_BALANCE_LIMIT_": "18446744073709551615",
-//   "_SUPERVISOR_": "eosdoseosdos",
-//   "_MAINTAINER_": "dodoowner111",
-//   "_BASE_TOKEN_": {
-//     "sym": "4,WETH",
-//     "contract": "eosdosxtoken"
-//   },
-//   "_QUOTE_TOKEN_": {
-//     "sym": "4,MKR",
-//     "contract": "eosdosxtoken"
-//   },
-//   "_ORACLE_": {
-//     "sym": "4,WETH",
-//     "contract": "eosdosxtoken"
-//   },
-//   "_LP_FEE_RATE_": 2,
-//   "_MT_FEE_RATE_": 1,
-//   "_K_": 1,
-//   "_R_STATUS_": 1,
-//   "_TARGET_BASE_TOKEN_AMOUNT_": 100002,
-//   "_TARGET_QUOTE_TOKEN_AMOUNT_": 10000000,
-//   "_BASE_BALANCE_": 89999,
-//   "_QUOTE_BALANCE_": 11000300,
-//   "_BASE_CAPITAL_TOKEN_": {
-//     "sym": "4,WETH",
-//     "contract": "ethbasemkr11"
-//   },
-//   "_QUOTE_CAPITAL_TOKEN_": {
-//     "sym": "4,MKR",
-//     "contract": "ethbasemkr11"
-//   },
-//   "_BASE_CAPITAL_RECEIVE_QUOTE_": 0,
-//   "_QUOTE_CAPITAL_RECEIVE_BASE_": 0,
-//   "_CLAIMED_": []
-// }
-/**
- * @title Pricing
- * @author DODO Breeder
- *
- * @notice DODO Pricing model
- */
-var Pricing = /** @class */ (function (_super) {
-    __extends(Pricing, _super);
-    function Pricing() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    // ============ R = 1 cases ============
-    Pricing.prototype._ROneSellBaseToken = function (amount, targetQuoteTokenAmount) {
-        var i = this.getOraclePrice();
-        var Q2 = DODOMath._SolveQuadraticForTrade(targetQuoteTokenAmount, targetQuoteTokenAmount, DecimalMath.mul(i, amount), false, this._K_);
-        // in theory Q2 <= targetQuoteTokenAmount
-        // however when amount is close to 0, precision problems may cause Q2 > targetQuoteTokenAmount
-        return targetQuoteTokenAmount.sub(Q2);
-    };
-    Pricing.prototype._ROneBuyBaseToken = function (amount, targetBaseTokenAmount) {
-        //require(amount < targetBaseTokenAmount, "DODO_BASE_BALANCE_NOT_ENOUGH");
-        var B2 = targetBaseTokenAmount.sub(amount);
-        var payQuoteToken = this._RAboveIntegrate(targetBaseTokenAmount, targetBaseTokenAmount, B2);
-        return payQuoteToken;
-    };
-    // ============ R < 1 cases ============
-    Pricing.prototype._RBelowSellBaseToken = function (amount, quoteBalance, targetQuoteAmount) {
-        var i = this.getOraclePrice();
-        var Q2 = DODOMath._SolveQuadraticForTrade(targetQuoteAmount, quoteBalance, DecimalMath.mul(i, amount), false, this._K_);
-        return quoteBalance.sub(Q2);
-    };
-    Pricing.prototype._RBelowBuyBaseToken = function (amount, quoteBalance, targetQuoteAmount) {
-        // Here we don't //require amount less than some value
-        // Because it is limited at upper 
-        // See Trader.queryBuyBaseToken
-        var i = this.getOraclePrice();
-        var Q2 = DODOMath._SolveQuadraticForTrade(targetQuoteAmount, quoteBalance, DecimalMath.mulCeil(i, amount), true, this._K_);
-        return Q2.sub(quoteBalance);
-    };
-    Pricing.prototype._RBelowBackToOne = function () {
-        // important: carefully design the system to make sure spareBase always greater than or equal to 0
-        var spareBase = this._BASE_BALANCE_.sub(this._TARGET_BASE_TOKEN_AMOUNT_);
-        var price = this.getOraclePrice();
-        var fairAmount = DecimalMath.mul(spareBase, price);
-        var newTargetQuote = DODOMath._SolveQuadraticForTarget(this._QUOTE_BALANCE_, this._K_, fairAmount);
-        return newTargetQuote.sub(this._QUOTE_BALANCE_);
-    };
-    // ============ R > 1 cases ============
-    Pricing.prototype._RAboveBuyBaseToken = function (amount, baseBalance, targetBaseAmount) {
-        //require(amount < baseBalance, "DODO_BASE_BALANCE_NOT_ENOUGH");
-        var B2 = baseBalance.sub(amount);
-        return this._RAboveIntegrate(targetBaseAmount, baseBalance, B2);
-    };
-    Pricing.prototype._RAboveSellBaseToken = function (amount, baseBalance, targetBaseAmount) {
-        // here we don't //require B1 <= targetBaseAmount
-        // Because it is limited at upper 
-        // See Trader.querySellBaseToken
-        var B1 = baseBalance.add(amount);
-        return this._RAboveIntegrate(targetBaseAmount, B1, baseBalance);
-    };
-    Pricing.prototype._RAboveBackToOne = function () {
-        // important: carefully design the system to make sure spareBase always greater than or equal to 0
-        var spareQuote = this._QUOTE_BALANCE_.sub(this._TARGET_QUOTE_TOKEN_AMOUNT_);
-        var price = this.getOraclePrice();
-        var fairAmount = DecimalMath.divFloor(spareQuote, price);
-        var newTargetBase = DODOMath._SolveQuadraticForTarget(this._BASE_BALANCE_, this._K_, fairAmount);
-        return newTargetBase.sub(this._BASE_BALANCE_);
-    };
-    // ============ Helper s ============
-    Pricing.prototype.getExpectedTarget = function () {
-        var Q = this._QUOTE_BALANCE_;
-        var B = this._BASE_BALANCE_;
-        if (this._R_STATUS_ == Types_RStatus.ONE) {
-            return [this._TARGET_BASE_TOKEN_AMOUNT_, this._TARGET_QUOTE_TOKEN_AMOUNT_];
-        }
-        else if (this._R_STATUS_ == Types_RStatus.BELOW_ONE) {
-            var payQuoteToken = this._RBelowBackToOne();
-            return [this._TARGET_BASE_TOKEN_AMOUNT_, Q.add(payQuoteToken)];
-        }
-        else if (this._R_STATUS_ == Types_RStatus.ABOVE_ONE) {
-            var payBaseToken = this._RAboveBackToOne();
-            return [B.add(payBaseToken), this._TARGET_QUOTE_TOKEN_AMOUNT_];
-        }
-        return [0, 0];
-    };
-    Pricing.prototype.getMidPrice = function () {
-        // baseTarget:number, quoteTarget:number
-        var _a = this.getExpectedTarget(), baseTarget = _a[0], quoteTarget = _a[1];
-        if (this._R_STATUS_ == Types_RStatus.BELOW_ONE) {
-            var R = DecimalMath.divFloor(quoteTarget.mul(quoteTarget).div(this._QUOTE_BALANCE_), this._QUOTE_BALANCE_);
-            R = DecimalMath.ONE.sub(this._K_).add(DecimalMath.mul(this._K_, R));
-            return DecimalMath.divFloor(this.getOraclePrice(), R);
-        }
-        else {
-            var R = DecimalMath.divFloor(baseTarget.mul(baseTarget).div(this._BASE_BALANCE_), this._BASE_BALANCE_);
-            R = DecimalMath.ONE.sub(this._K_).add(DecimalMath.mul(this._K_, R));
-            return DecimalMath.mul(this.getOraclePrice(), R);
-        }
-    };
-    Pricing.prototype._RAboveIntegrate = function (B0, B1, B2) {
-        var i = this.getOraclePrice();
-        return DODOMath._GeneralIntegrate(B0, B1, B2, i, this._K_);
-    };
-    return Pricing;
-}(DoStorage));
-/**
- * @title Trader
- * @author DODO Breeder
- *
- * @notice s for trader operations
- */
-var Trader = /** @class */ (function (_super) {
-    __extends(Trader, _super);
-    function Trader() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    // ============ Query s ============
-    Trader.prototype.querySellBaseToken = function (amount) {
-        var receiveQuote = this._querySellBaseToken(amount)[0];
-        return receiveQuote;
-    };
-    Trader.prototype.queryBuyBaseToken = function (amount) {
-        var payQuote = this._queryBuyBaseToken(amount)[0];
-        return payQuote;
-    };
-    Trader.prototype._querySellBaseToken = function (amount) {
-        var receiveQuote, lpFeeQuote, mtFeeQuote, newRStatus;
-        var _a = this.getExpectedTarget(), newBaseTarget = _a[0], newQuoteTarget = _a[1];
-        var sellBaseAmount = amount;
-        if (this._R_STATUS_ == Types_RStatus.ONE) {
-            // case 1: R=1
-            // R falls below one
-            receiveQuote = this._ROneSellBaseToken(sellBaseAmount, newQuoteTarget);
-            newRStatus = Types_RStatus.BELOW_ONE;
-        }
-        else if (this._R_STATUS_ == Types_RStatus.ABOVE_ONE) {
-            var backToOnePayBase = newBaseTarget.sub(this._BASE_BALANCE_);
-            var backToOneReceiveQuote = this._QUOTE_BALANCE_.sub(newQuoteTarget);
-            // case 2: R>1
-            // complex case, R status depends on trading amount
-            if (sellBaseAmount < backToOnePayBase) {
-                // case 2.1: R status do not change
-                receiveQuote = this._RAboveSellBaseToken(sellBaseAmount, this._BASE_BALANCE_, newBaseTarget);
-                newRStatus = Types_RStatus.ABOVE_ONE;
-                if (receiveQuote > backToOneReceiveQuote) {
-                    // [Important corner case!] may enter this branch when some precision problem happens. And consequently contribute to negative spare quote amount
-                    // to make sure spare quote>=0, mannually set receiveQuote=backToOneReceiveQuote
-                    receiveQuote = backToOneReceiveQuote;
-                }
-            }
-            else if (sellBaseAmount == backToOnePayBase) {
-                // case 2.2: R status changes to ONE
-                receiveQuote = backToOneReceiveQuote;
-                newRStatus = Types_RStatus.ONE;
-            }
-            else {
-                // case 2.3: R status changes to BELOW_ONE
-                receiveQuote = backToOneReceiveQuote.add(this._ROneSellBaseToken(sellBaseAmount.sub(backToOnePayBase), newQuoteTarget));
-                newRStatus = Types_RStatus.BELOW_ONE;
-            }
-        }
-        else {
-            // _R_STATUS_ == Types_RStatus.BELOW_ONE
-            // case 3: R<1
-            receiveQuote = this._RBelowSellBaseToken(sellBaseAmount, this._QUOTE_BALANCE_, newQuoteTarget);
-            newRStatus = Types_RStatus.BELOW_ONE;
-        }
-        // count fees
-        lpFeeQuote = DecimalMath.mul(receiveQuote, this._LP_FEE_RATE_);
-        mtFeeQuote = DecimalMath.mul(receiveQuote, this._MT_FEE_RATE_);
-        receiveQuote = receiveQuote.sub(lpFeeQuote).sub(mtFeeQuote);
-        return [receiveQuote, lpFeeQuote, mtFeeQuote, newRStatus, newQuoteTarget, newBaseTarget];
-    };
-    Trader.prototype._queryBuyBaseToken = function (amount) {
-        var _a;
-        var payQuote, lpFeeBase, mtFeeBase, newRStatus, newQuoteTarget, newBaseTarget;
-        _a = this.getExpectedTarget(), newBaseTarget = _a[0], newQuoteTarget = _a[1];
-        // charge fee from user receive amount
-        lpFeeBase = DecimalMath.mul(amount, this._LP_FEE_RATE_);
-        mtFeeBase = DecimalMath.mul(amount, this._MT_FEE_RATE_);
-        var buyBaseAmount = amount.add(lpFeeBase).add(mtFeeBase);
-        if (this._R_STATUS_ == Types_RStatus.ONE) {
-            // case 1: R=1
-            payQuote = this._ROneBuyBaseToken(buyBaseAmount, newBaseTarget);
-            newRStatus = Types_RStatus.ABOVE_ONE;
-        }
-        else if (this._R_STATUS_ == Types_RStatus.ABOVE_ONE) {
-            // case 2: R>1
-            payQuote = this._RAboveBuyBaseToken(buyBaseAmount, this._BASE_BALANCE_, newBaseTarget);
-            newRStatus = Types_RStatus.ABOVE_ONE;
-        }
-        else if (this._R_STATUS_ == Types_RStatus.BELOW_ONE) {
-            var backToOnePayQuote = newQuoteTarget.sub(this._QUOTE_BALANCE_);
-            var backToOneReceiveBase = this._BASE_BALANCE_.sub(newBaseTarget);
-            // case 3: R<1
-            // complex case, R status may change
-            if (buyBaseAmount < backToOneReceiveBase) {
-                // case 3.1: R status do not change
-                // no need to check payQuote because spare base token must be greater than zero
-                payQuote = this._RBelowBuyBaseToken(buyBaseAmount, this._QUOTE_BALANCE_, newQuoteTarget);
-                newRStatus = Types_RStatus.BELOW_ONE;
-            }
-            else if (buyBaseAmount == backToOneReceiveBase) {
-                // case 3.2: R status changes to ONE
-                payQuote = backToOnePayQuote;
-                newRStatus = Types_RStatus.ONE;
-            }
-            else {
-                // case 3.3: R status changes to ABOVE_ONE
-                payQuote = backToOnePayQuote.add(this._ROneBuyBaseToken(buyBaseAmount.sub(backToOneReceiveBase), newBaseTarget));
-                newRStatus = Types_RStatus.ABOVE_ONE;
-            }
-        }
-        return [payQuote, lpFeeBase, mtFeeBase, newRStatus, newQuoteTarget, newBaseTarget];
-    };
-    return Trader;
-}(Pricing));
 
-var filter_fields = [
-    "_LP_FEE_RATE_",
-    "_MT_FEE_RATE_",
-    "_K_",
-    "_R_STATUS_",
-    "_TARGET_BASE_TOKEN_AMOUNT_",
-    "_TARGET_QUOTE_TOKEN_AMOUNT_",
-    "_BASE_BALANCE_",
-    "_QUOTE_BALANCE_"
-];
-var t = new Trader();
-var galldodos = {};
-
-function init(strdodos) {
-    galldodos = JSON.parse(strdodos);
-    // galldodos = filterDodos(dodos.dodos);
-    // galloracles = filterOraclePrices(dodos.oracles);
-
+function calcRelativeDiff(expected, actual) {
+    return ((Decimal(expected).minus(Decimal(actual))).div(expected)).abs();
 }
 
-function queryDodo(baseToken, quoteToken) {
-    var dodo_name = baseToken.toLowerCase() + "2" + quoteToken.toLowerCase() + "11111";
-    dodo_name = dodo_name.substr(0, 12);
-    var testdodo_name = { "dai2mkr11111": "daimkrdaimkr", "eth2mkr11111": "ethbasemkr11" };
-    dodo_name = testdodo_name[dodo_name];
-
-    // console.log(dodo_name);
-    var dodo = galldodos[dodo_name];
-    // dodo._ORACLE_PRICE_ = Number(galloracles[baseToken]);
-    // console.log(dodo);
-
-    return dodo;
+function calcSpotPrice(tokenBalanceIn, tokenWeightIn, tokenBalanceOut, tokenWeightOut, swapFee) {
+    var numer = Decimal(tokenBalanceIn).div(Decimal(tokenWeightIn));
+    var denom = Decimal(tokenBalanceOut).div(Decimal(tokenWeightOut));
+    var ratio = numer.div(denom);
+    var scale = Decimal(1).div(Decimal(1).sub(Decimal(swapFee)));
+    var spotPrice = ratio.mul(scale);
+    return spotPrice;
 }
 
-function queryBuyTokenWithDodo(amount, dodo) {
-    t.setParameters(dodo);
-    //console.log(amount, dodo);
-    var r = t.queryBuyBaseToken(amount);
-    //console.log(r);
-    return r;
+function calcOutGivenIn(tokenBalanceIn, tokenWeightIn, tokenBalanceOut, tokenWeightOut, tokenAmountIn, swapFee) {
+    var weightRatio = Decimal(tokenWeightIn).div(Decimal(tokenWeightOut));
+    var adjustedIn = Decimal(tokenAmountIn).times((Decimal(1).minus(Decimal(swapFee))));
+    var y = Decimal(tokenBalanceIn).div(Decimal(tokenBalanceIn).plus(adjustedIn));
+    var foo = y.pow(weightRatio);
+    var bar = Decimal(1).minus(foo);
+    var tokenAmountOut = Decimal(tokenBalanceOut).times(bar);
+    return tokenAmountOut;
 }
-function querySellTokenWithDodo(amount, dodo) {
-    t.setParameters(dodo);
-    var r = t.querySellBaseToken(amount);
-    //console.log(r);
-    return r;
+
+function calcInGivenOut(tokenBalanceIn, tokenWeightIn, tokenBalanceOut, tokenWeightOut, tokenAmountOut, swapFee) {
+    var weightRatio = Decimal(tokenWeightOut).div(Decimal(tokenWeightIn));
+    var diff = Decimal(tokenBalanceOut).minus(tokenAmountOut);
+    var y = Decimal(tokenBalanceOut).div(diff);
+    var foo = y.pow(weightRatio).minus(Decimal(1));
+    var tokenAmountIn = (Decimal(tokenBalanceIn).times(foo)).div(Decimal(1).minus(Decimal(swapFee)));
+    return tokenAmountIn;
 }
-var Object_assign = function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i];
-        for (var key in source) {
-            if (Object.prototype.hasOwnProperty.call(source, key)) {
-                target[key] = source[key];
-            }
-        }
+
+function calcPoolOutGivenSingleIn(tokenBalanceIn, tokenWeightIn, poolSupply, totalWeight, tokenAmountIn, swapFee) {
+    var normalizedWeight = Decimal(tokenWeightIn).div(Decimal(totalWeight));
+    var zaz = Decimal(1).sub(Decimal(normalizedWeight)).mul(Decimal(swapFee));
+    var tokenAmountInAfterFee = Decimal(tokenAmountIn).mul(Decimal(1).sub(zaz));
+    var newTokenBalanceIn = Decimal(tokenBalanceIn).add(tokenAmountInAfterFee);
+    var tokenInRatio = newTokenBalanceIn.div(Decimal(tokenBalanceIn));
+    var poolRatio = tokenInRatio.pow(normalizedWeight);
+    var newPoolSupply = poolRatio.mul(Decimal(poolSupply));
+    var poolAmountOut = newPoolSupply.sub(Decimal(poolSupply));
+    return poolAmountOut;
+}
+
+function calcSingleInGivenPoolOut(tokenBalanceIn, tokenWeightIn, poolSupply, totalWeight, poolAmountOut, swapFee) {
+    var normalizedWeight = Decimal(tokenWeightIn).div(Decimal(totalWeight));
+    var newPoolSupply = Decimal(poolSupply).plus(Decimal(poolAmountOut));
+    var poolRatio = newPoolSupply.div(Decimal(poolSupply));
+    var boo = Decimal(1).div(normalizedWeight);
+    var tokenInRatio = poolRatio.pow(boo);
+    var newTokenBalanceIn = tokenInRatio.mul(Decimal(tokenBalanceIn));
+    var tokenAmountInAfterFee = newTokenBalanceIn.sub(Decimal(tokenBalanceIn));
+    var zar = (Decimal(1).sub(normalizedWeight)).mul(Decimal(swapFee));
+    var tokenAmountIn = tokenAmountInAfterFee.div(Decimal(1).sub(zar));
+    return tokenAmountIn;
+}
+
+
+
+var s = {
+    pool: {
+        DAI: { denorm: 5000000, balance: 2400000 },
+        WETH: { denorm: 5000000, balance: 60000 },
+        swapFee: 3000,
+        totalWeight: 10000000
+    },
+    pool1: {
+        DAI: { denorm: 5000000, balance: 220000000 },
+        WETH: { denorm: 5000000, balance: 5500000 },
+        swapFee: 3000,
+        totalWeight: 10000000
+    },
+    pool2: {
+        DAI: { denorm: 5000000, balance: 220000000 },
+        WETH: { denorm: 5000000, balance: 5500000 },
+        swapFee: 3000,
+        totalWeight: 10000000
+    },
+       pool3: {
+        DAI: { denorm: 10, balance: 12 },
+        WETH: { denorm: 10, balance: 4 },
+        swapFee: 0.001,
+        totalWeight: 20
+    },
+    pool4: {
+        DAI: { denorm: 5000000, balance: 220000000 },
+        WETH: { denorm: 5000000, balance: 5500000 },
+        swapFee: 1000,
+        totalWeight: 10000000
     }
-    return target;
 };
 
-function buy(amount, baseToken, quoteToken) {
-    var dodo = queryDodo(baseToken, quoteToken);
-    ////console.log(amount, dodojson);
-    var r = queryBuyTokenWithDodo(amount, dodo);
-    ////console.log(r);
-    return Number(r);
+
+var BONE = Math.pow(10, 6);
+
+var swapFee = 10;// ** -3; // 0.001;
+
+var tokenInBalance = '4';
+var tokenInDenorm = '10';
+
+var currenttokenInBalance = tokenInBalance;
+
+var tokenOutBalance = '12';
+var tokenOutDenorm = '10';
+
+var currenttokenOutBalance = Decimal(tokenOutBalance);
+
+var sumWeights = Number(1);
+var tokenInNorm = Decimal(tokenInDenorm).div(Decimal(sumWeights));
+var tokenOutNorm = Decimal(tokenOutDenorm).div(Decimal(sumWeights));
+
+
+function init(p) {
+    s = p;
 }
-function sell(amount, baseToken, quoteToken) {
-    var dodo = queryDodo(baseToken, quoteToken);
-    var r = querySellTokenWithDodo(amount, dodo);
-    ////console.log(r);
-    return Number(r);
+
+function queryPool(tokenIn, tokenOut) {
+    var pool_name = tokenIn.toLowerCase() + "2" + tokenOut.toLowerCase();
+    pool_name = pool_name.substr(0, 12);
+     var testpool_name = { "dai2weth": "pool4", "weth2dai": "pool3" };
+    pool_name = testpool_name[pool_name];
+
+    // console.log(pool_name);
+    var pool = s[pool_name];
+    // console.log(pool);
+
+    return pool;
 }
+
+function setParameter(tokenIn, tokenOut) {
+    var pool = queryPool(tokenIn, tokenOut);
+    currenttokenInBalance = Decimal(pool[tokenIn].balance).div(Decimal(BONE));
+    currenttokenOutBalance = Decimal(pool[tokenOut].balance).div(Decimal(BONE));
+    tokenInDenorm = pool[tokenIn].denorm;
+    tokenOutDenorm = pool[tokenOut].denorm;
+    swapFee = Decimal(pool.swapFee).div(Decimal(BONE));
+    sumWeights = pool.totalWeight;
+    tokenInNorm = Decimal(tokenInDenorm).div(Decimal(sumWeights));
+    tokenOutNorm = Decimal(tokenOutDenorm).div(Decimal(sumWeights));
+}
+
+function spotPrice(tokenIn, tokenOut) {
+    setParameter(tokenIn, tokenOut);
+    var expected = calcSpotPrice(
+        currenttokenInBalance,
+        tokenInNorm,
+        currenttokenOutBalance,
+        tokenOutNorm,
+        swapFee
+    );
+
+    return Number(expected).toFixed(4);
+}
+
+function sell(tokenAmountIn, tokenIn, tokenOut) {
+    setParameter(tokenIn, tokenOut);
+    var expected = calcOutGivenIn(
+        currenttokenInBalance,
+        tokenInNorm,
+        currenttokenOutBalance,
+        tokenOutNorm,
+        tokenAmountIn,
+        swapFee
+    );
+
+    return Number(expected).toFixed(4);
+}
+
+function buy(tokenAmountOut, tokenIn, tokenOut) {
+    setParameter(tokenIn, tokenOut);
+    var expected = calcInGivenOut(
+        currenttokenOutBalance,
+        tokenOutNorm,
+        currenttokenInBalance,
+        tokenInNorm,
+        tokenAmountOut,
+        swapFee
+    );
+
+    return Number(expected).toFixed(4);
+}
+
+
+
+
+
 

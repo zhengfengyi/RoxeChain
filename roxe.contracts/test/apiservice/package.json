@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "NODE_ENV=development nodemon ./bin/www",
-    "dodo": " DEBUG=*  node -r dotenv/config ./bin/dodo dotenv_config_path=.env ",
+    "dodo": "yarn ts-build &&  DEBUG=*  node -r dotenv/config ./bin/dodo dotenv_config_path=.env ",
+    "swap": " yarn ts-build && DEBUG=*  node -r dotenv/config ./bin/dodo dotenv_config_path=.env ",
     "start": "node dist/bin/server.js",
     "watch": "nodemon ./dist/bin/server.js",
     "ts-build": "tsc",

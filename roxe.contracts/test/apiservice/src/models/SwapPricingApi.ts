@@ -30,13 +30,13 @@ export class SwapPricingApi {
     }
 }
 
-(async function () {
-    const api = new SwapPricingApi();
-    let b: any = await api.getPool();
-    console.log( JSON.stringify(b) );
-    // let s: any = await api.querySellToken(10000, "DAI", "MKR");
-    // console.log("=s==", s, "===");
-})();
+// (async function () {
+//     const api = new SwapPricingApi();
+//     let b: any = await api.getPool();
+//     console.log( JSON.stringify(b) );
+//     // let s: any = await api.querySellToken(10000, "DAI", "MKR");
+//     // console.log("=s==", s, "===");
+// })();
 
 
 

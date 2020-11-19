@@ -29,9 +29,7 @@ export class SwapRefactoringTableJson {
             let po: { [k: string]: any } = {};
             po[pool.key] = refactoring_records;
             return po;
-        }
-        );
-
+        }).reduce((obj: any, o: any) => { Object.assign(obj, o); return obj }, {});;
 
         // const json = Object.keys(pools).filter((obj: any) => obj.indexOf(obj.name) >= 0);
 
@@ -276,9 +274,9 @@ async function testRefactoring() {
 
 
 
-// (async function () {
-//     await testRefactoring();
+(async function () {
+    await testRefactoring();
 
-//     // let s: any = await api.querySellToken(10000, "DAI", "MKR");
-//     // console.log("=s==", s, "===");
-// })();
+    // let s: any = await api.querySellToken(10000, "DAI", "MKR");
+    // console.log("=s==", s, "===");
+})();

@@ -34,13 +34,13 @@ export class PricingApi {
     }
 }
 
-(async function () {
-    const api = new PricingApi();
-    let b: any = await api.getDodo();
-    console.log( JSON.stringify(b) );
-    // let s: any = await api.querySellToken(10000, "DAI", "MKR");
-    // console.log("=s==", s, "===");
-})();
+// (async function () {
+//     const api = new PricingApi();
+//     let b: any = await api.getDodo();
+//     console.log( JSON.stringify(b) );
+//     // let s: any = await api.querySellToken(10000, "DAI", "MKR");
+//     // console.log("=s==", s, "===");
+// })();
 
 
 

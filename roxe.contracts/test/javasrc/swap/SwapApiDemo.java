@@ -11,7 +11,7 @@ import javax.script.*;
  * 调用JavaScript脚本演示
  * @author Zebe
  */
-public class TestApiDemo {
+public class SwapApiDemo {
 
    /**
     * 运行入口
@@ -20,18 +20,19 @@ public class TestApiDemo {
    public static void main(String[] args) { testbuysell(); }
 
    public static void testbuysell() {
-      String dodo = "";
-      try {
-         dodo = readJsonData("./dodo.json");
-         init(dodo);
-      } catch (IOException e) {
-         e.getStackTrace();
-      }
-      double amount     = 10000;
-      String baseToken  = "DAI";
-      String quoteToken = "MKR";
-      query("buy", amount, baseToken, quoteToken);
-      query("sell", amount, baseToken, quoteToken);
+      //   String pool = "";
+      //   try {
+      //      pool = readJsonData("./pool.json");
+      //      init(pool);
+      //   } catch (IOException e) {
+      //      e.getStackTrace();
+      //   }
+      double tokenAmountIn  = 2;
+      double tokenAmountOut = 1;
+      String tokenIn        = "DAI";
+      String tokenOut       = "WETH";
+      query("sell", tokenAmountIn, tokenIn, tokenOut);
+      query("buy", tokenAmountOut, tokenIn, tokenOut);
    }
 
    private static void showEngines() {
@@ -91,12 +92,12 @@ public class TestApiDemo {
     * 从JavaScript文件执行JavaScript脚本
     * @param engine 脚本引擎
     */
-   private static void init(String dodo) {
+   private static void init(String pool) {
       try {
          Invocable invoke = getEngine();
          if (null != invoke) {
             // 方式1 通过对象调用方法， 获取结果
-            invoke.invokeFunction("init", dodo);
+            invoke.invokeFunction("init", pool);
          } else {
             System.err.println(" 不存在，无法执行脚本");
          }
@@ -109,13 +110,13 @@ public class TestApiDemo {
     * 从JavaScript文件执行JavaScript脚本
     * @param engine 脚本引擎
     */
-   private static double query(String function, double amount, String dodo, String oracle) {
+   private static double query(String function, double amount, String tokenIn, String tokenOut) {
       double result = 0;
       try {
          Invocable invoke = getEngine();
          if (null != invoke) {
             // 方式1 通过对象调用方法， 获取结果
-            Object c = invoke.invokeFunction(function, amount, dodo, oracle);
+            Object c = invoke.invokeFunction(function, amount, tokenIn, tokenOut);
             System.out.println(c);
             Double d = Double.parseDouble(c.toString());
             result   = d == null ? 0 : d;
@@ -140,7 +141,7 @@ public class TestApiDemo {
       try {
          ScriptEngineManager manager = new ScriptEngineManager();
          engine                      = manager.getEngineByName("ECMAScript");
-         final String fileName       = "./PricingFormulaMin.js";
+         final String fileName       = "./swapapimin.js";
          File         file           = new File(fileName);
          if (file.exists()) {
             engine.eval(new FileReader(file));
