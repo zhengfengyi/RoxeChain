@@ -8,8 +8,8 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #include <fc/variant_object.hpp>
 #include <sstream>
-// #define EOSDOS_DEBUG
-#ifdef EOSDOS_DEBUG
+// #define ROXEDOS_DEBUG
+#ifdef ROXEDOS_DEBUG
 #define LINE_DEBUG BOOST_TEST_CHECK(__LINE__ == 0);
 #else
 #define LINE_DEBUG
@@ -113,9 +113,9 @@ class eosdos_tester : public tester {
                                                         get_balance(N(roxe.ram)));
 
       create_currency(
-          N(roxe.token), config::system_account_name, roxe::chain::asset::from_string("10000000000.0000 EOS"));
+          N(roxe.token), config::system_account_name, roxe::chain::asset::from_string("10000000000.0000 ROXE"));
 
-      issue(config::system_account_name, roxe::chain::asset::from_string("1000000000.0000 EOS"));
+      issue(config::system_account_name, roxe::chain::asset::from_string("1000000000.0000 ROXE"));
 
       set_code(config::system_account_name, contracts::system_wasm());
       set_abi(config::system_account_name, contracts::system_abi().data());

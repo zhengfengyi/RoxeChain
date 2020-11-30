@@ -48,3 +48,13 @@ struct [[roxe::table("poolstore"), roxe::contract("eoswap")]] BPoolStorage {
 };
 
 typedef roxe::singleton<"poolstore"_n, BPoolStorage> BPoolStorageSingleton;
+
+
+struct [[roxe::table, roxe::contract("eoswap")]] pool_storage {
+   name      pool;
+   BPoolStore pools;
+   uint64_t  primary_key() const { return pool.value; }
+};
+
+typedef roxe::multi_index<"pools"_n, pool_storage> pool_storage_table;
+

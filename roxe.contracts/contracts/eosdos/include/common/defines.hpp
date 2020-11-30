@@ -9,9 +9,9 @@
 #include <common/dos.functions.hpp>
 #include <common/dos.types.hpp>
 // DEBUG(format,...) printf("FILE: "__FILE__", LINE: %d: "format"/n", __LINE__, ##__VA_ARGS__)
-#define EOSDOS_CONTRACT_DEBUG
+#define ROXEDOS_CONTRACT_DEBUG
 
-#ifdef EOSDOS_CONTRACT_DEBUG
+#ifdef ROXEDOS_CONTRACT_DEBUG
 #define contract_debug(args...) print(" | ",##args)
 #else
 #define contract_debug
@@ -37,13 +37,13 @@ static const uint8_t current_bridge_version = 1;
 
 template <typename Arg, typename... Args>
 inline void my_print_f(const char* s, Arg val, Args... rest) {
-#ifdef EOSDOS_CONTRACT_DEBUG
+#ifdef ROXEDOS_CONTRACT_DEBUG
    print_f(s, val, rest...);
 #endif
 }
 
 inline void my_print_f(const char* s) {
-#ifdef EOSDOS_CONTRACT_DEBUG
+#ifdef ROXEDOS_CONTRACT_DEBUG
    print(s);
 #endif
 }

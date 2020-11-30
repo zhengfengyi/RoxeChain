@@ -20,7 +20,7 @@ using namespace roxe;
 using bytes = std::vector<char>;
 
 using address = name;
-using uint = uint128_t;
+using uint = uint64_t;
 using uint8 = uint8_t;
 using namesym =uint128_t;
 
@@ -39,7 +39,7 @@ namesym to_namesym(const extended_symbol& exsym)
     ns = ns << 64| exsym.get_symbol().raw();
     return ns;
 }
-
+///static compile time
 constexpr double my_pow(double x, int exp) {
   int sign = 1;
   if (exp < 0) {
