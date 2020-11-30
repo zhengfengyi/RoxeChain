@@ -130,6 +130,11 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
       factory.pool(pool_name, [&](auto& pool) { pool.swapExactAmountOut(maxAmountIn, tokenAmountOut, maxPrice); });
    }
 
+   ////////////////// TEST pool storage///////////////////////
+   [[roxe::action]] void cppool2table(name msg_sender, name pool_name) {
+      factory.get_storage_mgmt().copyPoolStore2Table(msg_sender, pool_name);
+   }
+
    ////////////////// TEST pool TOKEN////////////////////////
    [[roxe::action]] void extransfer(name from, name to, extended_asset quantity, std::string memo) {
       factory.get_transfer_mgmt().transfer(from, to, quantity, memo);
