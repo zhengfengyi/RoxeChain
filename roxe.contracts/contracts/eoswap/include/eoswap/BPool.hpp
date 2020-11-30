@@ -226,8 +226,8 @@ class BPool : public BToken<TokenStoreType>, public BMath {
       namesym tokenOut = to_namesym(tokenOutx);
       require(pool_store.records[tokenIn].bound, "ERR_NOT_BOUND");
       require(pool_store.records[tokenOut].bound, "ERR_NOT_BOUND");
-      Record inRecord  = pool_store.records[tokenIn];
-      Record outRecord = pool_store.records[tokenOut];
+      Record& inRecord  = pool_store.records[tokenIn];
+      Record& outRecord = pool_store.records[tokenOut];
       return calcSpotPrice(inRecord.balance, inRecord.denorm, outRecord.balance, outRecord.denorm, pool_store.swapFee);
    }
 
@@ -236,8 +236,8 @@ class BPool : public BToken<TokenStoreType>, public BMath {
       namesym tokenOut = to_namesym(tokenOutx);
       require(pool_store.records[tokenIn].bound, "ERR_NOT_BOUND");
       require(pool_store.records[tokenOut].bound, "ERR_NOT_BOUND");
-      Record inRecord  = pool_store.records[tokenIn];
-      Record outRecord = pool_store.records[tokenOut];
+      Record& inRecord  = pool_store.records[tokenIn];
+      Record& outRecord = pool_store.records[tokenOut];
       return calcSpotPrice(inRecord.balance, inRecord.denorm, outRecord.balance, outRecord.denorm, 0);
    }
 
@@ -300,8 +300,8 @@ class BPool : public BToken<TokenStoreType>, public BMath {
       require(pool_store.records[tokenOut].bound, "ERR_NOT_BOUND");
       require(pool_store.publicSwap, "ERR_SWAP_NOT_PUBLIC");
 
-      Record inRecord  = pool_store.records[tokenIn];
-      Record outRecord = pool_store.records[tokenOut];
+      Record& inRecord  = pool_store.records[tokenIn];
+      Record& outRecord = pool_store.records[tokenOut];
 
       require(tokenAmountIn <= BMath::bmul(inRecord.balance, MAX_IN_RATIO), "ERR_MAX_IN_RATIO");
 
@@ -342,8 +342,8 @@ class BPool : public BToken<TokenStoreType>, public BMath {
       require(pool_store.records[tokenOut].bound, "ERR_NOT_BOUND");
       require(pool_store.publicSwap, "ERR_SWAP_NOT_PUBLIC");
 
-      Record inRecord  = pool_store.records[tokenIn];
-      Record outRecord = pool_store.records[tokenOut];
+      Record& inRecord  = pool_store.records[tokenIn];
+      Record& outRecord = pool_store.records[tokenOut];
 
       require(tokenAmountOut <= BMath::bmul(outRecord.balance, MAX_OUT_RATIO), "ERR_MAX_OUT_RATIO");
 
@@ -379,7 +379,7 @@ class BPool : public BToken<TokenStoreType>, public BMath {
       require(pool_store.records[tokenIn].bound, "ERR_NOT_BOUND");
       require(tokenAmountIn <= BMath::bmul(pool_store.records[tokenIn].balance, MAX_IN_RATIO), "ERR_MAX_IN_RATIO");
 
-      Record inRecord = pool_store.records[tokenIn];
+      Record& inRecord = pool_store.records[tokenIn];
 
       uint poolAmountOut = calcPoolOutGivenSingleIn(
           inRecord.balance, inRecord.denorm, BToken<TokenStoreType>::totalSupply(), pool_store.totalWeight,
@@ -403,7 +403,7 @@ class BPool : public BToken<TokenStoreType>, public BMath {
       require(pool_store.finalized, "ERR_NOT_FINALIZED");
       require(pool_store.records[tokenIn].bound, "ERR_NOT_BOUND");
 
-      Record inRecord = pool_store.records[tokenIn];
+      Record& inRecord = pool_store.records[tokenIn];
 
       uint tokenAmountIn = calcSingleInGivenPoolOut(
           inRecord.balance, inRecord.denorm, BToken<TokenStoreType>::totalSupply(), pool_store.totalWeight,
@@ -431,7 +431,7 @@ class BPool : public BToken<TokenStoreType>, public BMath {
       require(pool_store.finalized, "ERR_NOT_FINALIZED");
       require(pool_store.records[tokenOut].bound, "ERR_NOT_BOUND");
 
-      Record outRecord = pool_store.records[tokenOut];
+      Record& outRecord = pool_store.records[tokenOut];
 
       uint tokenAmountOut = calcSingleOutGivenPoolIn(
           outRecord.balance, outRecord.denorm, BToken<TokenStoreType>::totalSupply(), pool_store.totalWeight,
@@ -464,7 +464,7 @@ class BPool : public BToken<TokenStoreType>, public BMath {
       require(pool_store.records[tokenOut].bound, "ERR_NOT_BOUND");
       require(tokenAmountOut <= BMath::bmul(pool_store.records[tokenOut].balance, MAX_OUT_RATIO), "ERR_MAX_OUT_RATIO");
 
-      Record outRecord = pool_store.records[tokenOut];
+      Record& outRecord = pool_store.records[tokenOut];
 
       uint poolAmountIn = calcPoolInGivenSingleOut(
           outRecord.balance, outRecord.denorm, BToken<TokenStoreType>::totalSupply(), pool_store.totalWeight,
