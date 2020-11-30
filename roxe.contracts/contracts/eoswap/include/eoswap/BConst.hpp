@@ -16,26 +16,26 @@
 
 class BConst : public  BBronze {
 public:
-    static  constexpr uint256  BONE              = my_pow(10,6);
+    static  constexpr uint  BONE              = my_pow(10,6);
 
-    static constexpr uint256  MIN_BOUND_TOKENS  = 2;
-    static constexpr uint256  MAX_BOUND_TOKENS  = 8;
+    static constexpr uint  MIN_BOUND_TOKENS  = 2;
+    static constexpr uint  MAX_BOUND_TOKENS  = 8;
 
-    static constexpr uint256  MIN_FEE           = BONE / my_pow(10,3);//6
-    static constexpr uint256  MAX_FEE           = BONE / 10;
-    static constexpr uint256  EXIT_FEE          = 0;
+    static constexpr uint  MIN_FEE           = BONE / my_pow(10,3);//6
+    static constexpr uint  MAX_FEE           = BONE / 10;
+    static constexpr uint  EXIT_FEE          = 0;
 
-    static constexpr uint256  MIN_WEIGHT        = BONE;
-    static constexpr uint256  MAX_WEIGHT        = BONE * 50;
-    static constexpr uint256  MAX_TOTAL_WEIGHT  = BONE * 50;
-    static constexpr uint256  MIN_BALANCE       = BONE / my_pow(10,4);//12
+    static constexpr uint  MIN_WEIGHT        = BONE;
+    static constexpr uint  MAX_WEIGHT        = BONE * 50;
+    static constexpr uint  MAX_TOTAL_WEIGHT  = BONE * 50;
+    static constexpr uint  MIN_BALANCE       = BONE / my_pow(10,4);//12
 
-    static constexpr uint256  INIT_POOL_SUPPLY  = BONE * 100;
+    static constexpr uint  INIT_POOL_SUPPLY  = BONE * 100;
 
-    static constexpr uint256  MIN_BPOW_BASE     = 1 ;
-    static constexpr uint256  MAX_BPOW_BASE     = (2 * BONE) - 1 ;
-    static constexpr uint256  BPOW_PRECISION    = BONE / my_pow(10,3);//10
+    static constexpr uint  MIN_BPOW_BASE     = 1 ;
+    static constexpr uint  MAX_BPOW_BASE     = (2 * BONE) - 1 ;
+    static constexpr uint  BPOW_PRECISION    = BONE / my_pow(10,3);//10
 
-    static constexpr uint256  MAX_IN_RATIO      = BONE / 2;
-    static constexpr uint256  MAX_OUT_RATIO     = (BONE / 3) + 1 ;
+    static constexpr uint  MAX_IN_RATIO      = BONE / 2;
+    static constexpr uint  MAX_OUT_RATIO     = (BONE / 3) + 1 ;
 };

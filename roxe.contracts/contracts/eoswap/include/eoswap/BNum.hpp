@@ -16,25 +16,25 @@
 
 class BNum : public BConst {
 public:
-  uint256 btoi(uint256 a) { return a / BONE; }
+  uint btoi(uint a) { return a / BONE; }
 
-  uint256 bfloor(uint256 a) { return btoi(a) * BONE; }
+  uint bfloor(uint a) { return btoi(a) * BONE; }
 
-  uint256 badd(uint256 a, uint256 b) {
-    uint256 c = a + b;
+  uint badd(uint a, uint b) {
+    uint c = a + b;
     require(c >= a, "ERR_ADD_OVERFLOW");
     return c;
   }
 
-  uint256 bsub(uint256 a, uint256 b) {
-    uint256 c;
+  uint bsub(uint a, uint b) {
+    uint c;
     bool flag;
     std::tie(c, flag) = bsubSign(a, b);
     require(!flag, "ERR_SUB_UNDERFLOW");
     return c;
   }
 
-  std::tuple<uint256, bool> bsubSign(uint256 a, uint256 b) {
+  std::tuple<uint, bool> bsubSign(uint a, uint b) {
     if (a >= b) {
       return std::make_tuple(a - b, false);
     } else {
@@ -42,28 +42,28 @@ public:
     }
   }
 
-  uint256 bmul(uint256 a, uint256 b) {
-    uint256 c0 = a * b;
+  uint bmul(uint a, uint b) {
+    uint c0 = a * b;
     require(a == 0 || c0 / a == b, "ERR_MUL_OVERFLOW");
-    uint256 c1 = c0 + (BONE / 2);
+    uint c1 = c0 + (BONE / 2);
     require(c1 >= c0, "ERR_MUL_OVERFLOW");
-    uint256 c2 = c1 / BONE;
+    uint c2 = c1 / BONE;
     return c2;
   }
 
-  uint256 bdiv(uint256 a, uint256 b) {
+  uint bdiv(uint a, uint b) {
     require(b != 0, "ERR_DIV_ZERO");
-    uint256 c0 = a * BONE;
+    uint c0 = a * BONE;
     require(a == 0 || c0 / a == BONE, "ERR_DIV_INTERNAL"); // bmul overflow
-    uint256 c1 = c0 + (b / 2);
+    uint c1 = c0 + (b / 2);
     require(c1 >= c0, "ERR_DIV_INTERNAL"); //  badd require
-    uint256 c2 = c1 / b;
+    uint c2 = c1 / b;
     return c2;
   }
 
   // DSMath.wpow
-  uint256 bpowi(uint256 a, uint256 n) {
-    uint256 z = n % 2 != 0 ? a : BONE;
+  uint bpowi(uint a, uint n) {
+    uint z = n % 2 != 0 ? a : BONE;
 
     for (n /= 2; n != 0; n /= 2) {
       a = bmul(a, a);
@@ -78,40 +78,40 @@ public:
   // Compute b^(e.w) by splitting it into (b^e)*(b^0.w).
   // Use `bpowi` for `b^e` and `bpowK` for k iterations
   // of approximation of b^0.w
-  uint256 bpow(uint256 base, uint256 exp) {
+  uint bpow(uint base, uint exp) {
     require(base >= MIN_BPOW_BASE, "ERR_BPOW_BASE_TOO_LOW");
     require(base <= MAX_BPOW_BASE, "ERR_BPOW_BASE_TOO_HIGH");
 
-    uint256 whole = bfloor(exp);
-    uint256 remain = bsub(exp, whole);
+    uint whole = bfloor(exp);
+    uint remain = bsub(exp, whole);
 
-    uint256 wholePow = bpowi(base, btoi(whole));
+    uint wholePow = bpowi(base, btoi(whole));
 
     if (remain == 0) {
       return wholePow;
     }
 
-    uint256 partialResult = bpowApprox(base, remain, BPOW_PRECISION);
+    uint partialResult = bpowApprox(base, remain, BPOW_PRECISION);
     return bmul(wholePow, partialResult);
   }
 
-  uint256 bpowApprox(uint256 base, uint256 exp, uint256 precision) {
+  uint bpowApprox(uint base, uint exp, uint precision) {
     // term 0:
-    uint256 a = exp;
-    uint256 x;
+    uint a = exp;
+    uint x;
     bool xneg;
     std::tie(x, xneg) = bsubSign(base, BONE);
-    uint256 term = BONE;
-    uint256 sum = term;
+    uint term = BONE;
+    uint sum = term;
     bool negative = false;
 
     // term(k) = numer / denom
     //         = (product(a - i - 1, i=1-->k) * x^k) / (k!)
     // each iteration, multiply previous term by (a-(k-1)) * x / k
     // continue until term is less than precision
-    for (uint256 i = 1; term >= precision; i++) {
-      uint256 bigK = i * BONE;
-      uint256 c;
+    for (uint i = 1; term >= precision; i++) {
+      uint bigK = i * BONE;
+      uint c;
       bool cneg;
       std::tie(c, cneg) = bsubSign(a, bsub(bigK, BONE));
       term = bmul(term, bmul(c, x));
