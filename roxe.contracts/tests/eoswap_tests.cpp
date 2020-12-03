@@ -63,9 +63,9 @@ class eoswap_tester : public tester {
                                                         get_balance(N(roxe.ram)));
 
       create_currency(
-          N(roxe.token), config::system_account_name, roxe::chain::asset::from_string("10000000000.0000 ROXE"));
+          N(roxe.token), config::system_account_name, roxe::chain::asset::from_string("10000000000.0000 EOS"));
 
-      issue(config::system_account_name, roxe::chain::asset::from_string("1000000000.0000 ROXE"));
+      issue(config::system_account_name, roxe::chain::asset::from_string("1000000000.0000 EOS"));
 
       set_code(config::system_account_name, contracts::system_wasm());
       set_abi(config::system_account_name, contracts::system_abi().data());

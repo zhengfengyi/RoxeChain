@@ -23,17 +23,18 @@ class BPool : public BToken<TokenStoreType>, public BMath {
  private:
    FactoryType& factory;
    BPoolStore   pool_store;
-   name pool_name;
+   name         pool_name;
+
  public:
-   BPool(name _self, FactoryType& _factory,name _pool_name, const PoolStoreType& _pool_store, TokenStoreType& _tokenStore)
+   BPool(
+       name _self, FactoryType& _factory, name _pool_name, const PoolStoreType& _pool_store,
+       TokenStoreType& _tokenStore)
        : factory(_factory)
        , pool_store(_pool_store)
        , pool_name(_pool_name)
        , BToken<TokenStoreType>(_self, _tokenStore) {}
 
-   ~BPool() { 
-factory.get_storage_mgmt().savePool(pool_name, pool_store ); 
-}
+   ~BPool() { factory.get_storage_mgmt().savePool(pool_name, pool_store); }
 
    class Lock {
       BPoolStore& pool_store;
@@ -492,26 +493,11 @@ factory.get_storage_mgmt().savePool(pool_name, pool_store );
    // 'Underlying' token-manipulation functions make external calls but are NOT
    // locked You must `_lock_` or otherwise ensure reentry-safety
    void _pullUnderlying(name from, const extended_asset& amountx) {
-      namesym token  = to_namesym(amountx.get_extended_symbol());
-      uint    amount = amountx.quantity.amount;
-      /// transfer memo implementation
-      factory.setMsgSender(BToken<TokenStoreType>::get_msg_sender());
-      factory.token(token, [&](auto& _token_) {
-         factory.get_transfer_mgmt().transfer(from, BToken<TokenStoreType>::get_self(), amountx, "");
-         bool xfer = _token_.transferFrom(from, BToken<TokenStoreType>::get_self(), amount);
-         require(xfer, "ERR_ERC20_FALSE");
-      });
+      factory.get_transfer_mgmt().transfer(from, BToken<TokenStoreType>::get_self(), amountx, "");
    }
 
    void _pushUnderlying(name to, const extended_asset& amountx) {
-      namesym token  = to_namesym(amountx.get_extended_symbol());
-      uint    amount = amountx.quantity.amount;
-      factory.setMsgSender(BToken<TokenStoreType>::get_msg_sender());
-      factory.token(token, [&](auto& _token_) {
-         factory.get_transfer_mgmt().transfer(BToken<TokenStoreType>::get_self(), to, amountx, "");
-         bool xfer = _token_.transfer(to, amount);
-         require(xfer, "ERR_ERC20_FALSE");
-      });
+      factory.get_transfer_mgmt().transfer(BToken<TokenStoreType>::get_self(), to, amountx, "");
    }
 
    void _pullPoolShare(name from, uint amount) { BToken<TokenStoreType>::_pull(from, amount); }
