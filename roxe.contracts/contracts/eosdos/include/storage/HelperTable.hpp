@@ -123,3 +123,16 @@ struct [[roxe::table, roxe::contract("eosdos")]] oracle_storage {
 };
 
 typedef roxe::multi_index<"oracles"_n, oracle_storage> oracle_storage_table;
+
+struct [[roxe::table, roxe::contract("eosdos")]] oracle_prices {
+   uint64_t        pair_token_hash_key;
+   extended_symbol basetoken;
+   extended_asset  quotetoken;
+   address         _OWNER_;
+   address         _NEW_OWNER_;
+   uint64_t        primary_key() const {
+      return pair_token_hash_key;
+   }
+};
+
+typedef roxe::multi_index<"oracleprices"_n, oracle_prices> oracle_prices_table;

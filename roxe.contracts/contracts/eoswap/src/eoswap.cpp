@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "extended_token.cpp"
 #include <cmath>
 #include <common/BType.hpp>
 #include <common/extended_token.hpp>
@@ -15,7 +16,6 @@
 #include <storage/BFactoryTable.hpp>
 #include <storage/BPoolTable.hpp>
 #include <storage/BTokenTable.hpp>
-#include "extended_token.cpp"
 
 using roxe::action;
 using roxe::asset;
@@ -25,182 +25,176 @@ using std::string;
 
 class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
  private:
+   instance_mgmt  _instance_mgmt;
    BFactory       factory;
-   extendedtoken::extended_token extoken;
+   extended_token extoken;
 
  public:
+   static constexpr roxe::name admin_account{"eoswapeoswap"_n};
+   static constexpr roxe::name controller_account{"poolmanagers"_n};
+   static constexpr roxe::name tokenissuer_account{"tokenissuers"_n};
+   static constexpr roxe::name swaptoken_account{"eoswapxtoken"_n};
+   //    static constexpr extended_symbol weth_symbol = {symbol(symbol_code("WETH"), 4), "eosdosxtoken"_n};
+
    eoswap(name s, name code, roxe::datastream<const char*> ds)
        : contract(s, code, ds)
-       , factory(s)
+       , _instance_mgmt(s)
+       , factory(s, _instance_mgmt)
        , extoken(s) {}
 
    //////////////////factory////////////////////////
    [[roxe::action]] void setblabs(name msg_sender, name blabs) {
+    
       factory.setMsgSender(msg_sender);
       factory.setBLabs(blabs);
    }
 
    [[roxe::action]] void collect(name msg_sender, name pool_name) {
+    
       factory.setMsgSender(msg_sender);
       factory.collect(pool_name);
    }
 
    [[roxe::action]] void newpool(name msg_sender, name pool_name) {
+    
+      _instance_mgmt.setMsgSender(msg_sender);
+      _instance_mgmt.newBPool(pool_name);
       factory.setMsgSender(msg_sender);
-      factory.newBPool(pool_name);
+      factory.enableBPool(pool_name);
    }
 
    //////////////////POOL////////////////////////
-   [[roxe::action]] void setswapfee(name msg_sender, name pool_name, uint swapFee) {
-      factory.setMsgSender(msg_sender);
-      factory.pool(pool_name, [&](auto& pool) { pool.setSwapFee(swapFee); });
+   [[roxe::action]] void setswapfee(name msg_sender, name pool_name, uint64_t swapFee) {
+    
+      _instance_mgmt.setMsgSender(msg_sender);
+      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.setSwapFee(swapFee); });
    }
 
    [[roxe::action]] void setcontroler(name msg_sender, name pool_name, name manager) {
-
-      factory.setMsgSender(msg_sender);
-      factory.pool(pool_name, [&](auto& pool) { pool.setController(manager); });
+    
+      _instance_mgmt.setMsgSender(msg_sender);
+      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.setController(manager); });
    }
 
    [[roxe::action]] void setpubswap(name msg_sender, name pool_name, bool public_) {
-
-      factory.setMsgSender(msg_sender);
-      factory.pool(pool_name, [&](auto& pool) { pool.setPublicSwap(public_); });
+    
+      _instance_mgmt.setMsgSender(msg_sender);
+      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.setPublicSwap(public_); });
    }
 
    [[roxe::action]] void finalize(name msg_sender, name pool_name) {
-      factory.setMsgSender(msg_sender);
-      factory.pool(pool_name, [&](auto& pool) { pool.finalize(); });
+    
+      _instance_mgmt.setMsgSender(msg_sender);
+      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.finalize(); });
    }
    // _lock_  Bind does not lock because it jumps to `rebind`, which does
 
-   [[roxe::action]] void bind(name msg_sender, name pool_name, const extended_asset& balance, uint denorm) {
-
-      factory.setMsgSender(msg_sender);
-      factory.pool(pool_name, [&](auto& pool) { pool.bind(balance, denorm); });
+   [[roxe::action]] void bind(name msg_sender, name pool_name, const extended_asset& balance, uint64_t denorm) {
+    
+      _instance_mgmt.setMsgSender(msg_sender);
+      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.bind(balance, denorm); });
    }
 
-   [[roxe::action]] void rebind(name msg_sender, name pool_name, const extended_asset& balance, uint denorm) {
-
-      factory.setMsgSender(msg_sender);
-      factory.pool(pool_name, [&](auto& pool) { pool.rebind(balance, denorm); });
+   [[roxe::action]] void rebind(name msg_sender, name pool_name, const extended_asset& balance, uint64_t denorm) {
+    
+      _instance_mgmt.setMsgSender(msg_sender);
+      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.rebind(balance, denorm); });
    }
 
    [[roxe::action]] void unbind(name msg_sender, name pool_name, const extended_symbol& token) {
-
-      factory.setMsgSender(msg_sender);
-      factory.pool(pool_name, [&](auto& pool) { pool.unbind(token); });
+    
+      _instance_mgmt.setMsgSender(msg_sender);
+      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.unbind(token); });
    }
 
    // Absorb any _token_ that have been sent to this contract into the pool
 
    [[roxe::action]] void gulp(name msg_sender, name pool_name, const extended_symbol& token) {
-
-      factory.setMsgSender(msg_sender);
-      factory.pool(pool_name, [&](auto& pool) { pool.gulp(token); });
+    
+      _instance_mgmt.setMsgSender(msg_sender);
+      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.gulp(token); });
    }
 
    [[roxe::action]] void joinpool(
-       name msg_sender, name pool_name, uint poolAmountOut, std::vector<uint> maxAmountsIn) {
-
-      factory.setMsgSender(msg_sender);
-      factory.pool(pool_name, [&](auto& pool) { pool.joinPool(poolAmountOut, maxAmountsIn); });
+       name msg_sender, name pool_name, uint64_t poolAmountOut, std::vector<uint64_t> maxAmountsIn) {
+      _instance_mgmt.setMsgSender(msg_sender);
+      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.joinPool(poolAmountOut, maxAmountsIn); });
    }
 
    [[roxe::action]] void exitpool(
-       name msg_sender, name pool_name, uint poolAmountIn, std::vector<uint> minAmountsOut) {
-
-      factory.setMsgSender(msg_sender);
-      factory.pool(pool_name, [&](auto& pool) { pool.exitPool(poolAmountIn, minAmountsOut); });
+       name msg_sender, name pool_name, uint64_t poolAmountIn, std::vector<uint64_t> minAmountsOut) {
+      _instance_mgmt.setMsgSender(msg_sender);
+      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.exitPool(poolAmountIn, minAmountsOut); });
    }
 
    [[roxe::action]] void swapamtin(
        name msg_sender, name pool_name, const extended_asset& tokenAmountIn, const extended_asset& minAmountOut,
-       uint maxPrice) {
-
-      factory.setMsgSender(msg_sender);
-      factory.pool(pool_name, [&](auto& pool) { pool.swapExactAmountIn(tokenAmountIn, minAmountOut, maxPrice); });
+       uint64_t maxPrice) {
+      _instance_mgmt.setMsgSender(msg_sender);
+      _instance_mgmt.pool(
+          pool_name, [&](auto& pool) { pool.swapExactAmountIn(tokenAmountIn, minAmountOut, maxPrice); });
    }
 
    [[roxe::action]] void swapamtout(
        name msg_sender, name pool_name, const extended_asset& maxAmountIn, const extended_asset& tokenAmountOut,
-       uint maxPrice) {
-
-      factory.setMsgSender(msg_sender);
-      factory.pool(pool_name, [&](auto& pool) { pool.swapExactAmountOut(maxAmountIn, tokenAmountOut, maxPrice); });
+       uint64_t maxPrice) {
+      _instance_mgmt.setMsgSender(msg_sender);
+      _instance_mgmt.pool(
+          pool_name, [&](auto& pool) { pool.swapExactAmountOut(maxAmountIn, tokenAmountOut, maxPrice); });
    }
 
    ////////////////// TEST pool storage///////////////////////
    [[roxe::action]] void cppool2table(name msg_sender, name pool_name) {
-      factory.get_storage_mgmt().copyPoolStore2Table(msg_sender, pool_name);
+      check(admin_account == msg_sender, "no admin");
+      _instance_mgmt.get_storage_mgmt().copyPoolStore2Table(msg_sender, pool_name);
    }
 
    ////////////////// TEST pool TOKEN////////////////////////
    [[roxe::action]] void extransfer(name from, name to, extended_asset quantity, std::string memo) {
-      factory.get_transfer_mgmt().transfer(from, to, quantity, memo);
+      _instance_mgmt.get_transfer_mgmt().transfer(from, to, quantity, memo);
    }
 
    [[roxe::action]] void newtoken(name msg_sender, const extended_asset& token) {
-      factory.setMsgSender(msg_sender);
-      factory.newToken(token);
-      factory.get_transfer_mgmt().create(msg_sender, token);
+      check(tokenissuer_account == msg_sender, "no token issuer");
+      _instance_mgmt.get_transfer_mgmt().create(msg_sender, token);
    }
 
-   [[roxe::action]] void approve(name msg_sender, name dst, const extended_asset& amt) {
-      factory.setMsgSender(msg_sender);
-      factory.token(
-          to_namesym(amt.get_extended_symbol()), [&](auto& _token_) { _token_.approve(dst, amt.quantity.amount); });
+   [[roxe::action]] void newtokenex(name msg_sender, const extended_asset& token) {
+      check(tokenissuer_account == msg_sender, "no token issuer");
+         BToken       otoken(_self,token.get_extended_symbol());
+        otoken.setMsgSender(msg_sender);
+        otoken.create(msg_sender,token);
+    }
+
+   [[roxe::action]] void transferex(name msg_sender, name dst, const extended_asset& amt) {
+      BToken token(_self, amt.get_extended_symbol());
+      token.setMsgSender(msg_sender);
+      token.transfer(dst, amt.quantity.amount);
    }
 
-   [[roxe::action]] void transfer(name msg_sender, name dst, const extended_asset& amt) {
-      factory.setMsgSender(msg_sender);
-      factory.token(
-          to_namesym(amt.get_extended_symbol()), [&](auto& _token_) { _token_.transfer(dst, amt.quantity.amount); });
-   }
-
-   [[roxe::action]] void transferfrom(name msg_sender, name src, name dst, const extended_asset& amt) {
-      factory.setMsgSender(msg_sender);
-      factory.token(to_namesym(amt.get_extended_symbol()), [&](auto& _token_) {
-         _token_.transferFrom(src, dst, amt.quantity.amount);
-      });
-   }
-
-   [[roxe::action]] void incapproval(name msg_sender, name dst, const extended_asset& amt) {
-      factory.setMsgSender(msg_sender);
-      factory.token(to_namesym(amt.get_extended_symbol()), [&](auto& _token_) {
-         _token_.increaseApproval(dst, amt.quantity.amount);
-      });
-   }
-
-   [[roxe::action]] void decapproval(name msg_sender, name dst, const extended_asset& amt) {
-      factory.setMsgSender(msg_sender);
-      factory.token(to_namesym(amt.get_extended_symbol()), [&](auto& _token_) {
-         _token_.decreaseApproval(dst, amt.quantity.amount);
-      });
-   }
    /////test interface /////
    [[roxe::action]] void mint(name msg_sender, const extended_asset& amt) {
-      factory.setMsgSender(msg_sender);
-      factory.token(to_namesym(amt.get_extended_symbol()), [&](auto& _token_) {
-         _token_._mint(amt.quantity.amount);
-         factory.get_transfer_mgmt().issue(msg_sender, amt, "");
-      });
+      _instance_mgmt.get_transfer_mgmt().issue(msg_sender, amt, "");
+   }
+
+   [[roxe::action]] void mintex(name msg_sender, const extended_asset& amt) {
+      BToken token(_self, amt.get_extended_symbol());
+      token.setMsgSender(msg_sender);
+      token._mint(amt.quantity.amount);
    }
 
    [[roxe::action]] void burn(name msg_sender, const extended_asset& amt) {
-      factory.setMsgSender(msg_sender);
-      factory.token(to_namesym(amt.get_extended_symbol()), [&](auto& _token_) {
-         _token_._burn(amt.quantity.amount);
-         factory.get_transfer_mgmt().burn(msg_sender, amt, "");
-      });
+      check(tokenissuer_account == msg_sender, "no token issuer");
+      _instance_mgmt.get_transfer_mgmt().burn(msg_sender, amt, "");
    }
 
-   [[roxe::action]] void move(name msg_sender, name dst, const extended_asset& amt) {
-      factory.setMsgSender(msg_sender);
-      factory.token(to_namesym(amt.get_extended_symbol()), [&](auto& _token_) {
-         _token_._move(msg_sender, dst, amt.quantity.amount);
-      });
+   [[roxe::action]] void burnex(name msg_sender, const extended_asset& amt) {
+      check(tokenissuer_account == msg_sender, "no token issuer");
+      BToken token(_self, amt.get_extended_symbol());
+      token.setMsgSender(msg_sender);
+      token._burn(amt.quantity.amount);
    }
+
    ////////////////////extended_token////////////////////
 
    /**
@@ -216,7 +210,7 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
     * @pre Maximum supply must be positive;
     */
    [[roxe::action]] void create(const name& issuer, const extended_asset& maximum_supply) {
-      extoken.create( issuer,  maximum_supply);
+      extoken.create(issuer, maximum_supply);
    }
    /**
     *  This action issues to `to` account a `quantity` of tokens.
@@ -226,7 +220,7 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
     * @memo - the memo string that accompanies the token issue transaction.
     */
    [[roxe::action]] void issue(const name& to, const extended_asset& quantity, const string& memo) {
-      extoken.issue( to,  quantity, memo);
+      extoken.issue(to, quantity, memo);
    }
 
    /**
@@ -236,9 +230,7 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
     * @param quantity - the quantity of tokens to retire,
     * @param memo - the memo string to accompany the transaction.
     */
-   [[roxe::action]] void retire(const extended_asset& quantity, const string& memo) {
-      extoken.retire( quantity,  memo);
-   }
+   [[roxe::action]] void retire(const extended_asset& quantity, const string& memo) { extoken.retire(quantity, memo); }
 
    /**
     * Allows `from` account to transfer to `to` account the `quantity` tokens.
@@ -251,7 +243,7 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
     */
    [[roxe::action]] void transfer(
        const name& from, const name& to, const extended_asset& quantity, const string& memo) {
-      extoken.transfer( from, to,  quantity,  memo);
+      extoken.transfer(from, to, quantity, memo);
    }
    /**
     * Allows `ram_payer` to create an account `owner` with zero balance for
@@ -261,11 +253,11 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
     * @param symbol - the token to be payed with by `ram_payer`,
     * @param ram_payer - the account that supports the cost of this action.
     *
-    * More information can be read [here](https://github.com/ROXEIO/roxe.contracts/issues/62)
-    * and [here](https://github.com/ROXEIO/roxe.contracts/issues/61).
+    * More information can be read [here](https://github.com/EOSIO/roxe.contracts/issues/62)
+    * and [here](https://github.com/EOSIO/roxe.contracts/issues/61).
     */
    [[roxe::action]] void open(const name& owner, const extended_symbol& symbol, const name& ram_payer) {
-      extoken.open(owner, symbol,  ram_payer);
+      extoken.open(owner, symbol, ram_payer);
    }
 
    /**
@@ -278,16 +270,14 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
     * @pre The pair of owner plus symbol has to exist otherwise no action is executed,
     * @pre If the pair of owner plus symbol exists, the balance has to be zero.
     */
-   [[roxe::action]] void close(const name& owner, const extended_symbol& symbol) {
-      extoken.close( owner,  symbol);
-   }
+   [[roxe::action]] void close(const name& owner, const extended_symbol& symbol) { extoken.close(owner, symbol); }
 
    ////////////////////on_notify////////////////////
    [[roxe::on_notify("roxe.token::transfer")]] void on_transfer(
        name from, name to, asset quantity, std::string memo) {
       check(get_first_receiver() == "roxe.token"_n, "should be roxe.token");
-      print_f("On notify : % % % %", from, to, quantity, memo);
-      factory.get_transfer_mgmt().eosiotoken_transfer(from, to, quantity, memo, [&](const auto& action_event) {
+      //   print_f("On notify : % % % %", from, to, quantity, memo);
+      _instance_mgmt.get_transfer_mgmt().eosiotoken_transfer(from, to, quantity, memo, [&](const auto& action_event) {
          if (action_event.action.empty()) {
             return;
          }
@@ -296,18 +286,19 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
             auto           paras = transfer_mgmt::parse_string(action_event.param);
             name           pool_name;
             extended_asset balance;
-            uint           denorm;
-            factory.setMsgSender(action_event.msg_sender);
-            factory.pool(pool_name, [&](auto& pool) { pool.bind(balance, denorm); });
+            uint64_t       denorm;
+            _instance_mgmt.setMsgSender(action_event.msg_sender);
+            _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.bind(balance, denorm); });
          }
       });
    }
 
    [[roxe::on_notify("*::transfer")]] void on_transfer_by_non(name from, name to, asset quantity, std::string memo) {
       check(get_first_receiver() != "roxe.token"_n, "should not be roxe.token");
-      print_f("On notify 2 : % % % %", from, to, quantity, memo);
-      factory.get_transfer_mgmt().non_eosiotoken_transfer(from, to, quantity, memo, [&](const auto& action_event) {
+      //   print_f("On notify 2 : % % % %", from, to, quantity, memo);
+      _instance_mgmt.get_transfer_mgmt().non_eosiotoken_transfer(
+          from, to, quantity, memo, [&](const auto& action_event) {
 
-      });
+          });
    }
 };

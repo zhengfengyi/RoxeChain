@@ -31,7 +31,6 @@ class storage_mgmt {
    HelperStorage          helper_storage;
    TokenStorageSingleton  token_storage_singleton;
    TokenStorage           token_storage;
-   oracle_storage_table   oracle_table;
    dodo_storage_table     dodo_table;
 
  public:
@@ -42,7 +41,6 @@ class storage_mgmt {
        , proxy_storage_singleton(_self, _self.value)
        , helper_storage_singleton(_self, _self.value)
        , token_storage_singleton(_self, _self.value)
-       , oracle_table(_self, _self.value)
        , dodo_table(_self, _self.value) {
       zoo_storage    = zoo_storage_singleton.exists() ? zoo_storage_singleton.get() : ZooStorage{};
       dodo_storage   = dodo_storage_singleton.exists() ? dodo_storage_singleton.get() : DODOStorage{};
@@ -129,6 +127,7 @@ class storage_mgmt {
       uint64_t key = get_hash_key(get_checksum256(
           basetoken.get_contract().value, basetoken.get_symbol().raw(),
           quotetoken.get_extended_symbol().get_contract().value, quotetoken.get_extended_symbol().get_symbol().raw()));
+      oracle_storage_table oracle_table(self, key);
 
       auto oracle = oracle_table.find(key);
       if (oracle == oracle_table.end()) {
@@ -148,9 +147,52 @@ class storage_mgmt {
       uint64_t key = get_hash_key(get_checksum256(
           basetoken.get_contract().value, basetoken.get_symbol().raw(), quotetoken.get_contract().value,
           quotetoken.get_symbol().raw()));
+      oracle_storage_table oracle_table(self, key);
 
       auto oracle = oracle_table.find(key);
       check(oracle != oracle_table.end(), "no oracle");
       return oracle->quotetoken.quantity.amount;
    }
+
+   void move_oracle_price(name msg_sender) {
+      oracle_storage_table oracle_table(self, self.value);
+      for (auto it = oracle_table.begin(); it != oracle_table.end(); ++it) {
+         oracle_storage_table ot(self, it->primary_key());
+         check(ot.find(it->primary_key()) == oracle_table.end(), "Already exist oracle");
+         ot.emplace(msg_sender, [&](auto& o) { o = *it; });
+      }
+   }
+
+   void save_oracle_prices(name msg_sender, const extended_symbol& basetoken, const extended_asset& quotetoken) {
+      uint64_t             key = get_hash_key(get_checksum256(
+          basetoken.get_contract().value, basetoken.get_symbol().raw(),
+          quotetoken.get_extended_symbol().get_contract().value, quotetoken.get_extended_symbol().get_symbol().raw()));
+      oracle_prices_table oraclepricestable(self, self.value);
+
+      auto oracle = oraclepricestable.find(key);
+      if (oracle == oraclepricestable.end()) {
+         oraclepricestable.emplace(msg_sender, [&](auto& o) {
+            o.pair_token_hash_key=key;
+            o.basetoken  = basetoken;
+            o.quotetoken = quotetoken;
+         });
+      } else {
+         oraclepricestable.modify(oracle, same_payer, [&](auto& o) {
+            o.basetoken  = basetoken;
+            o.quotetoken = quotetoken;
+         });
+      }
+   }
+
+   uint64_t get_oracle_prices(const extended_symbol& basetoken, const extended_symbol& quotetoken) {
+      uint64_t             key = get_hash_key(get_checksum256(
+          basetoken.get_contract().value, basetoken.get_symbol().raw(), quotetoken.get_contract().value,
+          quotetoken.get_symbol().raw()));
+      oracle_prices_table oraclepricestable(self, self.value);
+
+      auto oracle = oraclepricestable.find(key);
+      check(oracle != oraclepricestable.end(), "no oracle");
+      return oracle->quotetoken.quantity.amount;
+   }
+
 };

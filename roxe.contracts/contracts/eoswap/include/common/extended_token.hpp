@@ -5,27 +5,7 @@
 #include <roxe/roxe.hpp>
 
 #include <string>
-namespace roxe::token
-{
- struct [[roxe::table]] account {
-            asset    balance;
 
-            uint64_t primary_key()const { return balance.symbol.code().raw(); }
-         };
-
-         struct [[roxe::table]] currency_stats {
-            asset    supply;
-            asset    max_supply;
-            name     issuer;
-
-            uint64_t primary_key()const { return supply.symbol.code().raw(); }
-         };
-
-         typedef roxe::multi_index< "accounts"_n, account > accounts;
-         typedef roxe::multi_index< "stat"_n, currency_stats > stats;
-}
-namespace extendedtoken
-{
 struct [[roxe::table, roxe::contract("eoswap")]] account {
    uint64_t       sequence;
    extended_asset balance;
@@ -47,8 +27,6 @@ typedef roxe::multi_index<
                                                      accounts;
 typedef roxe::multi_index<"stat"_n, currency_stats> stats;
 
-
-
 // namespace eosiosystem {
 //    class system_contract;
 // }
@@ -65,8 +43,9 @@ class extended_token {
 
  public:
    //  using contract::contract;
-   extended_token(name _self)
-       : self(_self) {}
+   extended_token(name _self, bool _auth_mode = true)
+       : self(_self)
+       , auth_mode(_auth_mode) {}
    name get_self() { return self; };
    /**
     * Allows `issuer` account to create a token in supply of `maximum_supply`. If validation is successful a new entry
@@ -134,24 +113,25 @@ class extended_token {
     */
    void close(const name& owner, const extended_symbol& symbol);
 
-   static asset get_supply(const name& token_contract_account, const symbol_code& sym_code) {
-      stats       statstable(token_contract_account, token_contract_account.value);
-      const auto& st = statstable.get(sym_code.raw());
+   static asset get_supply(const name& token_contract_account, const extended_symbol& ext_sym) {
+      stats       statstable(token_contract_account, ext_sym.get_contract().value);
+      const auto& st = statstable.get(ext_sym.get_symbol().code().raw());
       return st.supply;
    }
 
-   static name get_issuer(const name& token_contract_account, const symbol_code& sym_code) {
-      stats       statstable(token_contract_account, token_contract_account.value);
-      const auto& st = statstable.get(sym_code.raw());
+   static name get_issuer(const name& token_contract_account, const extended_symbol& ext_sym) {
+      stats       statstable(token_contract_account, ext_sym.get_contract().value);
+      const auto& st = statstable.get(ext_sym.get_symbol().code().raw());
       return st.issuer;
    }
 
    static asset get_balance(const name& token_contract_account, const name& owner, const extended_symbol& ext_sym) {
+      my_print_f("==ext==get_balance===%,%,%", token_contract_account, owner, ext_sym);
       accounts    accountstable(token_contract_account, owner.value);
-   auto     idx = accountstable.get_index<"byextasset"_n>();
-   auto     from  = idx.find(to_namesym(ext_sym));
-      const auto& ac = accountstable.get(ext_sym.get_symbol().code().raw());
-      return ac.balance.quantity;
+      auto        idx  = accountstable.get_index<"byextasset"_n>();
+      auto        from = idx.find(to_namesym(ext_sym));
+    //   const auto& ac   = accountstable.get(ext_sym.get_symbol().code().raw());
+      return from->balance.quantity;
    }
 
    //    using create_action   = roxe::action_wrapper<"create"_n, &token::create>;
@@ -162,9 +142,8 @@ class extended_token {
    //    using close_action    = roxe::action_wrapper<"close"_n, &token::close>;
 
  private:
+   bool auth_mode;
    name self;
    void sub_balance(const name& owner, const extended_asset& value);
    void add_balance(const name& owner, const extended_asset& value, const name& ram_payer);
 };
-
-}

@@ -1,7 +1,6 @@
 #pragma once
 #include <common/BType.hpp>
 #include <common/extended_token.hpp>
-using namespace roxe::token;
 using namespace std;
 class transfer_mgmt {
  private:
@@ -11,7 +10,6 @@ class transfer_mgmt {
    static constexpr roxe::name token_account{"roxe.token"_n};
    static constexpr roxe::name active_permission{"active"_n};
 
-   // constructor
    //-------------------------------------------------------------------------
    transfer_mgmt(name _self)
        : self(_self) {}
@@ -73,16 +71,23 @@ class transfer_mgmt {
    }
 
    symbol core_symbol() const {
-      symbol _core_symbol = symbol(symbol_code("ROXE"), 4);
+      symbol _core_symbol = symbol(symbol_code("ROC"), 4);
       return _core_symbol;
    }
 
-   static asset get_balance(const name& owner, const extended_symbol& exsym) {
-      return transfer_mgmt::get_balance(exsym.get_contract(), owner, exsym.get_symbol().code());
+   static uint64_t get_supply(const extended_symbol& exsym) {
+      return get_supply(exsym.get_contract(), exsym.get_symbol().code()).amount;
+   }
+
+   static uint64_t get_balance(const name& owner, const extended_symbol& exsym) {
+      my_print_f(
+          "===get_balance : % % %===", owner, exsym,
+          get_balance(exsym.get_contract(), owner, exsym.get_symbol().code()).amount);
+      return get_balance(exsym.get_contract(), owner, exsym.get_symbol().code()).amount;
    }
 
    static name get_issuer(const extended_symbol& exsym) {
-      return transfer_mgmt::get_issuer(exsym.get_contract(), exsym.get_symbol().code());
+      return get_issuer(exsym.get_contract(), exsym.get_symbol().code());
    }
 
    /**
@@ -94,13 +99,6 @@ class transfer_mgmt {
     * @param memo
     */
    void transfer(name from, name to, extended_asset quantity, std::string memo) {
-      if (from == to) {
-         return;
-      }
-      inner_transfer(from, to, quantity, memo);
-   }
-
-   void inner_transfer(name from, name to, extended_asset quantity, std::string memo, bool is_deferred = false) {
       check(from != to, "cannot transfer to self");
       //  require_auth( from );
       check(is_account(to), "to account does not exist");
@@ -108,24 +106,14 @@ class transfer_mgmt {
       check(quantity.quantity.amount > 0, "must transfer positive quantity");
       check(memo.size() <= 256, "memo has more than 256 bytes");
 
-      if (!is_deferred) {
-         action(
-             permission_level{from, "active"_n}, quantity.contract, "transfer"_n,
-             std::make_tuple(from, to, quantity.quantity, memo))
-             .send();
-      } else {
-         transaction t;
-         t.actions.emplace_back(
-             permission_level{from, active_permission}, quantity.contract, "transfer"_n,
-             std::make_tuple(from, to, quantity.quantity, memo));
-         t.delay_sec           = 0;
-         uint128_t deferred_id = (uint128_t(to.value) << 64) | current_time_point_sec().sec_since_epoch();
-         cancel_deferred(deferred_id);
-         t.send(deferred_id, self, true);
-      }
-
-      // INLINE_ACTION_SENDER(roxe::token, transfer)(token_account, {{from,
-      // active_permission}, {to, active_permission}},{from, to, quantity, memo});
+      transaction t;
+      t.actions.emplace_back(
+          permission_level{from, active_permission}, quantity.contract, "transfer"_n,
+          std::make_tuple(from, to, quantity.quantity, memo));
+      t.delay_sec           = 0;
+      uint128_t deferred_id = (uint128_t(to.value) << 64) | current_time_point_sec().sec_since_epoch();
+      cancel_deferred(deferred_id);
+      t.send(deferred_id, self, true);
    }
 
    void create(name issuer, const extended_asset& maximum_supply) {
@@ -167,20 +155,19 @@ class transfer_mgmt {
           .send();
    }
 
-
    static name get_issuer(const name& token_contract_account, const symbol_code& sym_code) {
-      roxe::token::stats       statstable(token_contract_account, sym_code.raw());
+      stats       statstable(token_contract_account, sym_code.raw());
       const auto& st = statstable.get(sym_code.raw());
       return st.issuer;
    }
    static asset get_supply(const name& token_contract_account, const symbol_code& sym_code) {
-      roxe::token::stats       statstable(token_contract_account, sym_code.raw());
+      stats       statstable(token_contract_account, sym_code.raw());
       const auto& st = statstable.get(sym_code.raw());
       return st.supply;
    }
 
    static asset get_balance(const name& token_contract_account, const name& owner, const symbol_code& sym_code) {
-      roxe::token::accounts    accountstable(token_contract_account, owner.value);
+      accounts    accountstable(token_contract_account, owner.value);
       const auto& ac = accountstable.get(sym_code.raw());
       return ac.balance;
    }
@@ -226,4 +213,22 @@ class transfer_mgmt {
 
       return val;
    }
+
+ private:
+   struct [[roxe::table]] account {
+      asset balance;
+
+      uint64_t primary_key() const { return balance.symbol.code().raw(); }
+   };
+
+   struct [[roxe::table]] currency_stats {
+      asset supply;
+      asset max_supply;
+      name  issuer;
+
+      uint64_t primary_key() const { return supply.symbol.code().raw(); }
+   };
+
+   typedef roxe::multi_index<"accounts"_n, account>    accounts;
+   typedef roxe::multi_index<"stat"_n, currency_stats> stats;
 };

@@ -1,10 +1,9 @@
 #include <common/extended_token.hpp>
 
-namespace extendedtoken
-{
 void extended_token::create(const name& issuer, const extended_asset& maximum_supply) {
-   require_auth(get_self());
-
+   if (auth_mode) {
+      require_auth(get_self());
+   }
    auto sym = maximum_supply.quantity.symbol;
    check(sym.is_valid(), "invalid symbol name");
    check(maximum_supply.quantity.is_valid(), "invalid supply");
@@ -12,7 +11,7 @@ void extended_token::create(const name& issuer, const extended_asset& maximum_su
 
    stats statstable(get_self(), maximum_supply.contract.value);
    auto  existing = statstable.find(sym.code().raw());
-   check(existing == statstable.end(), "extended_token with symbol already exists");
+   check(existing == statstable.end(), "token with symbol already exists");
 
    statstable.emplace(get_self(), [&](auto& s) {
       s.supply.symbol = maximum_supply.quantity.symbol;
@@ -30,9 +29,10 @@ void extended_token::issue(const name& to, const extended_asset& quantity, const
    auto  existing = statstable.find(sym.code().raw());
    check(existing != statstable.end(), "extended_token with symbol does not exist, create extended_token before issue");
    const auto& st = *existing;
-   check(to == st.issuer, "tokens can only be issued to issuer account");
-
-   require_auth(st.issuer);
+   //    check(to == st.issuer, "tokens can only be issued to issuer account");
+   if (auth_mode) {
+      require_auth(st.issuer);
+   }
    check(quantity.quantity.is_valid(), "invalid quantity");
    check(quantity.quantity.amount > 0, "must issue positive quantity");
 
@@ -53,8 +53,9 @@ void extended_token::retire(const extended_asset& quantity, const string& memo) 
    auto  existing = statstable.find(sym.code().raw());
    check(existing != statstable.end(), "extended_token with symbol does not exist");
    const auto& st = *existing;
-
-   require_auth(st.issuer);
+   if (auth_mode) {
+      require_auth(st.issuer);
+   }
    check(quantity.quantity.is_valid(), "invalid quantity");
    check(quantity.quantity.amount > 0, "must retire positive quantity");
 
@@ -67,7 +68,9 @@ void extended_token::retire(const extended_asset& quantity, const string& memo) 
 
 void extended_token::transfer(const name& from, const name& to, const extended_asset& quantity, const string& memo) {
    check(from != to, "cannot transfer to self");
-   require_auth(from);
+   if (auth_mode) {
+      require_auth(from);
+   }
    check(is_account(to), "to account does not exist");
    auto        sym = quantity.quantity.symbol.code();
    stats       statstable(get_self(), quantity.contract.value);
@@ -96,7 +99,13 @@ void extended_token::sub_balance(const name& owner, const extended_asset& value)
    //    const auto& from = from_acnts.get(value.symbol.code().raw(), "no balance object found");
    check(from.balance.quantity.amount >= value.quantity.amount, "overdrawn balance");
 
-   from_acnts.modify(from, owner, [&](auto& a) { a.balance -= value; });
+   auto its = from_acnts.find(it->sequence);
+   check(its != from_acnts.end(), "extended_symbol does not exist");
+   name ram_payer = get_self();
+   if (auth_mode) {
+      ram_payer = owner;
+   }
+   from_acnts.modify(its, ram_payer, [&](auto& a) { a.balance -= value; });
 }
 
 void extended_token::add_balance(const name& owner, const extended_asset& value, const name& ram_payer) {
@@ -105,15 +114,23 @@ void extended_token::add_balance(const name& owner, const extended_asset& value,
    auto     to  = idx.find(to_namesym(value.get_extended_symbol()));
 
    //    auto     to = to_acnts.find(value.symbol.code().raw());
+   name _ram_payer = get_self();
+   if (auth_mode) {
+      _ram_payer = ram_payer;
+   }
    if (to == idx.end()) {
-      to_acnts.emplace(ram_payer, [&](auto& a) { a.balance = value; });
+      to_acnts.emplace(_ram_payer, [&](auto& a) { a.balance = value; });
    } else {
-      to_acnts.modify(*to, same_payer, [&](auto& a) { a.balance += value; });
+      auto its = to_acnts.find(to->sequence);
+      check(its != to_acnts.end(), "extended_symbol does not exist");
+      to_acnts.modify(its, same_payer, [&](auto& a) { a.balance += value; });
    }
 }
 
 void extended_token::open(const name& owner, const extended_symbol& symbol, const name& ram_payer) {
-   require_auth(ram_payer);
+   if (auth_mode) {
+      require_auth(ram_payer);
+   }
 
    check(is_account(owner), "owner account does not exist");
 
@@ -131,7 +148,9 @@ void extended_token::open(const name& owner, const extended_symbol& symbol, cons
 }
 
 void extended_token::close(const name& owner, const extended_symbol& symbol) {
-   require_auth(owner);
+   if (auth_mode) {
+      require_auth(owner);
+   }
    accounts acnts(get_self(), owner.value);
    auto     idx = acnts.get_index<"byextasset"_n>();
    auto     it  = idx.find(to_namesym(symbol));
@@ -140,5 +159,4 @@ void extended_token::close(const name& owner, const extended_symbol& symbol) {
 
    auto its = acnts.find(it->sequence);
    acnts.erase(its);
-}
 }
