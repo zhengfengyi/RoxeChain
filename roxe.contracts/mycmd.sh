@@ -26,7 +26,7 @@ $CLS set contract ethquotemkr1 /data/roxe/balanceos/RoxeChain/roxe.contracts/bui
 $CLS set contract eosdoseosdos /data/roxe/balanceos/RoxeChain/roxe.contracts/build/contracts/eosdos -p eosdoseosdos
 ;;
 "ds")  
-$CLS set contract eoswapeoswap /data/roxe/balanceos/RoxeChain/roxe.contracts/build/contracts/eoswap -p eoswapeoswap
+$CLS set contract roxeswap1213 /data/roxe/balanceos/RoxeChain/roxe.contracts/build/contracts/eoswap -p roxeswap1213
 ;;
 "s") 
 $CLS system newaccount roxe1 daimkrdaimkr ROXE6ftHab5c81LAcL1izHNyFVawBaZTEpFDXN3BYybx1pcJHQsTmH --stake-net "10000.0000 ROC" --stake-cpu "10000.0000 ROC" --buy-ram "10000.0000 ROC" -p roxe1@active
