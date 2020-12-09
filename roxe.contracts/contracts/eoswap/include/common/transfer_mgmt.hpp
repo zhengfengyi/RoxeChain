@@ -20,8 +20,8 @@ class transfer_mgmt {
          // print("memo is empty on trasfer");
          return;
       }
-      // roxe::check(quantity.symbol == roxe::symbol("ROXE", 4),
-      //              "only accepts ROXE for deposits");
+      // roxe::check(quantity.symbol == roxe::symbol("EOS", 4),
+      //              "only accepts EOS for deposits");
       roxe::check(quantity.is_valid(), "Invalid token transfer");
       roxe::check(quantity.amount > 0, "Quantity must be positive");
 
@@ -71,7 +71,7 @@ class transfer_mgmt {
    }
 
    symbol core_symbol() const {
-      symbol _core_symbol = symbol(symbol_code("ROC"), 4);
+      symbol _core_symbol = symbol(symbol_code("EOS"), 4);
       return _core_symbol;
    }
 
@@ -80,14 +80,23 @@ class transfer_mgmt {
    }
 
    static uint64_t get_balance(const name& owner, const extended_symbol& exsym) {
-      my_print_f(
-          "===get_balance : % % %===", owner, exsym,
-          get_balance(exsym.get_contract(), owner, exsym.get_symbol().code()).amount);
       return get_balance(exsym.get_contract(), owner, exsym.get_symbol().code()).amount;
    }
 
    static name get_issuer(const extended_symbol& exsym) {
       return get_issuer(exsym.get_contract(), exsym.get_symbol().code());
+   }
+
+   static uint64_t get_balance_one(const name& owner, const extended_symbol& exsym) {
+      uint8_t p = exsym.get_symbol().precision();
+      check(p <= default_precision, "unsupport the decimal");
+      uint64_t amount = get_balance(exsym.get_contract(), owner, exsym.get_symbol().code()).amount;
+      if (p < default_precision) {
+         uint8_t d = default_precision - p;
+      return static_cast<uint64_t>(amount*std::pow(10, d));
+      }
+
+      return amount;
    }
 
    /**

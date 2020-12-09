@@ -41,7 +41,12 @@ void extended_token::issue(const name& to, const extended_asset& quantity, const
 
    statstable.modify(st, same_payer, [&](auto& s) { s.supply += quantity.quantity; });
 
-   add_balance(st.issuer, quantity, st.issuer);
+   name ram_payer = get_self();
+   if (auth_mode) {
+      ram_payer = st.issuer;
+   }
+
+   add_balance(to, quantity, ram_payer);
 }
 
 void extended_token::retire(const extended_asset& quantity, const string& memo) {
@@ -51,7 +56,7 @@ void extended_token::retire(const extended_asset& quantity, const string& memo) 
 
    stats statstable(get_self(), quantity.contract.value);
    auto  existing = statstable.find(sym.code().raw());
-   check(existing != statstable.end(), "extended_token with symbol does not exist");
+   check(existing != statstable.end(), "token with symbol does not exist");
    const auto& st = *existing;
    if (auth_mode) {
       require_auth(st.issuer);
@@ -64,6 +69,20 @@ void extended_token::retire(const extended_asset& quantity, const string& memo) 
    statstable.modify(st, same_payer, [&](auto& s) { s.supply -= quantity.quantity; });
 
    sub_balance(st.issuer, quantity);
+}
+
+void extended_token::burn(name burnee, const extended_asset& quantity, const std::string& memo) {
+   check(is_account(burnee), "burnee account does not exist");
+
+   check(quantity.quantity.is_valid(), "invalid quantity");
+   check(quantity.quantity.amount > 0, "must transfer positive quantity");
+   check(memo.size() <= 256, "memo has more than 256 bytes");
+   auto issuer = extended_token::get_issuer(quantity.get_extended_symbol());
+   if (burnee != issuer) {
+      transfer(burnee, issuer, quantity, memo);
+   }
+
+   retire(quantity, memo);
 }
 
 void extended_token::transfer(const name& from, const name& to, const extended_asset& quantity, const string& memo) {
@@ -119,7 +138,10 @@ void extended_token::add_balance(const name& owner, const extended_asset& value,
       _ram_payer = ram_payer;
    }
    if (to == idx.end()) {
-      to_acnts.emplace(_ram_payer, [&](auto& a) { a.balance = value; });
+      to_acnts.emplace(_ram_payer, [&](auto& a) {
+         a.sequence = to_acnts.available_primary_key();
+         a.balance  = value;
+      });
    } else {
       auto its = to_acnts.find(to->sequence);
       check(its != to_acnts.end(), "extended_symbol does not exist");

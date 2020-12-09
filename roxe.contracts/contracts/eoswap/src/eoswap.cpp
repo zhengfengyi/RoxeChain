@@ -30,10 +30,10 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
    extended_token extoken;
 
  public:
-   static constexpr roxe::name admin_account{"eoswapeoswap"_n};
-   static constexpr roxe::name controller_account{"poolmanagers"_n};
-   static constexpr roxe::name tokenissuer_account{"tokenissuers"_n};
-   static constexpr roxe::name swaptoken_account{"eoswapxtoken"_n};
+//    static constexpr roxe::name admin_account{"eoswapeoswap"_n};
+//    static constexpr roxe::name controller_account{"poolmanagers"_n};
+//    static constexpr roxe::name tokenissuer_account{"tokenissuers"_n};
+//    static constexpr roxe::name swaptoken_account{"eoswapxtoken"_n};
    //    static constexpr extended_symbol weth_symbol = {symbol(symbol_code("WETH"), 4), "eosdosxtoken"_n};
 
    eoswap(name s, name code, roxe::datastream<const char*> ds)
@@ -90,15 +90,15 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
    // _lock_  Bind does not lock because it jumps to `rebind`, which does
 
    [[roxe::action]] void bind(name msg_sender, name pool_name, const extended_asset& balance, uint64_t denorm) {
-    
+     extended_asset balances = convert_one_decimals(balance);
       _instance_mgmt.setMsgSender(msg_sender);
-      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.bind(balance, denorm); });
+      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.bind(balances, denorm); });
    }
 
    [[roxe::action]] void rebind(name msg_sender, name pool_name, const extended_asset& balance, uint64_t denorm) {
-    
+      extended_asset balances = convert_one_decimals(balance);
       _instance_mgmt.setMsgSender(msg_sender);
-      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.rebind(balance, denorm); });
+      _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.rebind(balances, denorm); });
    }
 
    [[roxe::action]] void unbind(name msg_sender, name pool_name, const extended_symbol& token) {
@@ -130,22 +130,27 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
    [[roxe::action]] void swapamtin(
        name msg_sender, name pool_name, const extended_asset& tokenAmountIn, const extended_asset& minAmountOut,
        uint64_t maxPrice) {
+     extended_asset tokenAmountIns = convert_one_decimals(tokenAmountIn);
+     extended_asset minAmountOuts = convert_one_decimals(minAmountOut);
+
       _instance_mgmt.setMsgSender(msg_sender);
       _instance_mgmt.pool(
-          pool_name, [&](auto& pool) { pool.swapExactAmountIn(tokenAmountIn, minAmountOut, maxPrice); });
+          pool_name, [&](auto& pool) { pool.swapExactAmountIn(tokenAmountIns, minAmountOuts, maxPrice); });
    }
 
    [[roxe::action]] void swapamtout(
        name msg_sender, name pool_name, const extended_asset& maxAmountIn, const extended_asset& tokenAmountOut,
        uint64_t maxPrice) {
+ extended_asset maxAmountIns = convert_one_decimals(maxAmountIn);
+     extended_asset tokenAmountOuts = convert_one_decimals(tokenAmountOut);
       _instance_mgmt.setMsgSender(msg_sender);
       _instance_mgmt.pool(
-          pool_name, [&](auto& pool) { pool.swapExactAmountOut(maxAmountIn, tokenAmountOut, maxPrice); });
+          pool_name, [&](auto& pool) { pool.swapExactAmountOut(maxAmountIns, tokenAmountOuts, maxPrice); });
    }
 
    ////////////////// TEST pool storage///////////////////////
    [[roxe::action]] void cppool2table(name msg_sender, name pool_name) {
-      check(admin_account == msg_sender, "no admin");
+    //   check(admin_account == msg_sender, "no admin");
       _instance_mgmt.get_storage_mgmt().copyPoolStore2Table(msg_sender, pool_name);
    }
 
@@ -155,12 +160,12 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
    }
 
    [[roxe::action]] void newtoken(name msg_sender, const extended_asset& token) {
-      check(tokenissuer_account == msg_sender, "no token issuer");
+    //   check(tokenissuer_account == msg_sender, "no token issuer");
       _instance_mgmt.get_transfer_mgmt().create(msg_sender, token);
    }
 
    [[roxe::action]] void newtokenex(name msg_sender, const extended_asset& token) {
-      check(tokenissuer_account == msg_sender, "no token issuer");
+    //   check(tokenissuer_account == msg_sender, "no token issuer");
          BToken       otoken(_self,token.get_extended_symbol());
         otoken.setMsgSender(msg_sender);
         otoken.create(msg_sender,token);
@@ -184,12 +189,12 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
    }
 
    [[roxe::action]] void burn(name msg_sender, const extended_asset& amt) {
-      check(tokenissuer_account == msg_sender, "no token issuer");
+    //   check(tokenissuer_account == msg_sender, "no token issuer");
       _instance_mgmt.get_transfer_mgmt().burn(msg_sender, amt, "");
    }
 
    [[roxe::action]] void burnex(name msg_sender, const extended_asset& amt) {
-      check(tokenissuer_account == msg_sender, "no token issuer");
+    //   check(tokenissuer_account == msg_sender, "no token issuer");
       BToken token(_self, amt.get_extended_symbol());
       token.setMsgSender(msg_sender);
       token._burn(amt.quantity.amount);
