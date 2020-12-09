@@ -10,6 +10,9 @@
 #include <cmath>
 #include <common/defines.hpp>
 #include <eosdos/DODOEthProxy.hpp>
+
+#include "extended_token.cpp"
+
 using roxe::action;
 using roxe::asset;
 using roxe::name;
@@ -23,12 +26,12 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    DODOEthProxy  proxy;
 
  public:
-   static constexpr roxe::name     admin_account{"eosdoseosdos"_n};
-   static constexpr roxe::name     doowner_account{"dodoowner111"_n};
-   static constexpr roxe::name     tokenissuer_account{"tokenissuer1"_n};
-   static constexpr roxe::name     dostoken_account{"eosdosxtoken"_n};
-   static constexpr roxe::name     maintainer_account{"maintainer11"_n};
-   static constexpr roxe::name     oracle_account{"eosdosoracle"_n};
+//    static constexpr roxe::name     _self{"eosdoseosdos"_n};
+//    static constexpr roxe::name     doowner_account{"dodoowner111"_n};
+//    static constexpr roxe::name     tokenissuer_account{"tokenissuer1"_n};
+//    static constexpr roxe::name     dostoken_account{"eosdosxtoken"_n};
+//    static constexpr roxe::name     maintainer_account{"maintainer11"_n};
+//    static constexpr roxe::name     oracle_account{"eosdosoracle"_n};
    static constexpr extended_symbol weth_symbol = {symbol(symbol_code("WETH"), 4), "eosdosxtoken"_n};
 
    eosdos(name s, name code, roxe::datastream<const char*> ds)
@@ -72,7 +75,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
 
    [[roxe::action]] void init(
        name msg_sender, address dodoZoo, const extended_symbol& weth, const extended_symbol& core_symbol) {
-      check(admin_account == msg_sender, "no  admin");
+      check(_self == msg_sender, "no  admin");
       proxy.setMsgSender(msg_sender);
       proxy.init(dodoZoo, weth, core_symbol);
    }
@@ -87,7 +90,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
        name msg_sender, const extended_asset& ethToken, const extended_asset& maxPayTokenAmount) {
       proxy.setMsgSender(msg_sender);
       //   proxy.buyEthWithToken(ethToken, maxPayTokenAmount);
-      buyethtokenx_action buyethtokenx_act{admin_account, {{_self, "active"_n}}};
+      buyethtokenx_action buyethtokenx_act{_self, {{_self, "active"_n}}};
       buyethtokenx_act.send(msg_sender, ethToken, maxPayTokenAmount, true);
       buyethtokenx_act.send(msg_sender, ethToken, maxPayTokenAmount, false);
    }
@@ -106,7 +109,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
        name msg_sender, const extended_asset& baseToken, const extended_asset& minReceiveEth) {
       proxy.setMsgSender(msg_sender);
       //   proxy.sellTokenToEth(baseToken, minReceiveEth);
-      selltokenetha_action selltokenetha_act{admin_account, {{_self, "active"_n}}};
+      selltokenetha_action selltokenetha_act{_self, {{_self, "active"_n}}};
       selltokenetha_act.send(msg_sender, baseToken, minReceiveEth, 0, ACTION_STEP::STEP_ONE);
       selltokenetha_act.send(msg_sender, baseToken, minReceiveEth, 0, ACTION_STEP::STEP_TWO);
    }
@@ -118,7 +121,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
       proxy.setMsgSender(msg_sender, false);
       uint64_t receiveEthAmounts = proxy.sellTokenToEth(baseToken, minReceiveEth, receiveEthAmount, state);
       if (ACTION_STEP::STEP_TWO == state) {
-         selltokenetha_action selltokenetha_act{admin_account, {{_self, "active"_n}}};
+         selltokenetha_action selltokenetha_act{_self, {{_self, "active"_n}}};
          selltokenetha_act.send(msg_sender, baseToken, minReceiveEth, receiveEthAmounts, ACTION_STEP::STEP_THREE);
       }
    }
@@ -129,7 +132,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
        name msg_sender, const extended_asset& baseToken, const extended_asset& maxPayEthAmount) {
       proxy.setMsgSender(msg_sender);
       //   proxy.buyTokenWithEth(baseToken, maxPayEthAmount);
-      buytokenethx_action buytokenethx_act{admin_account, {{_self, "active"_n}}};
+      buytokenethx_action buytokenethx_act{_self, {{_self, "active"_n}}};
       buytokenethx_act.send(msg_sender, baseToken, maxPayEthAmount, ACTION_STEP::STEP_ONE);
       buytokenethx_act.send(msg_sender, baseToken, maxPayEthAmount, ACTION_STEP::STEP_TWO);
       buytokenethx_act.send(msg_sender, baseToken, maxPayEthAmount, ACTION_STEP::STEP_THREE);
@@ -157,7 +160,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
        name msg_sender, const extended_asset& ethtokenamount, const extended_symbol& quoteToken) {
       proxy.setMsgSender(msg_sender);
       //   proxy.withdrawEthAsBase(ethtokenamount, quoteToken);
-      withdraweabx_action withdraweabx_act{admin_account, {{_self, "active"_n}}};
+      withdraweabx_action withdraweabx_act{_self, {{_self, "active"_n}}};
       withdraweabx_act.send(msg_sender, ethtokenamount, quoteToken, ACTION_STEP::STEP_ONE);
       withdraweabx_act.send(msg_sender, ethtokenamount, quoteToken, ACTION_STEP::STEP_TWO);
       withdraweabx_act.send(msg_sender, ethtokenamount, quoteToken, ACTION_STEP::STEP_THREE);
@@ -176,7 +179,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    [[roxe::action]] void withdrawaeab(name msg_sender, const extended_symbol& quoteToken) {
       proxy.setMsgSender(msg_sender);
       //   proxy.withdrawAllEthAsBase(quoteToken);
-      withdrawaebx_action withdrawaebx_act{admin_account, {{_self, "active"_n}}};
+      withdrawaebx_action withdrawaebx_act{_self, {{_self, "active"_n}}};
       withdrawaebx_act.send(msg_sender, quoteToken, ACTION_STEP::STEP_ONE);
       withdrawaebx_act.send(msg_sender, quoteToken, ACTION_STEP::STEP_TWO);
       withdrawaebx_act.send(msg_sender, quoteToken, ACTION_STEP::STEP_THREE);
@@ -202,7 +205,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
        name msg_sender, const extended_asset& ethtokenamount, const extended_symbol& baseToken) {
       proxy.setMsgSender(msg_sender);
       //   proxy.withdrawEthAsQuote(ethtokenamount, baseToken);
-      withdraweaqx_action withdraweaqx_act{admin_account, {{_self, "active"_n}}};
+      withdraweaqx_action withdraweaqx_act{_self, {{_self, "active"_n}}};
       withdraweaqx_act.send(msg_sender, ethtokenamount, baseToken, ACTION_STEP::STEP_ONE);
       withdraweaqx_act.send(msg_sender, ethtokenamount, baseToken, ACTION_STEP::STEP_TWO);
       withdraweaqx_act.send(msg_sender, ethtokenamount, baseToken, ACTION_STEP::STEP_THREE);
@@ -221,7 +224,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    [[roxe::action]] void withdrawaeaq(name msg_sender, const extended_symbol& baseToken) {
       proxy.setMsgSender(msg_sender);
       //   proxy.withdrawAllEthAsQuote(baseToken);
-      withdrawaeqx_action withdrawaeqx_act{admin_account, {{_self, "active"_n}}};
+      withdrawaeqx_action withdrawaeqx_act{_self, {{_self, "active"_n}}};
       withdrawaeqx_act.send(msg_sender, baseToken, ACTION_STEP::STEP_ONE);
       withdrawaeqx_act.send(msg_sender, baseToken, ACTION_STEP::STEP_TWO);
       withdrawaeqx_act.send(msg_sender, baseToken, ACTION_STEP::STEP_THREE);
@@ -237,33 +240,33 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
 
    ////////////////////  admin dodo////////////////////////
    [[roxe::action]] void enabletradin(name msg_sender, name dodo_name) {
-      check(admin_account == msg_sender, "no  admin");
+      check(_self == msg_sender, "no  admin");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) { dodo.enableTrading(); });
    }
 
    [[roxe::action]] void enablequodep(name msg_sender, name dodo_name) {
-      check(admin_account == msg_sender, "no  admin");
+      check(_self == msg_sender, "no  admin");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) { dodo.enableQuoteDeposit(); });
    }
 
    [[roxe::action]] void enablebasdep(name msg_sender, name dodo_name) {
-      check(admin_account == msg_sender, "no  admin");
+      check(_self == msg_sender, "no  admin");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) { dodo.enableBaseDeposit(); });
    }
 
    [[roxe::action]] void setparameter(name msg_sender, name dodo_name, name para_name, uint64_t para_value) {
-      check(admin_account == msg_sender, "no  admin");
-      check(para_name == "k"_n || para_name == "lpfeerate"_n|| para_name == "mtfeerate"_n, "no  parameter");
+      check(_self == msg_sender, "no  admin");
+      check(para_name == "k"_n || para_name == "lpfeerate"_n || para_name == "mtfeerate"_n, "no  parameter");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
          if (para_name == "k"_n) {
             dodo.setK(para_value);
-         } else  if (para_name == "lpfeerate"_n) {
+         } else if (para_name == "lpfeerate"_n) {
             dodo.setLiquidityProviderFeeRate(para_value);
-         }else{
+         } else {
             dodo.setMaintainerFeeRate(para_value);
          }
       });
@@ -312,13 +315,13 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    ////////////////////   Oracle////////////////////////
    [[roxe::action]] void setprice(
        name msg_sender, const extended_symbol& basetoken, const extended_asset& quotetoken) {
-      check(oracle_account == msg_sender, "no oracle admin");
+      check(_self == msg_sender, "no oracle admin");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_storage_mgmt().save_oracle_prices(msg_sender, basetoken, quotetoken);
    }
 
    [[roxe::action]] void moveoracle(name msg_sender) {
-      check(oracle_account == msg_sender, "no oracle admin");
+      check(_self == msg_sender, "no oracle admin");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_storage_mgmt().move_oracle_price(msg_sender);
    }
@@ -329,10 +332,10 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    }
 
    [[roxe::action]] void newtoken(name msg_sender, const extended_asset& token) {
-      check(tokenissuer_account == msg_sender, "no  token issuer");
+    //   check(tokenissuer_account == msg_sender, "no  token issuer");
       proxy.setMsgSender(msg_sender);
-      if (token.contract == dostoken_account &&
-          token.get_extended_symbol().get_symbol().code().to_string().compare("WETH") == 0) {
+//token.contract == dostoken_account &&
+      if (          token.get_extended_symbol().get_symbol().code().to_string().compare("WETH") == 0) {
          _instance_mgmt.newToken<WETH9>(msg_sender, token);
       } else {
          _instance_mgmt.newToken<TestERC20>(msg_sender, token);

@@ -12,8 +12,6 @@
 #include <eosdos/intf/IFactory.hpp>
 #include <eosdos/intf/IOracle.hpp>
 #include <eosdos/lib/DecimalMath.hpp>
-#include <eosdos/lib/InitializableOwnable.hpp>
-#include <eosdos/lib/ReentrancyGuard.hpp>
 #include <eosdos/lib/SafeMath.hpp>
 #include <eosdos/lib/Types.hpp>
 
@@ -24,17 +22,24 @@
  * @notice Local Variables
  */
 using namespace SafeMath;
-class Storage : public InitializableOwnable, public ReentrancyGuard {
+class Storage {
  private:
    DODOStore& stores;
    IFactory&  factory;
-
+name msg_sender;
  public:
    Storage(DODOStore& _stores, IFactory& _factory)
        : stores(_stores)
        , factory(_factory)
-       , InitializableOwnable(_stores.initownable)
-       , ReentrancyGuard(_stores.guard) {}
+        {}
+
+   name getMsgSender() { return msg_sender; }
+   void setMsgSender(name _msg_sender, bool flag = false) {
+      if (flag) {
+         require_auth(_msg_sender);
+      }
+      msg_sender = _msg_sender;
+   }
 
    // ============ Modifiers ============
    void onlySupervisorOrOwner() {
@@ -54,7 +59,7 @@ class Storage : public InitializableOwnable, public ReentrancyGuard {
    }
 
    uint256 getOraclePrice() {
-      return factory.get_storage_mgmt().get_oracle_price(stores._BASE_TOKEN_, stores._QUOTE_TOKEN_);
+      return factory.get_storage_mgmt().get_oracle_prices(stores._BASE_TOKEN_, stores._QUOTE_TOKEN_);
       // return IOracle(_ORACLE_).getPrice();
    }
 

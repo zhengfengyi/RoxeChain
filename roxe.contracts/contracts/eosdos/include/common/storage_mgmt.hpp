@@ -98,7 +98,7 @@ class storage_mgmt {
       return pb.first->second;
    }
 
-   const DODOStore& newDodo(name msg_sender,name dodo_name) {
+   const DODOStore& newDodo(name msg_sender, name dodo_name) {
       auto t = dodo_table.find(dodo_name.value);
       bool f = (t == dodo_table.end());
       require(f, "ALREADY_EXIST_DODO");
@@ -116,7 +116,7 @@ class storage_mgmt {
       return t->dodos;
    }
 
-   void saveDodo(name dodo_name,const DODOStore& dodos) {
+   void saveDodo(name dodo_name, const DODOStore& dodos) {
       auto t = dodo_table.find(dodo_name.value);
       bool f = (t != dodo_table.end());
       require(f, "NO_DODO");
@@ -124,7 +124,7 @@ class storage_mgmt {
    }
 
    void save_oracle_price(name msg_sender, const extended_symbol& basetoken, const extended_asset& quotetoken) {
-      uint64_t key = get_hash_key(get_checksum256(
+      uint64_t             key = get_hash_key(get_checksum256(
           basetoken.get_contract().value, basetoken.get_symbol().raw(),
           quotetoken.get_extended_symbol().get_contract().value, quotetoken.get_extended_symbol().get_symbol().raw()));
       oracle_storage_table oracle_table(self, key);
@@ -144,7 +144,7 @@ class storage_mgmt {
    }
 
    uint64_t get_oracle_price(const extended_symbol& basetoken, const extended_symbol& quotetoken) {
-      uint64_t key = get_hash_key(get_checksum256(
+      uint64_t             key = get_hash_key(get_checksum256(
           basetoken.get_contract().value, basetoken.get_symbol().raw(), quotetoken.get_contract().value,
           quotetoken.get_symbol().raw()));
       oracle_storage_table oracle_table(self, key);
