@@ -7,7 +7,7 @@
 #include <roxe/symbol.hpp>
 #include <roxe/system.hpp>
 
-// #define EOSWAP_CONTRACT_DEBUG
+#define EOSWAP_CONTRACT_DEBUG
 
 #ifdef EOSWAP_CONTRACT_DEBUG
 #define debug(args...) print(" | ", ##args)
