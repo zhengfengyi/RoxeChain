@@ -4,6 +4,8 @@
 #include <roxe/symbol.hpp>
 #include <roxe/system.hpp>
 #include <roxe/transaction.hpp>
+#include <functional>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -47,6 +49,8 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
        name msg_sender, name dodo_name, address owner, address supervisor, address maintainer,
        const extended_symbol& baseToken, const extended_symbol& quoteToken, const extended_symbol& oracle,
        uint64_t lpFeeRate, uint64_t mtFeeRate, uint64_t k, uint64_t gasPriceLimit) {
+      check(is_account(dodo_name), "dodo_name account does not exist");
+
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.newDODO(
           msg_sender, dodo_name, owner, supervisor, maintainer, baseToken, quoteToken, oracle, lpFeeRate, mtFeeRate, k,
@@ -67,6 +71,8 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
        name msg_sender, name dodo_name, address maintainer, const extended_symbol& baseToken,
        const extended_symbol& quoteToken, const extended_symbol& oracle, uint64_t lpFeeRate, uint64_t mtFeeRate,
        uint64_t k, uint64_t gasPriceLimit) {
+      check(is_account(dodo_name), "dodo_name account does not exist");
+
       proxy.setMsgSender(msg_sender);
       zoo.breedDODO(dodo_name, maintainer, baseToken, quoteToken, oracle, lpFeeRate, mtFeeRate, k, gasPriceLimit);
    }
@@ -239,37 +245,21 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    using withdrawaeqx_action = roxe::action_wrapper<"withdrawaeqx"_n, &eosdos::withdrawaeqx>;
 
    ////////////////////  admin dodo////////////////////////
-   [[roxe::action]] void enabletradin(name msg_sender, name dodo_name) {
+   [[roxe::action]] void setadmin(name msg_sender, name dodo_name, name admin_name, name admin) {
       check(_self == msg_sender, "no  admin");
-      proxy.setMsgSender(msg_sender);
-      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) { dodo.enableTrading(); });
-   }
-
-   [[roxe::action]] void enablequodep(name msg_sender, name dodo_name) {
-      check(_self == msg_sender, "no  admin");
-      proxy.setMsgSender(msg_sender);
-      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) { dodo.enableQuoteDeposit(); });
-   }
-
-   [[roxe::action]] void enablebasdep(name msg_sender, name dodo_name) {
-      check(_self == msg_sender, "no  admin");
-      proxy.setMsgSender(msg_sender);
-      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) { dodo.enableBaseDeposit(); });
+      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
+         std::map<name, std::function<void(name)>> paras = {
+             std::make_pair("supervisor"_n, std::bind(&DODO::setSupervisor, dodo, std::placeholders::_1)),
+             std::make_pair("maintainer"_n, std::bind(&DODO::setMaintainer, dodo, std::placeholders::_1))};
+         auto it = paras.find(admin_name);
+         check(it != paras.end(), "no  admin name");
+         it->second(admin);
+      });
    }
 
    [[roxe::action]] void setparameter(name msg_sender, name dodo_name, name para_name, uint64_t para_value) {
       check(_self == msg_sender, "no  admin");
-      check(para_name == "k"_n || para_name == "lpfeerate"_n || para_name == "mtfeerate"_n, "no  parameter");
-      proxy.setMsgSender(msg_sender);
-      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
-         if (para_name == "k"_n) {
-            dodo.setK(para_value);
-         } else if (para_name == "lpfeerate"_n) {
-            dodo.setLiquidityProviderFeeRate(para_value);
-         } else {
-            dodo.setMaintainerFeeRate(para_value);
-         }
-      });
+      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) { dodo.setParameter(para_name, para_value); });
    }
 
    ////////////////////  LiquidityProvider dodo////////////////////////
