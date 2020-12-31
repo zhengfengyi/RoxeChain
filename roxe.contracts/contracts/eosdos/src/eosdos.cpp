@@ -326,7 +326,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    }
 
    [[roxe::action]] void moveoracle(name msg_sender) {
-      check("_self" == msg_sender, "no oracle admin");
+      check(_self == msg_sender, "no oracle admin");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_storage_mgmt().move_oracle_price(msg_sender);
    }
