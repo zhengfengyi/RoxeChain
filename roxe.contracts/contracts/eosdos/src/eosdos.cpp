@@ -320,13 +320,13 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    ////////////////////   Oracle////////////////////////
    [[roxe::action]] void setprice(
        name msg_sender, const extended_symbol& basetoken, const extended_asset& quotetoken) {
-      check(_self == msg_sender, "no oracle admin");
+      check("orc.polygon"_n == msg_sender, "no oracle admin");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_storage_mgmt().save_oracle_prices(msg_sender, basetoken, quotetoken);
    }
 
    [[roxe::action]] void moveoracle(name msg_sender) {
-      check(_self == msg_sender, "no oracle admin");
+      check("_self" == msg_sender, "no oracle admin");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_storage_mgmt().move_oracle_price(msg_sender);
    }
