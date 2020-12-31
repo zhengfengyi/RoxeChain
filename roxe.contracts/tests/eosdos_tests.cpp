@@ -217,7 +217,7 @@ class eosdos_tester : public tester {
       act.name    = name;
       act.data    = abi_ser.variant_to_binary(action_type_name, data, abi_serializer_max_time);
 
-      return base_tester::push_action(std::move(act), signer.to_uint64_t());
+      return base_tester::push_action(std::move(act), signer.value);
    }
 
    transaction_trace_ptr create_account_with_resources(
@@ -427,21 +427,15 @@ class eosdos_tester : public tester {
    }
 
    //////////////////admin dodo//////////////
-   action_result enablequodep(name msg_sender, name dodo_name) {
-      return push_action(msg_sender, N(enablequodep), mvo()("msg_sender", msg_sender)("dodo_name", dodo_name));
-   }
-
-   action_result enablebasdep(name msg_sender, name dodo_name) {
-      return push_action(msg_sender, N(enablebasdep), mvo()("msg_sender", msg_sender)("dodo_name", dodo_name));
-   }
-
-   action_result enabletradin(name msg_sender, name dodo_name) {
-      return push_action(msg_sender, N(enabletradin), mvo()("msg_sender", msg_sender)("dodo_name", dodo_name));
+   action_result setadmin(name msg_sender, name dodo_name, name admin_name, name admin) {
+      return push_action(
+          msg_sender, N(setadmin),
+          mvo()("msg_sender", msg_sender)("dodo_name", dodo_name)("admin_name", admin_name)("admin", admin));
    }
 
    action_result setparameter(name msg_sender, name dodo_name, name para_name, uint64_t para_value) {
       return push_action(
-          msg_sender, N(enablequodep),
+          msg_sender, N(setparameter),
           mvo()("msg_sender", msg_sender)("dodo_name", dodo_name)("para_name", para_name)("para_value", para_value));
    }
 
@@ -636,36 +630,15 @@ class eosdos_tester : public tester {
       return data.empty() ? fc::variant() : abi_ser.binary_to_variant("ProxyStorage", data, abi_serializer_max_time);
    }
 
-   fc::variant get_dodo_store() {
-      vector<char> data = get_row_by_account(N(eosdoseosdos), N(eosdoseosdos), N(dodo), N(dodo));
-      if (data.empty())
-         std::cout << "\nData is empty\n" << std::endl;
-      return data.empty() ? fc::variant() : abi_ser.binary_to_variant("DODOStorage", data, abi_serializer_max_time);
-   }
-
    fc::variant get_dodo_table(name dodo_name) {
       name         table_name = N(dodos);
       vector<char> data       = get_row_by_account(N(eosdoseosdos), N(eosdoseosdos), table_name, dodo_name);
       return data.empty() ? fc::variant() : abi_ser.binary_to_variant("dodo_storage", data, abi_serializer_max_time);
    }
 
-   fc::variant get_token_store() {
-      vector<char> data = get_row_by_account(N(eosdoseosdos), N(eosdoseosdos), N(token), N(token));
-      if (data.empty())
-         std::cout << "\nData is empty\n" << std::endl;
-      return data.empty() ? fc::variant() : abi_ser.binary_to_variant("TokenStorage", data, abi_serializer_max_time);
-   }
-
-   fc::variant get_oracle_store() {
-      vector<char> data = get_row_by_account(N(eosdoseosdos), N(eosdoseosdos), N(oracle), N(oracle));
-      if (data.empty())
-         std::cout << "\nData is empty\n" << std::endl;
-      return data.empty() ? fc::variant() : abi_ser.binary_to_variant("OracleStorage", data, abi_serializer_max_time);
-   }
-
    fc::variant get_oracle_table(const extended_symbol& basetoken, const extended_symbol& quotetoken) {
       uint64_t    key = get_hash_key(get_checksum256(
-          basetoken.contract.to_uint64_t(), basetoken.sym.value(), quotetoken.contract.to_uint64_t(),
+          basetoken.contract.value, basetoken.sym.value(), quotetoken.contract.value,
           quotetoken.sym.value()));
       const auto& db  = control->db();
       const auto* tbl = db.find<table_id_object, by_code_scope_table>(
@@ -682,13 +655,6 @@ class eosdos_tester : public tester {
       if (data.empty())
          std::cout << "\nData is empty\n" << std::endl;
       return data.empty() ? fc::variant() : abi_ser.binary_to_variant("oracle_prices", data, abi_serializer_max_time);
-   }
-
-   fc::variant get_helperstore() {
-      vector<char> data = get_row_by_account(N(eosdoseosdos), N(eosdoseosdos), N(helper), N(helper));
-      if (data.empty())
-         std::cout << "\nData is empty\n" << std::endl;
-      return data.empty() ? fc::variant() : abi_ser.binary_to_variant("HelperStorage", data, abi_serializer_max_time);
    }
 
    ///////////////utils///////////////////////////
@@ -781,7 +747,7 @@ class eosdos_tester : public tester {
    }
 
    namesym to_namesym(const extended_symbol& exsym) {
-      namesym ns = exsym.contract.to_uint64_t();
+      namesym ns = exsym.contract.value;
       return ns << 64 | exsym.sym.value();
    }
 
@@ -803,12 +769,11 @@ class eosdos_tester : public tester {
    }
 
    void newTokenBefore() {
+      std::vector<std::string> tokens{"WETH", "DAI", "MKR"};
       LINE_DEBUG;
-      newtoken(tokenissuer, to_maximum_supply("WETH"));
-      LINE_DEBUG;
-      newtoken(tokenissuer, to_maximum_supply("DAI"));
-      LINE_DEBUG;
-      newtoken(tokenissuer, to_maximum_supply("MKR"));
+      for (auto token : tokens) {
+         newtoken(tokenissuer, to_maximum_supply(token));
+      }
    }
 
    void mintBefore() {
@@ -819,24 +784,9 @@ class eosdos_tester : public tester {
       LINE_DEBUG;
    }
 
-   void mintStableBefore() {
-      mint(lp, to_wei_asset(10000, "DAI"));
-      LINE_DEBUG;
-
-      mint(trader, to_wei_asset(10000, "DAI"));
-      LINE_DEBUG;
-      mint(lp, to_wei_asset(10000, "MKR"));
-      LINE_DEBUG;
-
-      mint(trader, to_wei_asset(10000, "MKR"));
-      LINE_DEBUG;
-   }
-
    void setPriceBaseBefore() { setprice(admin, to_sym("WETH"), to_wei_asset(100, "MKR")); }
 
    void setPriceQuoteBefore() { setprice(admin, to_sym("MKR"), to_asset(100, "WETH")); }
-
-   void setPriceStableBefore() { setprice(admin, to_sym("DAI"), to_wei_asset(1, "MKR")); }
 
    void breedBaseBefore() {
 
@@ -888,51 +838,20 @@ class eosdos_tester : public tester {
           msg_sender, dodo_name, maintainer, quoteToken, baseToken, oracle, lpFeeRate, mtFeeRate, k, gasPriceLimit);
    }
 
-   void breedStableBefore() {
-
-      LINE_DEBUG;
-      name            msg_sender    = admin;
-      name            dodo_name     = dodo_stablecoin_name;
-      address         maintainer    = doowner;
-      extended_symbol baseToken     = to_sym("DAI");
-      extended_symbol quoteToken    = to_sym("MKR");
-      extended_symbol oracle        = to_sym("DAI");
-      uint64_t        lpFeeRate     = 1;
-      uint64_t        mtFeeRate     = 0;
-      uint64_t        k             = 1;
-      uint64_t        gasPriceLimit = 0; // gweiStr("100")
-                                         //   lpFeeRate: decimalStr("0.0001"),
-                                         //   mtFeeRate: decimalStr("0"),
-                                         //   k: gweiStr("1"), // nearly zero
-                                         //   gasPriceLimit: gweiStr("100"),
-
-      LINE_DEBUG;
-      breeddodo(
-          msg_sender, dodo_name, maintainer, baseToken, quoteToken, oracle, lpFeeRate, mtFeeRate, k, gasPriceLimit);
-   }
-
    void enableBaseBefore() {
       LINE_DEBUG;
       name dodo_name = dodo_ethbase_name;
-      enabletradin(admin, dodo_name);
-      enablequodep(admin, dodo_name);
-      enablebasdep(admin, dodo_name);
+      setparameter(admin, dodo_name, N(trading), 1);
+      setparameter(admin, dodo_name, N(quotedeposit), 1);
+      setparameter(admin, dodo_name, N(basedeposit), 1);
    }
 
    void enableQuoteBefore() {
       LINE_DEBUG;
       name dodo_name = dodo_ethquote_name;
-      enabletradin(admin, dodo_name);
-      enablequodep(admin, dodo_name);
-      enablebasdep(admin, dodo_name);
-   }
-
-   void enableStableBefore() {
-      LINE_DEBUG;
-      name dodo_name = dodo_stablecoin_name;
-      enabletradin(admin, dodo_name);
-      enablequodep(admin, dodo_name);
-      enablebasdep(admin, dodo_name);
+      setparameter(admin, dodo_name, N(trading), 1);
+      setparameter(admin, dodo_name, N(quotedeposit), 1);
+      setparameter(admin, dodo_name, N(basedeposit), 1);
    }
 
    void depositQuoteBefore() {
@@ -943,16 +862,6 @@ class eosdos_tester : public tester {
    void depositBaseBefore() {
       LINE_DEBUG;
       depositbase(lp, dodo_ethquote_name, to_wei_asset(1000, "MKR"));
-   }
-
-   void depositQuoteStableBefore() {
-      LINE_DEBUG;
-      depositquote(lp, dodo_stablecoin_name, to_wei_asset(10000, "MKR"));
-   }
-
-   void depositBaseStableBefore() {
-      LINE_DEBUG;
-      depositbase(lp, dodo_stablecoin_name, to_wei_asset(10000, "DAI"));
    }
 
    void depositEthAsBaseBefore() {
@@ -989,16 +898,169 @@ class eosdos_tester : public tester {
       depositEthAsQuoteBefore();
    }
 
+   void mintStableBefore() {
+      mint(lp, to_wei_asset(10000, "DAI"));
+      LINE_DEBUG;
+
+      mint(trader, to_wei_asset(10000, "DAI"));
+      LINE_DEBUG;
+      mint(lp, to_wei_asset(10000, "MKR"));
+      LINE_DEBUG;
+
+      mint(trader, to_wei_asset(10000, "MKR"));
+      LINE_DEBUG;
+   }
+
+   void setPriceStableBefore() { setprice(admin, to_sym("DAI"), to_wei_asset(1, "MKR")); }
+
+   void breedStableBefore() {
+
+      LINE_DEBUG;
+      name            msg_sender    = admin;
+      name            dodo_name     = dodo_stablecoin_name;
+      address         maintainer    = doowner;
+      extended_symbol baseToken     = to_sym("DAI");
+      extended_symbol quoteToken    = to_sym("MKR");
+      extended_symbol oracle        = to_sym("DAI");
+      uint64_t        lpFeeRate     = 1;
+      uint64_t        mtFeeRate     = 0;
+      uint64_t        k             = 1;
+      uint64_t        gasPriceLimit = 0; // gweiStr("100")
+                                         //   lpFeeRate: decimalStr("0.0001"),
+                                         //   mtFeeRate: decimalStr("0"),
+                                         //   k: gweiStr("1"), // nearly zero
+                                         //   gasPriceLimit: gweiStr("100"),
+
+      LINE_DEBUG;
+      breeddodo(
+          msg_sender, dodo_name, maintainer, baseToken, quoteToken, oracle, lpFeeRate, mtFeeRate, k, gasPriceLimit);
+   }
+
+   void enableStableBefore() {
+      LINE_DEBUG;
+      name dodo_name = dodo_stablecoin_name;
+      setparameter(admin, dodo_name, N(trading), 1);
+      setparameter(admin, dodo_name, N(quotedeposit), 1);
+      setparameter(admin, dodo_name, N(basedeposit), 1);
+   }
+
+   void depositQuoteStableBefore() {
+      LINE_DEBUG;
+      depositquote(lp, dodo_stablecoin_name, to_wei_asset(10000, "MKR"));
+   }
+
+   void depositBaseStableBefore() {
+      LINE_DEBUG;
+      depositbase(lp, dodo_stablecoin_name, to_wei_asset(10000, "DAI"));
+   }
+
    void stableCoinBefore() {
       newTokenBefore();
       mintStableBefore();
-
       setPriceStableBefore();
       breedStableBefore();
       enableStableBefore();
 
       depositBaseStableBefore();
       depositQuoteStableBefore();
+   }
+
+   void stableCoinBefore2() {
+      std::vector<name>        users{lp, trader};
+      std::vector<std::string> tokens{"USD", "GBP"};
+      LINE_DEBUG;
+      for (auto token : tokens) {
+         newtoken(tokenissuer, to_maximum_supply(token));
+         for (auto user : users) {
+            mint(user, to_wei_asset(10000000, token));
+         }
+      }
+
+      setprice(admin, to_sym("USD"), to_asset(740000, "GBP"));
+
+      LINE_DEBUG;
+      name            msg_sender    = admin;
+      name            dodo_name     = dodo_stablecoin_name;
+      address         maintainer    = doowner;
+      extended_symbol baseToken     = to_sym("USD");
+      extended_symbol quoteToken    = to_sym("GBP");
+      extended_symbol oracle        = to_sym("USD");
+      uint64_t        lpFeeRate     = 595;
+      uint64_t        mtFeeRate     = 105;
+      uint64_t        k             = 1;
+      uint64_t        gasPriceLimit = 0; // gweiStr("100")
+                                         //   lpFeeRate: decimalStr("0.0001"),
+                                         //   mtFeeRate: decimalStr("0"),
+                                         //   k: gweiStr("1"), // nearly zero
+                                         //   gasPriceLimit: gweiStr("100"),
+
+      LINE_DEBUG;
+      breeddodo(
+          msg_sender, dodo_name, maintainer, baseToken, quoteToken, oracle, lpFeeRate, mtFeeRate, k, gasPriceLimit);
+
+      LINE_DEBUG;
+      std::vector<name> enableparas{N(trading), N(quotedeposit), N(basedeposit)};
+      for (auto para : enableparas) {
+         setparameter(admin, dodo_name, para, 1);
+      }
+
+      LINE_DEBUG;
+      depositbase(lp, dodo_stablecoin_name, to_wei_asset(1000000, "USD"));
+      LINE_DEBUG;
+      depositquote(lp, dodo_stablecoin_name, to_wei_asset(740000, "GBP"));
+   }
+
+   void stableCoinBefore3() {
+      std::vector<name>        users{lp, trader};
+      std::vector<std::string> tokens{"USD", "GBP"};
+      LINE_DEBUG;
+      for (auto token : tokens) {
+         newtoken(tokenissuer, to_maximum_supply(token));
+         for (auto user : users) {
+            mint(user, to_wei_asset(10000000, token));
+         }
+      }
+
+      setprice(admin, to_sym("USD"), to_asset(740000, "GBP"));
+
+      LINE_DEBUG;
+      name            msg_sender    = admin;
+      name            dodo_name     = dodo_stablecoin_name;
+      address         maintainer    = doowner;
+      extended_symbol baseToken     = to_sym("USD");
+      extended_symbol quoteToken    = to_sym("GBP");
+      extended_symbol oracle        = to_sym("USD");
+      uint64_t        lpFeeRate     = 1;
+      uint64_t        mtFeeRate     = 0;
+      uint64_t        k             = 1;
+      uint64_t        gasPriceLimit = 0; // gweiStr("100")
+                                         //   lpFeeRate: decimalStr("0.0001"),
+                                         //   mtFeeRate: decimalStr("0"),
+                                         //   k: gweiStr("1"), // nearly zero
+                                         //   gasPriceLimit: gweiStr("100"),
+
+      LINE_DEBUG;
+      breeddodo(
+          msg_sender, dodo_name, maintainer, baseToken, quoteToken, oracle, lpFeeRate, mtFeeRate, k, gasPriceLimit);
+
+      LINE_DEBUG;
+      std::vector<name> enableparas{N(trading), N(quotedeposit), N(basedeposit)};
+      for (auto para : enableparas) {
+         setparameter(admin, dodo_name, para, 1);
+      }
+
+      LINE_DEBUG;
+      depositbase(lp, dodo_stablecoin_name, to_wei_asset(1000000, "USD"));
+      LINE_DEBUG;
+      depositquote(lp, dodo_stablecoin_name, to_wei_asset(740000, "GBP"));
+   }
+
+   void check_dodos(name dodo_name) {
+#ifdef EOSDOS_DEBUG
+      LINE_DEBUG;
+      auto store = dodos(dodo_name);
+      BOOST_TEST_CHECK(nullptr == store);
+#endif
    }
 
    void check_balance(std::string token_name, std::string amount) {
@@ -1025,17 +1087,49 @@ class eosdos_tester : public tester {
 BOOST_AUTO_TEST_SUITE(eosdos_tests)
 ////////////////dodo admin////////////////////
 
+BOOST_FIXTURE_TEST_CASE(setadmin_tests, eosdos_tester) try {
+   stableCoinBefore();
+   name dodo_name = dodo_stablecoin_name;
+   setadmin(admin, dodo_name, N(supervisor), N(alice));
+   setadmin(admin, dodo_name, N(maintainer), N(bob));
+   auto store = dodos(dodo_name);
+   //    BOOST_TEST_CHECK(nullptr==store);
+   BOOST_TEST_CHECK("alice" == store["_SUPERVISOR_"].as_string());
+   BOOST_TEST_CHECK("bob" == store["_MAINTAINER_"].as_string());
+}
+FC_LOG_AND_RETHROW()
+
 BOOST_FIXTURE_TEST_CASE(setparameter_tests, eosdos_tester) try {
    stableCoinBefore();
    name dodo_name = dodo_stablecoin_name;
    setparameter(admin, dodo_name, N(k), 100);
-   setparameter(admin, dodo_name, N(lpfeerate), 2);
+   setparameter(admin, dodo_name, N(lpfeerate), 3);
    setparameter(admin, dodo_name, N(mtfeerate), 2);
+   setparameter(admin, dodo_name, N(trading), 1);
+   setparameter(admin, dodo_name, N(quotedeposit), 1);
+   setparameter(admin, dodo_name, N(basedeposit), 1);
+   setparameter(admin, dodo_name, N(buying), 1);
+   setparameter(admin, dodo_name, N(selling), 1);
+   setparameter(admin, dodo_name, N(basebalimit), 4);
+   setparameter(admin, dodo_name, N(quotebalimit), 5);
+   auto store = dodos(dodo_name);
+   //    BOOST_TEST_CHECK(nullptr==store);
+
+   BOOST_TEST_CHECK(3 == store["_LP_FEE_RATE_"].as<uint64_t>());
+   BOOST_TEST_CHECK(2 == store["_MT_FEE_RATE_"].as<uint64_t>());
+   BOOST_TEST_CHECK(100 == store["_K_"].as<uint64_t>());
+   BOOST_TEST_CHECK(true == store["_TRADE_ALLOWED_"].as<bool>());
+   BOOST_TEST_CHECK(true == store["_DEPOSIT_QUOTE_ALLOWED_"].as<bool>());
+   BOOST_TEST_CHECK(true == store["_DEPOSIT_BASE_ALLOWED_"].as<bool>());
+   BOOST_TEST_CHECK(true == store["_BUYING_ALLOWED_"].as<bool>());
+   BOOST_TEST_CHECK(true == store["_SELLING_ALLOWED_"].as<bool>());
+   BOOST_TEST_CHECK(4 == store["_BASE_BALANCE_LIMIT_"].as<uint64_t>());
+   BOOST_TEST_CHECK(5 == store["_QUOTE_BALANCE_LIMIT_"].as<uint64_t>());
 }
 FC_LOG_AND_RETHROW()
 
 /////////////////////admin dodo///////////////////////
-BOOST_FIXTURE_TEST_CASE(no_enable_trading_tests, eosdos_tester) try {
+BOOST_FIXTURE_TEST_CASE(enable_trading_tests, eosdos_tester) try {
    newTokenBefore();
    mintStableBefore();
 
@@ -1043,9 +1137,9 @@ BOOST_FIXTURE_TEST_CASE(no_enable_trading_tests, eosdos_tester) try {
    breedStableBefore();
    LINE_DEBUG;
    name dodo_name = dodo_stablecoin_name;
-   //   enabletradin(admin, dodo_name);
-   enablequodep(admin, dodo_name);
-   enablebasdep(admin, dodo_name);
+   //   setparameter(admin, dodo_name,N(trading),1);
+   setparameter(admin, dodo_name, N(quotedeposit), 1);
+   setparameter(admin, dodo_name, N(basedeposit), 1);
 
    depositBaseStableBefore();
    depositQuoteStableBefore();
@@ -1063,23 +1157,231 @@ BOOST_FIXTURE_TEST_CASE(no_token_trading_tests, eosdos_tester) try {
    stableCoinBefore();
 
    BOOST_REQUIRE_EQUAL(
-       wasm_assert_msg("no base token symbol in the pair"),  buybasetoken(trader, dodo_stablecoin_name, to_wei_asset(1000, "WETH"), to_wei_asset(1001, "MKR")));
-}
-FC_LOG_AND_RETHROW()
+       wasm_assert_msg("no base token symbol in the pair"),
+       buybasetoken(trader, dodo_stablecoin_name, to_wei_asset(1000, "WETH"), to_wei_asset(1001, "MKR")));
 
-/////////////////////admin dodo///////////////////////
-BOOST_FIXTURE_TEST_CASE(no_token_decimals_trading_tests, eosdos_tester) try {
-   stableCoinBefore();
+   BOOST_REQUIRE_EQUAL(
+       wasm_assert_msg("no quote token symbol in the pair"),
+       buybasetoken(trader, dodo_stablecoin_name, to_wei_asset(1000, "DAI"), to_wei_asset(1001, "WETH")));
 
    auto base_with_dec_one = extended_asset{asset{1000, symbol{TOKEN_DECIMALS + 1, "DAI"}}, name{"eosdosxtoken"}};
 
    BOOST_REQUIRE_EQUAL(
        wasm_assert_msg("mismatch precision of the base token in the pair"),
        buybasetoken(trader, dodo_stablecoin_name, base_with_dec_one, to_wei_asset(1001, "MKR")));
+
+   auto quote_with_dec_one = extended_asset{asset{1000, symbol{TOKEN_DECIMALS + 1, "MKR"}}, name{"eosdosxtoken"}};
+
+   BOOST_REQUIRE_EQUAL(
+       wasm_assert_msg("mismatch precision of the quote token in the pair"),
+       buybasetoken(trader, dodo_stablecoin_name, to_wei_asset(1000, "DAI"), quote_with_dec_one));
 }
 FC_LOG_AND_RETHROW()
 
 /////////////////////dodo///////////////////////
+BOOST_FIXTURE_TEST_CASE(buy_tiny_base_token_tests, eosdos_tester) try {
+   stableCoinBefore();
+   buybasetoken(trader, dodo_stablecoin_name, to_wei_asset(1, "DAI"), to_wei_asset(1001, "MKR"));
+
+   check_balance("DAI", "10001.000000");
+   check_balance("MKR", "9998.999999");
+
+   sellbastoken(trader, dodo_stablecoin_name, to_wei_asset(1, "DAI"), to_asset(1, "MKR"));
+   check_balance("DAI", "10000.000000");
+   check_balance("MKR", "10000.999998");
+}
+FC_LOG_AND_RETHROW()
+
+BOOST_FIXTURE_TEST_CASE(simulation_formula_tests, eosdos_tester) try {
+   std::vector<name>        users{lp, trader};
+   std::vector<std::string> tokens{"USD", "GBP"};
+   LINE_DEBUG;
+   for (auto token : tokens) {
+      newtoken(tokenissuer, to_maximum_supply(token));
+      for (auto user : users) {
+         mint(user, to_wei_asset(10000000, token));
+      }
+   }
+
+   setprice(admin, to_sym("USD"), to_asset(740000, "GBP"));
+
+   LINE_DEBUG;
+   name            msg_sender    = admin;
+   name            dodo_name     = dodo_stablecoin_name;
+   address         maintainer    = doowner;
+   extended_symbol baseToken     = to_sym("USD");
+   extended_symbol quoteToken    = to_sym("GBP");
+   extended_symbol oracle        = to_sym("USD");
+   uint64_t        lpFeeRate     = 595;
+   uint64_t        mtFeeRate     = 105;
+   uint64_t        k             = 1;
+   uint64_t        gasPriceLimit = 0; // gweiStr("100")
+                                      //   lpFeeRate: decimalStr("0.0001"),
+                                      //   mtFeeRate: decimalStr("0"),
+                                      //   k: gweiStr("1"), // nearly zero
+                                      //   gasPriceLimit: gweiStr("100"),
+
+   LINE_DEBUG;
+   breeddodo(msg_sender, dodo_name, maintainer, baseToken, quoteToken, oracle, lpFeeRate, mtFeeRate, k, gasPriceLimit);
+
+   LINE_DEBUG;
+   std::vector<name> enableparas{N(trading), N(quotedeposit), N(basedeposit)};
+   for (auto para : enableparas) {
+      setparameter(admin, dodo_name, para, 1);
+   }
+
+   LINE_DEBUG;
+   depositquote(lp, dodo_name, to_wei_asset(740000, "GBP"));
+
+   LINE_DEBUG;
+   depositbase(lp, dodo_name, to_wei_asset(1000000, "USD"));
+
+   LINE_DEBUG;
+   depositquote(lp, dodo_name, to_wei_asset(740000, "GBP"));
+
+   LINE_DEBUG;
+   depositquote(lp, dodo_name, to_wei_asset(740000, "GBP"));
+
+   LINE_DEBUG;
+   withdrawquote(lp, dodo_name, to_wei_asset(740000, "GBP"));
+   LINE_DEBUG;
+   withdrawquote(lp, dodo_name, to_wei_asset(740000, "GBP"));
+    //    {0, 1000000, 100000000}, {1, 1000000, 1000000},   {1, 1000000, 10000},
+   std::vector<std::vector<int64_t>> testpara{
+       {0, 1000000, 100000000}, {1, 1000000, 100000},   {1, 1000000, 10000},
+       {1, 100000000, 10000},   {0, 50000000, 50000000}, {0, 1287998, 10000000},
+       {0, 1287869, 10000000},  {0, 1288385, 10000000},  {0, 1294179, 10000000},
+   };
+
+   std::vector<std::vector<int64_t>> testpara1{
+       {1, 998500000, 728900000},  {0, 1323603731, 999000000}, {0, 1000000000, 1000000000}, {0, 1323603731, 1000000000},
+       {0, 50000000, 50000000},    {0, 50000000, 40000000},    {0, 312220000, 233000000},   {0, 1340943400, 999000000},
+       {0, 1340943393, 999000000}, {1, 998500000, 728900000},  {1, 998500000, 728900000},   {1, 998500000, 728900000},
+       {1, 98500000, 72830000},
+   };
+
+   LINE_DEBUG;
+
+   auto testbuysell = [&](auto testparas) {
+      for (auto p : testparas) {
+         check_dodos(dodo_name);
+         if (0 == p[0]) {
+            buybasetoken(trader, dodo_name, to_asset(p[1], "USD"), to_asset(p[2], "GBP"));
+         } else {
+            sellbastoken(trader, dodo_name, to_asset(p[1], "USD"), to_asset(p[2], "GBP"));
+         }
+         check_dodos(dodo_name);
+         check_balance("USD", "10001.000000");
+         check_balance("GBP", "9998.999999");
+      }
+   };
+
+   testbuysell(testpara);
+   setparameter(admin, dodo_name, N(lpfeerate), 595);
+   setparameter(admin, dodo_name, N(mtfeerate), 105);
+   testbuysell(testpara1);
+
+   //    setparameter(admin, dodo_name, N(k), 100);
+}
+FC_LOG_AND_RETHROW()
+
+BOOST_FIXTURE_TEST_CASE(buy1_base_token_formula_tests, eosdos_tester) try {
+   stableCoinBefore3();
+   name dodo_name = dodo_stablecoin_name;
+
+   check_dodos(dodo_name);
+
+   buybasetoken(trader, dodo_name, to_asset(1000000, "USD"), to_asset(999000000, "GBP"));
+   check_dodos(dodo_name);
+   check_balance("USD", "10001.000000");
+   check_balance("GBP", "9998.999999");
+
+   sellbastoken(trader, dodo_name, to_asset(1000000, "USD"), to_asset(10, "GBP"));
+   check_dodos(dodo_name);
+   check_balance("USD", "10000.000000");
+   check_balance("GBP", "10000.999998");
+}
+FC_LOG_AND_RETHROW()
+
+BOOST_FIXTURE_TEST_CASE(buy_base_token_formula_tests, eosdos_tester) try {
+   stableCoinBefore2();
+   name dodo_name = dodo_stablecoin_name;
+   check_dodos(dodo_name);
+
+   buybasetoken(trader, dodo_name, to_asset(1323603731, "USD"), to_asset(999000000, "GBP"));
+   check_dodos(dodo_name);
+   check_balance("USD", "10001.000000");
+   check_balance("GBP", "9998.999999");
+
+   sellbastoken(trader, dodo_name, to_asset(998500000, "USD"), to_asset(728900000, "GBP"));
+   check_dodos(dodo_name);
+   check_balance("USD", "10000.000000");
+   check_balance("GBP", "10000.999998");
+
+   buybasetoken(trader, dodo_name, to_asset(1323603731, "USD"), to_asset(999000000, "GBP"));
+   check_dodos(dodo_name);
+   check_balance("USD", "10001.000000");
+   check_balance("GBP", "9998.999999");
+
+   //    int i = 0;
+   //    for (i = 0; i < 10; ++i) {
+   //       BOOST_TEST_CHECK(i == -1);
+   //       {
+   //          LINE_DEBUG;
+   //          auto store = dodos(dodo_name);
+   //          BOOST_TEST_CHECK(nullptr == store);
+   //       }
+   //       buybasetoken(trader, dodo_name, to_asset(1323603731, "USD"), to_asset(999000000, "GBP"));
+   //       {
+   //          LINE_DEBUG;
+   //          auto store = dodos(dodo_name);
+   //          BOOST_TEST_CHECK(nullptr == store);
+   //       }
+   //       check_balance("USD", "10001.000000");
+   //       check_balance("GBP", "9998.999999");
+   //    }
+}
+FC_LOG_AND_RETHROW()
+
+BOOST_FIXTURE_TEST_CASE(sell_base_token_formula_tests, eosdos_tester) try {
+   stableCoinBefore2();
+   name dodo_name = dodo_stablecoin_name;
+   check_dodos(dodo_name);
+   sellbastoken(trader, dodo_name, to_asset(998500000, "USD"), to_asset(728900000, "GBP"));
+   check_balance("USD", "10000.000000");
+   check_balance("GBP", "10000.999998");
+   check_dodos(dodo_name);
+   buybasetoken(trader, dodo_name, to_asset(1323603731, "USD"), to_asset(999000000, "GBP"));
+   check_dodos(dodo_name);
+   check_balance("USD", "10001.000000");
+   check_balance("GBP", "9998.999999");
+
+   sellbastoken(trader, dodo_name, to_asset(998500000, "USD"), to_asset(728900000, "GBP"));
+   check_dodos(dodo_name);
+   check_balance("USD", "10000.000000");
+   check_balance("GBP", "10000.999998");
+
+   //    int i = 0;
+   //    for (i = 0; i < 20; ++i) {
+   //       BOOST_TEST_CHECK(i == -1);
+   //       {
+   //          LINE_DEBUG;
+   //          auto store = dodos(dodo_name);
+   //          BOOST_TEST_CHECK(nullptr == store);
+   //       }
+   //       sellbastoken(trader, dodo_name, to_asset(99850000000, "USD"), to_asset(728900000, "GBP"));
+   //       {
+   //          LINE_DEBUG;
+   //          auto store = dodos(dodo_name);
+   //          BOOST_TEST_CHECK(nullptr == store);
+   //       }
+
+   //       check_balance("USD", "10000.000000");
+   //       check_balance("GBP", "10000.999998");
+   //    }
+}
+FC_LOG_AND_RETHROW()
+
 BOOST_FIXTURE_TEST_CASE(buy_base_token_tests, eosdos_tester) try {
    stableCoinBefore();
    buybasetoken(trader, dodo_stablecoin_name, to_wei_asset(1000, "DAI"), to_wei_asset(1001, "MKR"));
