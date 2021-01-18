@@ -90,19 +90,19 @@ class transfer_mgmt {
       return get_issuer(exsym.get_contract(), exsym.get_symbol().code());
    }
 
- static int64_t
-   get_transfer_fee(const extended_asset& quantity, bool is_in = false, name contract = "roxe.ro"_n) {
+   static int64_t get_transfer_fee(const extended_asset& quantity, bool is_in = false) {
       my_print_f("==%=transfer_fee=1=%==", __FUNCTION__, quantity.quantity.amount);
+      name tokencontract = quantity.contract;
+#ifdef EOSDOS_CONTRACT_DEBUG
+      tokencontract = "eosdoseosdos"_n; // for Test use
+#endif
 
-      if (quantity.contract != "roxe.ro"_n || !tokenize::is_exist_symbol(quantity.quantity.symbol.code(), contract)) {
+      if (quantity.contract != "roxe.ro"_n ||
+          !tokenize::is_exist_symbol(quantity.quantity.symbol.code(), tokencontract)) {
          my_print_f(
              "==%=transfer_fee=2=%=%,%=", __FUNCTION__, quantity.contract, quantity.quantity.symbol.code(),
              quantity.quantity.amount);
          return 0;
-      }
-      name tokencontract = quantity.contract;
-      if (contract != "roxe.ro"_n) {
-         tokencontract = contract; // for Test use
       }
 
       ////transfer fee
