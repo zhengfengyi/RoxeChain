@@ -11,6 +11,7 @@
 #include <cmath>
 #include <common/BType.hpp>
 #include <common/extended_token.hpp>
+#include <common/roxe.tokenize.hpp>
 #include <eoswap/BFactory.hpp>
 #include <eoswap/BPool.hpp>
 #include <storage/BFactoryTable.hpp>
@@ -28,6 +29,7 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
    instance_mgmt  _instance_mgmt;
    BFactory       factory;
    extended_token extoken;
+   tokenize       _tokenize;
 
  public:
    //    static constexpr roxe::name admin_account{"eoswapeoswap"_n};
@@ -40,7 +42,8 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
        : contract(s, code, ds)
        , _instance_mgmt(s)
        , factory(s, _instance_mgmt)
-       , extoken(s) {}
+       , extoken(s)
+       , _tokenize(s) {}
 
    //////////////////factory////////////////////////
    [[roxe::action]] void setblabs(name msg_sender, name blabs) {
@@ -50,7 +53,6 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
    }
 
    [[roxe::action]] void collect(name msg_sender, name pool_name) {
-
       factory.setMsgSender(msg_sender);
       factory.collect(pool_name);
    }
@@ -157,6 +159,10 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
    ////////////////// roxe.ro transfer fee////////////////////////
    [[roxe::action]] void transferfee(name from, name to, extended_asset quantity, std::string memo) {
       // no implementation only recorded on chain
+   }
+
+   [[roxe::action]] void setparameter(const symbol& symbol, const std::vector<int64_t> params) {
+      _tokenize.setparameter(symbol, params);
    }
 
    ////////////////// TEST pool TOKEN////////////////////////
@@ -286,7 +292,7 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
    [[roxe::on_notify("roxe.token::transfer")]] void on_transfer(
        name from, name to, asset quantity, std::string memo) {
       check(get_first_receiver() == "roxe.token"_n, "should be roxe.token");
-        my_print_f("On notify : % % % %", from, to, quantity, memo);
+      my_print_f("On notify : % % % %", from, to, quantity, memo);
       _instance_mgmt.get_transfer_mgmt().eosiotoken_transfer(from, to, quantity, memo, [&](const auto& action_event) {
          if (action_event.action.empty()) {
             return;
@@ -305,7 +311,7 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
 
    [[roxe::on_notify("*::transfer")]] void on_transfer_by_non(name from, name to, asset quantity, std::string memo) {
       check(get_first_receiver() != "roxe.token"_n, "should not be roxe.token");
-        my_print_f("On notify 2 : % % % %", from, to, quantity, memo);
+      my_print_f("On notify 2 : % % % %", from, to, quantity, memo);
       _instance_mgmt.get_transfer_mgmt().non_eosiotoken_transfer(
           from, to, quantity, memo, [&](const auto& action_event) {
 

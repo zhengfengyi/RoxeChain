@@ -26,6 +26,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    instance_mgmt _instance_mgmt;
    DODOZoo       zoo;
    DODOEthProxy  proxy;
+   tokenize      _tokenize;
 
  public:
    //    static constexpr roxe::name     _self{"eosdoseosdos"_n};
@@ -40,7 +41,8 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
        : contract(s, code, ds)
        , _instance_mgmt(s)
        , zoo(s, _instance_mgmt)
-       , proxy(s, _instance_mgmt, zoo) {
+       , proxy(s, _instance_mgmt, zoo)
+       , _tokenize(s) {
       zoo.init(_self, _self, _self);
    }
 
@@ -299,6 +301,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) { (void)dodo.withdrawAllBase(); });
    }
+
    [[roxe::action]] void sellbastoken(
        name msg_sender, name dodo_name, const extended_asset& amount, const extended_asset& minReceiveQuote) {
       proxy.setMsgSender(msg_sender);
@@ -317,10 +320,11 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
          (void)dodo.buyBaseToken(amount.quantity.amount, maxPayQuote.quantity.amount, {});
       });
    }
+
    ////////////////////   Oracle////////////////////////
    [[roxe::action]] void setprice(
        name msg_sender, const extended_symbol& basetoken, const extended_asset& quotetoken) {
-      check("orc.polygon"_n == msg_sender, "no oracle admin");
+      check(_self == msg_sender, "no oracle admin");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_storage_mgmt().save_oracle_prices(msg_sender, basetoken, quotetoken);
    }
@@ -352,6 +356,40 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_token<TestERC20>(
           msg_sender, amt.get_extended_symbol(), [&](auto& _token_) { _token_.mint(msg_sender, amt.quantity.amount); });
+   }
+
+   //    /////test  BUY&SELL interface /////
+   [[roxe::action]] void sellbasetest(
+       name msg_sender, name dodo_name, const extended_asset& amount, const extended_asset& minReceiveQuote,
+       const std::vector<int64_t>& params) {
+      proxy.setMsgSender(msg_sender);
+      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
+         dodo.check_base_token(amount.get_extended_symbol());
+         dodo.check_quote_token(minReceiveQuote.get_extended_symbol());
+         dodo.setTestParameters(params);
+         (void)dodo.sellBaseToken(amount.quantity.amount, minReceiveQuote.quantity.amount, {});
+      });
+   }
+
+   [[roxe::action]] void buybasetest(
+       name msg_sender, name dodo_name, const extended_asset& amount, const extended_asset& maxPayQuote,
+       const std::vector<int64_t>& params) {
+      proxy.setMsgSender(msg_sender);
+      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
+         dodo.check_base_token(amount.get_extended_symbol());
+         dodo.check_quote_token(maxPayQuote.get_extended_symbol());
+         dodo.setTestParameters(params);
+         (void)dodo.buyBaseToken(amount.quantity.amount, maxPayQuote.quantity.amount, {});
+      });
+   }
+
+   ////////////////// roxe.ro transfer fee////////////////////////
+   [[roxe::action]] void transferfee(name from, name to, extended_asset quantity, std::string memo) {
+      // no implementation only recorded on chain
+   }
+
+   [[roxe::action]] void setparametera(const symbol& symbol, const std::vector<int64_t> params) {
+      _tokenize.setparameter(symbol, params);
    }
 
    ////////////////////on_notify////////////////////
