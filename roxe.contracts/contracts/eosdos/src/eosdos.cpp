@@ -34,7 +34,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    //    static constexpr roxe::name     tokenissuer_account{"tokenissuer1"_n};
    //    static constexpr roxe::name     dostoken_account{"eosdosxtoken"_n};
    //    static constexpr roxe::name     maintainer_account{"maintainer11"_n};
-   //    static constexpr roxe::name     oracle_account{"eosdosoracle"_n};
+      static constexpr roxe::name     oracle_account{"orc.polygon"_n};
    static constexpr extended_symbol weth_symbol = {symbol(symbol_code("WETH"), 4), "eosdosxtoken"_n};
 
    eosdos(name s, name code, roxe::datastream<const char*> ds)
@@ -334,13 +334,13 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    ////////////////////   Oracle////////////////////////
    [[roxe::action]] void setprice(
        name msg_sender, const extended_symbol& basetoken, const extended_asset& quotetoken) {
-      check(_self == msg_sender, "no oracle admin");
+      check(oracle_account == msg_sender, "no oracle admin");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_storage_mgmt().save_oracle_prices(msg_sender, basetoken, quotetoken);
    }
 
    [[roxe::action]] void moveoracle(name msg_sender) {
-      check(_self == msg_sender, "no oracle admin");
+      check(oracle_account == msg_sender, "no oracle admin");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_storage_mgmt().move_oracle_price(msg_sender);
    }
