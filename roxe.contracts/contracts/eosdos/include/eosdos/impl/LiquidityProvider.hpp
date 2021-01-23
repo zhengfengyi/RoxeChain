@@ -252,6 +252,7 @@ class LiquidityProvider : virtual public Storage, virtual public Pricing, virtua
          // if amount = _QUOTE_BALANCE_, div error
          uint256 targetQuoteWithWithdraw =
              DODOMath::_SolveQuadraticFunctionForTarget(sub(stores._QUOTE_BALANCE_, amount), stores._K_, fairAmount);
+        my_print_f("targetQuote=%, targetQuoteWithWithdraw=%, amount=%",targetQuote, targetQuoteWithWithdraw, amount);
          return sub(targetQuote, add(targetQuoteWithWithdraw, amount));
       }
       return 0;

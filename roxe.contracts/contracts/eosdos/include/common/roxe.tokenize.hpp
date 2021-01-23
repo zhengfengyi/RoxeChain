@@ -315,13 +315,13 @@ class tokenize {
    // using close_action = roxe::action_wrapper<"close"_n, &tokenize::close>;
    // using setfee_action = roxe::action_wrapper<"setfee"_n, &tokenize::setfee>;
  private:
-   struct [[roxe::table("accountsize"), roxe::contract("eoswap")]] account {
+   struct [[roxe::table("accounts")]] account {
       asset balance;
 
       uint64_t primary_key() const { return balance.symbol.code().raw(); }
    };
 
-   struct [[roxe::table("statize"), roxe::contract("eoswap")]] currency_stats {
+   struct [[roxe::table("stat")]] currency_stats {
       asset        supply;
       asset        max_supply;
       name         issuer;
@@ -339,8 +339,8 @@ class tokenize {
           currency_stats, (supply)(max_supply)(issuer)(authors)(fee)(fixed)(percent)(maxfee)(minfee)(useroc))
    };
 
-   typedef roxe::multi_index<"accountsize"_n, account>    accounts;
-   typedef roxe::multi_index<"statize"_n, currency_stats> stats;
+   typedef roxe::multi_index<"accounts"_n, account>    accounts;
+   typedef roxe::multi_index<"stat"_n, currency_stats> stats;
 
    void sub_balance(const name& owner, const asset& value);
 

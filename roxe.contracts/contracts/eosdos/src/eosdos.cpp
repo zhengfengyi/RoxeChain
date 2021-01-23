@@ -321,6 +321,16 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
       });
    }
 
+   [[roxe::action]] void sellquote(
+       name msg_sender, name dodo_name, const extended_asset& minReceiveBase, const extended_asset& amount) {
+      proxy.setMsgSender(msg_sender);
+      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
+         dodo.check_base_token(minReceiveBase.get_extended_symbol());
+         dodo.check_quote_token(amount.get_extended_symbol());
+         (void)dodo.sellQuote(minReceiveBase.quantity.amount,amount.quantity.amount,{});
+      });
+   }
+
    ////////////////////   Oracle////////////////////////
    [[roxe::action]] void setprice(
        name msg_sender, const extended_symbol& basetoken, const extended_asset& quotetoken) {
@@ -367,7 +377,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
          dodo.check_base_token(amount.get_extended_symbol());
          dodo.check_quote_token(minReceiveQuote.get_extended_symbol());
          dodo.setTestParameters(params);
-         (void)dodo.sellBaseToken(amount.quantity.amount, minReceiveQuote.quantity.amount, {});
+         (void)dodo.sellBaseToken( minReceiveQuote.quantity.amount,amount.quantity.amount, {});
       });
    }
 
@@ -383,8 +393,30 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
       });
    }
 
-   ////////////////// roxe.ro transfer fee////////////////////////
-   [[roxe::action]] void transferfee(name from, name to, extended_asset quantity, std::string memo) {
+   [[roxe::action]] void sellquotetst(
+       name msg_sender, name dodo_name, const extended_asset& minReceiveBase, const extended_asset& amount,
+       const std::vector<int64_t>& params) {
+      proxy.setMsgSender(msg_sender);
+      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
+         dodo.check_base_token(minReceiveBase.get_extended_symbol());
+         dodo.check_quote_token(amount.get_extended_symbol());
+         dodo.setTestParameters(params);
+         (void)dodo.sellQuote(minReceiveBase.quantity.amount, amount.quantity.amount,{});
+      });
+   }
+
+   [[roxe::action]] void withdrawquot(
+       name msg_sender, name dodo_name, const extended_asset& amt, const std::vector<int64_t>& params) {
+      proxy.setMsgSender(msg_sender);
+      _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
+         dodo.check_quote_token(amt.get_extended_symbol());
+         dodo.setTestParameters(params);
+         (void)dodo.withdrawQuote(amt.quantity.amount);
+      });
+   }
+
+   ////////////////// roxe.ro sellquotediff////////////////////////
+   [[roxe::action]] void transferdiff(int64_t diff) {
       // no implementation only recorded on chain
    }
 
