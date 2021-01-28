@@ -104,7 +104,6 @@ class [[roxe::contract("eoswap")]] eoswap : public roxe::contract {
    }
 
    [[roxe::action]] void unbind(name msg_sender, name pool_name, const extended_symbol& token) {
-
       _instance_mgmt.setMsgSender(msg_sender);
       _instance_mgmt.pool(pool_name, [&](auto& pool) { pool.unbind(token); });
    }
