@@ -377,7 +377,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
          dodo.check_base_token(amount.get_extended_symbol());
          dodo.check_quote_token(minReceiveQuote.get_extended_symbol());
          dodo.setTestParameters(params);
-         (void)dodo.sellBaseToken( minReceiveQuote.quantity.amount,amount.quantity.amount, {});
+         (void)dodo.sellBaseToken( amount.quantity.amount,minReceiveQuote.quantity.amount, {});
       });
    }
 

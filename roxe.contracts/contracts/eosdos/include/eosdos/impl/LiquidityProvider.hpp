@@ -129,7 +129,10 @@ class LiquidityProvider : virtual public Storage, virtual public Pricing, virtua
       // settlement
       stores._TARGET_QUOTE_TOKEN_AMOUNT_ = sub(stores._TARGET_QUOTE_TOKEN_AMOUNT_, amount);
       _burnQuoteCapital(getMsgSender(), requireQuoteCapital);
-      _quoteTokenTransferOut(to, extended_asset(sub(amount, penalty), stores._QUOTE_TOKEN_));
+      auto amountx = extended_asset(sub(amount, penalty), stores._QUOTE_TOKEN_);
+      amountx = transfer_mgmt::sub_transfer_fee(amountx, true);
+      
+      _quoteTokenTransferOut(to, amountx);
       _donateQuoteToken(penalty);
 
       return sub(amount, penalty);
@@ -153,7 +156,9 @@ class LiquidityProvider : virtual public Storage, virtual public Pricing, virtua
       // settlement
       stores._TARGET_BASE_TOKEN_AMOUNT_ = sub(stores._TARGET_BASE_TOKEN_AMOUNT_, amount);
       _burnBaseCapital(getMsgSender(), requireBaseCapital);
-      _baseTokenTransferOut(to, extended_asset(sub(amount, penalty), stores._BASE_TOKEN_));
+      auto amountx = extended_asset(sub(amount, penalty), stores._BASE_TOKEN_);
+      amountx = transfer_mgmt::sub_transfer_fee(amountx, true);
+      _baseTokenTransferOut(to, amountx);
       _donateBaseToken(penalty);
 
       return sub(amount, penalty);
@@ -174,7 +179,10 @@ class LiquidityProvider : virtual public Storage, virtual public Pricing, virtua
       // settlement
       stores._TARGET_QUOTE_TOKEN_AMOUNT_ = sub(stores._TARGET_QUOTE_TOKEN_AMOUNT_, withdrawAmount);
       _burnQuoteCapital(getMsgSender(), capital);
-      _quoteTokenTransferOut(to, extended_asset(sub(withdrawAmount, penalty), stores._QUOTE_TOKEN_));
+      auto amountx = extended_asset(sub(withdrawAmount, penalty), stores._QUOTE_TOKEN_);
+      amountx = transfer_mgmt::sub_transfer_fee(amountx, true);
+      
+      _quoteTokenTransferOut(to, amountx);
       _donateQuoteToken(penalty);
 
       return sub(withdrawAmount, penalty);
@@ -193,7 +201,10 @@ class LiquidityProvider : virtual public Storage, virtual public Pricing, virtua
       // settlement
       stores._TARGET_BASE_TOKEN_AMOUNT_ = sub(stores._TARGET_BASE_TOKEN_AMOUNT_, withdrawAmount);
       _burnBaseCapital(getMsgSender(), capital);
-      _baseTokenTransferOut(to, extended_asset(sub(withdrawAmount, penalty), stores._BASE_TOKEN_));
+      auto amountx = extended_asset(sub(withdrawAmount, penalty), stores._BASE_TOKEN_);
+      amountx = transfer_mgmt::sub_transfer_fee(amountx, true);
+      
+      _baseTokenTransferOut(to, amountx);
       _donateBaseToken(penalty);
 
       return sub(withdrawAmount, penalty);
