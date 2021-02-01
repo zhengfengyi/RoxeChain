@@ -119,7 +119,7 @@ class Trader : virtual public Storage, virtual public Pricing, virtual public Se
           "SELL_BASE_RECEIVE_NOT_ENOUGH" + std::to_string(static_cast<uint64_t>(receiveQuote)));
 
       // settle assets
-      _quoteTokenTransferOut(getMsgSender(), extended_asset(static_cast<uint64_t>(receiveQuote), stores._QUOTE_TOKEN_));
+      _quoteTokenTransferOut(getMsgSender(), extended_asset(static_cast<uint64_t>(receiveQuote), stores._QUOTE_TOKEN_),true);
       if (data.size() > 0) {
          //  IDODOCallee(getMsgSender()).dodoCall(false, amount, receiveQuote, data);
       }
@@ -175,7 +175,7 @@ class Trader : virtual public Storage, virtual public Pricing, virtual public Se
                                        std::to_string(static_cast<uint64_t>(maxPayQuote)));
 
       // settle assets
-      _baseTokenTransferOut(getMsgSender(), extended_asset(amount, stores._BASE_TOKEN_),true);
+      _baseTokenTransferOut(getMsgSender(), extended_asset(amount, stores._BASE_TOKEN_));
       if (data.size() > 0) {
          //  IDODOCallee(getMsgSender()).dodoCall(true, amount, payQuote, data);
       }
@@ -268,7 +268,7 @@ class Trader : virtual public Storage, virtual public Pricing, virtual public Se
       _quoteTokenTransferIn(getMsgSender(), extended_asset(static_cast<uint64_t>(payQuote), stores._QUOTE_TOKEN_));
       if (mtFeeBase != 0) {
          _baseTokenTransferOut(
-             stores._MAINTAINER_, extended_asset(static_cast<uint64_t>(mtFeeBase), stores._BASE_TOKEN_));
+             stores._MAINTAINER_, extended_asset(static_cast<uint64_t>(mtFeeBase), stores._BASE_TOKEN_),true);
       }
 
       // update TARGET

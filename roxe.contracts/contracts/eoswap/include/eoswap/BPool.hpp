@@ -55,15 +55,19 @@ class BPool : public BToken, public BMath {
    }
 
    void setTestParameter(const std::vector<int64_t>& params) {
-      check(params.size() > 0, "params size is 0");
-      for (int i = 0; (i + 2) < params.size(); i += 3) {
-         int t = i % 3;
-         check(pool_store.records.end() != pool_store.records.find(t), "no symbol in records");
-         pool_store.records[t].denorm  = params[t + 1];
-         pool_store.records[t].balance = params[t + 2];
+      int64_t tw = 0;
+      for (auto& it : pool_store.records) {
+         auto& r = it.second;
+         int   i = r.index * 2;
+         check(params.size() > i + 1, "params size must be greater than index+1 ");
+         r.denorm  = params[i];
+         r.balance = params[i + 1];
+         tw += r.denorm;
       }
 
-      pool_store.swapFee = params[params.size() - 1];
+      check(params.size() > 0, "params size is 0");
+      pool_store.swapFee     = params[params.size() - 1];
+      pool_store.totalWeight = tw;
    }
 
    bool isPublicSwap() { return pool_store.publicSwap; }
@@ -324,7 +328,7 @@ class BPool : public BToken, public BMath {
          pool_store.records[t].balance =
              BMath::bsub(pool_store.records[t].balance, round_one_decimals(extokenAmountOut));
 
-         extokenAmountOut      = transfer_mgmt::sub_transfer_fee(extokenAmountOut, true);
+         extokenAmountOut = transfer_mgmt::sub_transfer_fee(extokenAmountOut, true);
          _pushUnderlying(get_msg_sender(), extokenAmountOut);
       }
    }
@@ -335,7 +339,6 @@ class BPool : public BToken, public BMath {
       uint64_t tokenAmountIn = tokenAmountInx.quantity.amount;
       namesym  tokenOut      = to_namesym(minAmountOutx.get_extended_symbol());
       uint64_t minAmountOut  = minAmountOutx.quantity.amount;
-      my_print_f("===minAmountOut==%==", minAmountOut);
       require(pool_store.records[tokenIn].bound, "ERR_NOT_BOUND");
       require(pool_store.records[tokenOut].bound, "ERR_NOT_BOUND");
       require(pool_store.publicSwap, "ERR_SWAP_NOT_PUBLIC");
@@ -352,18 +355,21 @@ class BPool : public BToken, public BMath {
 
       uint64_t spotPriceBefore =
           calcSpotPrice(inRecord.balance, inRecord.denorm, outRecord.balance, outRecord.denorm, pool_store.swapFee);
+
       check(
           spotPriceBefore <= maxPrice,
           std::to_string(maxPrice) + "ERR_BAD_LIMIT_PRICE:spotPriceBefore=" + std::to_string(spotPriceBefore));
 
       uint64_t tokenAmountOut = calcOutGivenIn(
           inRecord.balance, inRecord.denorm, outRecord.balance, outRecord.denorm, tokenAmountIn, pool_store.swapFee);
+
       check(
           tokenAmountOut >= minAmountOut,
           std::to_string(minAmountOut) + "ERR_LIMIT_OUT:tokenAmountOut=" + std::to_string(tokenAmountOut));
       auto tokenAmountOutx = extended_asset(tokenAmountOut, minAmountOutx.get_extended_symbol());
       inRecord.balance     = BMath::badd(inRecord.balance, tokenAmountIn);
-      outRecord.balance    = BMath::bsub(outRecord.balance, round_one_decimals(tokenAmountOutx));
+
+      outRecord.balance = BMath::bsub(outRecord.balance, round_one_decimals(tokenAmountOutx));
 
       uint64_t spotPriceAfter =
           calcSpotPrice(inRecord.balance, inRecord.denorm, outRecord.balance, outRecord.denorm, pool_store.swapFee);
@@ -371,9 +377,10 @@ class BPool : public BToken, public BMath {
           spotPriceAfter >= spotPriceBefore, "ERR_MATH_APPROX:spotPriceAfter=" + std::to_string(spotPriceAfter) +
                                                  ":spotPriceBefore=" + std::to_string(spotPriceBefore));
       check(spotPriceAfter <= maxPrice, "ERR_LIMIT_PRICE:spotPriceAfter=" + std::to_string(spotPriceAfter));
+
       uint64_t p = BMath::bdiv(tokenAmountIn, tokenAmountOut);
       check(
-          spotPriceBefore <= BMath::bdiv(tokenAmountIn, tokenAmountOut),
+          spotPriceBefore/BMath::MIN_BALANCE <= BMath::bdiv(tokenAmountIn, tokenAmountOut)/BMath::MIN_BALANCE,
           "ERR_MATH_APPROX:tokenAmountIn=" + std::to_string(tokenAmountIn) + ":tokenAmountOut=" +
               std::to_string(tokenAmountOut) + ":spotPriceBefore=" + std::to_string(spotPriceBefore) +
               ":BMath::bdiv(tokenAmountIn, tokenAmountOut)=" + std::to_string(p));
@@ -412,6 +419,8 @@ class BPool : public BToken, public BMath {
 
       uint64_t spotPriceBefore =
           calcSpotPrice(inRecord.balance, inRecord.denorm, outRecord.balance, outRecord.denorm, pool_store.swapFee);
+      uint64_t dspotPriceBefore =
+          dcalcSpotPrice(inRecord.balance, inRecord.denorm, outRecord.balance, outRecord.denorm, pool_store.swapFee);
       check(spotPriceBefore <= maxPrice, "ERR_BAD_LIMIT_PRICE:spotPriceBefore=" + std::to_string(spotPriceBefore));
 
       uint64_t tokenAmountIn = calcInGivenOut(
@@ -428,12 +437,12 @@ class BPool : public BToken, public BMath {
           spotPriceAfter >= spotPriceBefore, "ERR_MATH_APPROX:spotPriceAfter=" + std::to_string(spotPriceAfter) +
                                                  ":spotPriceBefore=" + std::to_string(spotPriceBefore));
       check(spotPriceAfter <= maxPrice, "ERR_LIMIT_PRICE:spotPriceAfter=" + std::to_string(spotPriceAfter));
-      uint64_t p = BMath::bdiv(tokenAmountIn, tokenAmountOut);
+      uint64_t p  = BMath::bdiv(tokenAmountIn, tokenAmountOut);
       check(
-          spotPriceBefore <= p, "ERR_MATH_APPROX:tokenAmountIn=" + std::to_string(tokenAmountIn) +
+          spotPriceBefore/BMath::MIN_BALANCE <= p/BMath::MIN_BALANCE, "ERR_MATH_APPROX:tokenAmountIn=" + std::to_string(tokenAmountIn) +
                                     ":tokenAmountOut=" + std::to_string(tokenAmountOut) +
                                     ":spotPriceBefore=" + std::to_string(spotPriceBefore) +
-                                    ":BMath::bdiv(tokenAmountIn, tokenAmountOut)=" + std::to_string(p));
+                                    ":BMath::bdiv(tokenAmountIn, tokenAmountOut)=" + std::to_string(p)+"==dspotPriceBefore==" + std::to_string(dspotPriceBefore));
 
       _pullUnderlying(get_msg_sender(), tokenAmountInx);
       _pushUnderlying(get_msg_sender(), tokenAmountOutxx);
