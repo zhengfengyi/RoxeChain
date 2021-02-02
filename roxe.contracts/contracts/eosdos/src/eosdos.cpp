@@ -34,7 +34,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
    //    static constexpr roxe::name     tokenissuer_account{"tokenissuer1"_n};
    //    static constexpr roxe::name     dostoken_account{"eosdosxtoken"_n};
    //    static constexpr roxe::name     maintainer_account{"maintainer11"_n};
-      static constexpr roxe::name     oracle_account{"orc.polygon"_n};
+   static constexpr roxe::name     oracle_account{"orc.polygon"_n};
    static constexpr extended_symbol weth_symbol = {symbol(symbol_code("WETH"), 4), "eosdosxtoken"_n};
 
    eosdos(name s, name code, roxe::datastream<const char*> ds)
@@ -327,27 +327,37 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
       _instance_mgmt.get_dodo(msg_sender, dodo_name, [&](auto& dodo) {
          dodo.check_base_token(minReceiveBase.get_extended_symbol());
          dodo.check_quote_token(amount.get_extended_symbol());
-         (void)dodo.sellQuote(minReceiveBase.quantity.amount,amount.quantity.amount,{});
+         (void)dodo.sellQuote(minReceiveBase.quantity.amount, amount.quantity.amount, {});
       });
    }
 
    ////////////////////   Oracle////////////////////////
    [[roxe::action]] void setprice(
        name msg_sender, const extended_symbol& basetoken, const extended_asset& quotetoken) {
-      check(_self == msg_sender||oracle_account == msg_sender||_instance_mgmt.get_storage_mgmt().check_oracle_provider(msg_sender, basetoken,  quotetoken), "no oracle admin");
+      bool s = _self == msg_sender || oracle_account == msg_sender ||
+               _instance_mgmt.get_storage_mgmt().check_oracle_provider(msg_sender, basetoken, quotetoken);
+      check(
+          _self == msg_sender || oracle_account == msg_sender ||
+              _instance_mgmt.get_storage_mgmt().check_oracle_provider(msg_sender, basetoken, quotetoken),
+          "no oracle admin");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_storage_mgmt().save_oracle_prices(msg_sender, basetoken, quotetoken);
    }
 
    [[roxe::action]] void setoracle(
-       name msg_sender, const extended_symbol& basetoken, const extended_asset& quotetoken,name newprovider) {
-      check(_self == msg_sender||oracle_account == msg_sender||_instance_mgmt.get_storage_mgmt().check_oracle_provider(msg_sender, basetoken,  quotetoken), "no oracle admin");
+       name msg_sender, const extended_symbol& basetoken, const extended_asset& quotetoken, name newprovider) {
+
+      check(
+          _self == msg_sender || oracle_account == msg_sender ||
+              _instance_mgmt.get_storage_mgmt().check_oracle_provider(msg_sender, basetoken, quotetoken),
+          "no oracle admin provider");
+
       proxy.setMsgSender(msg_sender);
-      _instance_mgmt.get_storage_mgmt().save_oracle_prices(msg_sender, basetoken, quotetoken,newprovider);
+      _instance_mgmt.get_storage_mgmt().save_oracle_prices(msg_sender, basetoken, quotetoken, newprovider);
    }
 
    [[roxe::action]] void moveoracle(name msg_sender) {
-      check(oracle_account == msg_sender, "no oracle admin");
+      check(oracle_account == msg_sender, "no oracle admin in moveoracle");
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_storage_mgmt().move_oracle_price(msg_sender);
    }
@@ -373,6 +383,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
       proxy.setMsgSender(msg_sender);
       _instance_mgmt.get_token<TestERC20>(
           msg_sender, amt.get_extended_symbol(), [&](auto& _token_) { _token_.mint(msg_sender, amt.quantity.amount); });
+      my_print_f("==mint======");
    }
 
    //    /////test  BUY&SELL interface /////
@@ -384,7 +395,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
          dodo.check_base_token(amount.get_extended_symbol());
          dodo.check_quote_token(minReceiveQuote.get_extended_symbol());
          dodo.setTestParameters(params);
-         (void)dodo.sellBaseToken( amount.quantity.amount,minReceiveQuote.quantity.amount, {});
+         (void)dodo.sellBaseToken(amount.quantity.amount, minReceiveQuote.quantity.amount, {});
       });
    }
 
@@ -408,7 +419,7 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
          dodo.check_base_token(minReceiveBase.get_extended_symbol());
          dodo.check_quote_token(amount.get_extended_symbol());
          dodo.setTestParameters(params);
-         (void)dodo.sellQuote(minReceiveBase.quantity.amount, amount.quantity.amount,{});
+         (void)dodo.sellQuote(minReceiveBase.quantity.amount, amount.quantity.amount, {});
       });
    }
 
@@ -429,6 +440,17 @@ class [[roxe::contract("eosdos")]] eosdos : public roxe::contract {
 
    [[roxe::action]] void setparametera(const symbol& symbol, const std::vector<int64_t> params) {
       _tokenize.setparameter(symbol, params);
+      name tokencontract = "roxe.ro"_n;
+      action(
+          permission_level{tokencontract, "active"_n}, tokencontract, "setfeeper"_n, std::make_tuple(symbol, params[1]))
+          .send();
+      action(
+          permission_level{tokencontract, "active"_n}, tokencontract, "setmaxfee"_n, std::make_tuple(symbol, params[2]))
+          .send();
+      action(
+          permission_level{tokencontract, "active"_n}, tokencontract, "setminfee"_n, std::make_tuple(symbol, params[3]))
+          .send();
+
    }
 
    ////////////////////on_notify////////////////////
