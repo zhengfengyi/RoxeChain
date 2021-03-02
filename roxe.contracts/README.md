@@ -6,7 +6,7 @@ The design of the ROXE blockchain calls for a number of smart contracts that are
 
 This repository contains examples of these privileged contracts that are useful when deploying, managing, and/or using an ROXE blockchain.  They are provided for reference purposes:
 
-   * [roxe.bios](./contracts/roxe.bios)
+   * [roxe.bios](./contracts/roxe.bios)å
    * [roxe.system](./contracts/roxe.system)
    * [roxe.msig](./contracts/roxe.msig)
    * [roxe.wrap](./contracts/roxe.wrap)
